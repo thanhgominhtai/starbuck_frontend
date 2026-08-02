@@ -1,20 +1,2 @@
 <h1>Hello {{ tenQuan() }}</h1>
-  <button (click) = "chonTranChau()">Tra Tran Chau </button><span>--</span>
-  <button (click) = "chonMatcha()">Tra Matcha</button><span>--</span>
-  <button (click) = "chonHongTra()">Hong Tra</button>
-<hr>
-<div>
-  <h2>{{ chonTraSua()?.name}}</h2>
-  <p>{{ chonTraSua()?.description }}</p>
-  <p>{{ chonTraSua()?.giaCoBan| number}}</p>
-</div>
-
-<h2>So luong ly</h2>
-<button (click) = "giamSoLy()" aria-label = "giam so ly"> - </button>
-<span> {{ soLy() }} </span>
-<button (click) = "tangSoLy()" aria-label = "tang so ly"> + </button>
-<p>giam gia: {{giamgia() | number}}</p>
-<p>tong tien la: {{tongTien() | number}}</p>
-<hr>
-<p>tong so topping: {{tongSoTopping() | number}}</p>
- <pre>{{ toppingCanDung() | json }}</pre>
+<app-drink-list></app-drink-list>

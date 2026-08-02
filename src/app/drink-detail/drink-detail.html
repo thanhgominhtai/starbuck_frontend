@@ -1,0 +1,35 @@
+<img [src]="drink().imgUrl" alt="'hình ảnh' + drink()?.name" width="100">
+<div>
+  <h2>{{ drink().name}}</h2>
+  <p>{{ drink().description }}</p>
+  <p>{{ drink().giaCoBan| number}}</p>
+  @if(drink().giaCoBan < 40000){
+    binh dan
+  } @else if (drink().giaCoBan <= 45000) {
+    tieu chuan
+  } @else {
+    cao cap
+  }
+    
+</div>
+
+<h2>So luong ly</h2>
+<button type="button" [disabled]="soLy() <=0 " (click) = "giamSoLy()" aria-label = "giam so ly"> - </button>
+<span> {{ soLy() }} </span>
+<button type="button" (click) = "tangSoLy()" aria-label = "tang so ly"> + </button>
+<p>giam gia: {{giamgia() | number}}</p>
+@if (soLy() >= 5) {
+  <p>tong tien la: {{tongTien() | number}}</p>
+}
+
+<hr>
+<p>tong so topping: {{tongSoTopping() | number}}</p>
+
+<h3><b>list topping can dung</b></h3>
+<ul>
+    @for (topping of toppingCanDung(); track topping.name) {
+        <span>-- {{$index + 1}}. {{topping.name}} </span>
+        <strong> {{topping.quantity}} {{ topping.unit }} </strong>
+    }@empty {khogn co gi het}
+</ul>
+ <!-- <pre>{{ toppingCanDung() | json }}</pre> -->

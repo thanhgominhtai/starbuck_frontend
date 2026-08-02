@@ -8,5 +8,7 @@ export interface DrinkModel {
     name: string;
     description: string;
     giaCoBan: number;
+    imgUrl: string;
+    isPopular: boolean;
     toppings: Topping[];
 }

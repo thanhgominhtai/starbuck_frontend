@@ -1,0 +1,19 @@
+<!-- <button (click) = "chonTranChau()">Tra Tran Chau </button><span>--</span>
+  <button (click) = "chonMatcha()">Tra Matcha</button><span>--</span>
+  <button (click) = "chonHongTra()">Hong Tra</button> -->
+<hr>
+@for(item of drinks(); track item.id){
+  <button type="button" [class.active]="item.id === chonTraSua().id" (click) = "chonDrink(item)">
+    {{item.name}} 
+    @if(item.isPopular){
+      <span aria-label="mon pho bien">(🔥)</span>
+    }
+    <!-- <span>---</span> -->
+
+    @if(item.giaCoBan===(maxPrice())){
+      <span aria-label="gia cao nhat"> (💰Gia cao nhat)</span>
+    }
+  </button>
+}
+<hr>
+<app-drink-detail [drink]="chonTraSua()"></app-drink-detail>
