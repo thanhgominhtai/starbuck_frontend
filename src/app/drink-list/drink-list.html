@@ -1,19 +1,41 @@
-<!-- <button (click) = "chonTranChau()">Tra Tran Chau </button><span>--</span>
-  <button (click) = "chonMatcha()">Tra Matcha</button><span>--</span>
-  <button (click) = "chonHongTra()">Hong Tra</button> -->
-<hr>
-@for(item of drinks(); track item.id){
-  <button type="button" [class.active]="item.id === chonTraSua().id" (click) = "chonDrink(item)">
-    {{item.name}} 
-    @if(item.isPopular){
-      <span aria-label="mon pho bien">(🔥)</span>
-    }
-    <!-- <span>---</span> -->
+<a routerLink="/drinks/new" class="btn-add">Thêm món mới</a>
+<div class="search-box">
+  <label for="search">Tìm kiếm món trà sữa:</label>
+  <input 
+  type="search" 
+  id="search" 
+  (ngModelChange)="keyword.set($event)" 
+  [ngModel]="keyword()"
+  placeholder="Nhập từ khóa tìm kiếm (tên hoặc mô tả)..."
+  />
+</div>
 
-    @if(item.giaCoBan===(maxPrice())){
-      <span aria-label="gia cao nhat"> (💰Gia cao nhat)</span>
-    }
-  </button>
-}
+<!-- D3: Đếm kết quả tìm kiếm -->
+<p class="count-text">Tìm thấy {{ filteredDrinks().length }} món</p>
+
+<!-- D2: Sắp xếp theo giá -->
+<div class="sort-actions">
+  <span>Sắp xếp giá: </span>
+  <button type="button" [class.is-active]="sortOrder() === 'asc'" (click)="setSort('asc')">Giá tăng dần</button>
+  <button type="button" [class.is-active]="sortOrder() === 'desc'" (click)="setSort('desc')">Giá giảm dần</button>
+  @if (sortOrder() !== 'default') {
+    <button type="button" (click)="setSort('default')">Đặt lại</button>
+  }
+</div>
 <hr>
-<app-drink-detail [drink]="chonTraSua()"></app-drink-detail>
+
+@for (item of filteredDrinks(); track item.id) {
+  <a [routerLink]="['/drinks', item.id]" class="drink-item-link">
+    {{ item.name }}
+    @if (item.isPopular) {
+      <span aria-label="Món phổ biến">🔥</span>
+    }
+    @if (item.giaCoBan === maxPrice()) {
+      <span aria-label="Món đắt nhất">💎</span>
+    }
+  </a>
+}@empty {
+      <p class="empty-message">Không tìm thấy món nào</p>
+    }
+<hr>
+<!-- <app-drink-detail [drink]="chonTraSua()"></app-drink-detail> -->

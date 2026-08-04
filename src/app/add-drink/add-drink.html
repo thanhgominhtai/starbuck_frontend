@@ -1,0 +1,27 @@
+<a routerLink="/drinks">← Quay lại danh sách</a>
+<h2>Thêm món trà sữa mới</h2>
+
+<form [formGroup]="drinkForm" (ngSubmit)="save()">
+  <div>
+    <label for="name">Tên món trà sữa</label>
+    <input id="name" type="text" formControlName="name" />
+    @if (drinkForm.controls.name.touched && drinkForm.controls.name.invalid) {
+      <span style="color: red;">Vui lòng nhập tên món.</span>
+    }
+  </div>
+
+  <div>
+    <label for="description">Mô tả</label>
+    <input id="description" type="text" formControlName="description" />
+    @if (drinkForm.controls.description.touched && drinkForm.controls.description.invalid) {
+      <span style="color: red;">Vui lòng nhập mô tả.</span>
+    }
+  </div>
+
+  <div>
+    <label for="giaCoBan">Giá cơ bản (đ)</label>
+    <input id="giaCoBan" type="number" formControlName="giaCoBan" />
+  </div>
+
+  <button type="submit">Lưu món mới</button>
+</form>

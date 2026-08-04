@@ -1,0 +1,33 @@
+.search-box{
+    display: flex;
+    flex-direction: column;
+    gap:  0.375rem;
+    margin-bottom: 1rem;
+}
+
+.search-box label{
+    font-size: 0.875rem;
+    color: var(--chu-nhat, #6b6259);
+    font-weight: 600;
+}
+
+.search-box input{
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    font-size: 1rem;
+    border: 1px solid var(--kem-dam, #f0e2c8);
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.search-box input:focus{
+    outline: 2px solid var(--cam, #d2683a);
+    outline-offset: 1px;
+}
+.empty-message{
+    color: var(--chu-nhat, #6b6259);
+    font-style: italic;
+    padding: 1rem 0;
+    text-align: center;
+}

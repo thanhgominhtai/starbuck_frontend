@@ -1,3 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+:root{
+    --kem-nhat: #fffdf7;
+  --kem: #fdf6e9;
+  --kem-dam: #f0e2c8;
 
-@import 'tailwindcss';
+  --cam-nhat: #fbe3d6;
+  --cam: #d2683a;
+  --cam-dam: #b8512a;
+  --cam-tham: #93401f;
+
+  --xanh-nhat: #e3f0e0;
+  --xanh-dam: #38603b;
+
+  --chu-chinh: #3a332c;
+  --chu-nhat: #6b6259;
+}
+body{
+    margin: 0;
+  background-color: var(--kem);
+  color: var(--chu-chinh);
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+}
+*{
+    box-sizing: border-box;
+}

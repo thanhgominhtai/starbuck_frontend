@@ -1,35 +1,52 @@
-<img [src]="drink().imgUrl" alt="'hình ảnh' + drink()?.name" width="100">
+<a routerLink="/drinks">quay lại danh sách</a>
+
+@if(selectedDrink(); as drink){
+<img [src]="drink.imgUrl" [alt]="'Ảnh ' + drink.name" width="300">
 <div>
-  <h2>{{ drink().name}}</h2>
-  <p>{{ drink().description }}</p>
-  <p>{{ drink().giaCoBan| number}}</p>
-  @if(drink().giaCoBan < 40000){
-    binh dan
-  } @else if (drink().giaCoBan <= 45000) {
-    tieu chuan
+  <h2>{{ drink.name }}</h2>
+  <p>{{ drink.description }}</p>
+  <p>Giá cơ bản: {{ drink.giaCoBan | number }}đ</p>
+  @if (drink.giaCoBan < 40000) {
+    <span>Bình dân</span>
+  } @else if (drink.giaCoBan <= 50000) {
+    <span>Tiêu chuẩn</span>
   } @else {
-    cao cap
+    <span>Cao cấp</span>
   }
-    
 </div>
 
-<h2>So luong ly</h2>
-<button type="button" [disabled]="soLy() <=0 " (click) = "giamSoLy()" aria-label = "giam so ly"> - </button>
+<!-- D4 & D5: Nút xóa và yêu thích -->
+<div class="action-buttons" style="margin: 1rem 0;">
+  <button type="button" (click)="toggleFavorite(drink.id)">
+    {{ drink.isPopular ? 'Bỏ yêu thích 🔥' : 'Thêm yêu thích ❤️' }}
+  </button>
+  <button type="button" (click)="deleteDrink(drink.id)" style="color: red; margin-left: 0.5rem;">
+    🗑️ Xóa món này
+  </button>
+</div>
+
+<h2>Số lượng ly</h2>
+<button type="button" [disabled]="soLy() === 1" (click)="giamSoLy()" aria-label="Giảm số ly">−</button>
 <span> {{ soLy() }} </span>
-<button type="button" (click) = "tangSoLy()" aria-label = "tang so ly"> + </button>
-<p>giam gia: {{giamgia() | number}}</p>
+<button type="button" (click)="tangSoLy()" aria-label="Tăng số ly">+</button>
+
+<p>Tổng tiền: {{ tongTien() | number }}đ</p>
 @if (soLy() >= 5) {
-  <p>tong tien la: {{tongTien() | number}}</p>
+  <p>Đã giảm 10%</p>
 }
 
 <hr>
-<p>tong so topping: {{tongSoTopping() | number}}</p>
-
-<h3><b>list topping can dung</b></h3>
+<h3>Danh sách topping cần dùng</h3>
 <ul>
-    @for (topping of toppingCanDung(); track topping.name) {
-        <span>-- {{$index + 1}}. {{topping.name}} </span>
-        <strong> {{topping.quantity}} {{ topping.unit }} </strong>
-    }@empty {khogn co gi het}
+  @for (topping of toppingCanDung(); track topping.name) {
+    <li [class.row-alt]="$even">
+      <span>{{ $index + 1 }}. {{ topping.name }}</span>
+      <strong>{{ topping.quantity }} {{ topping.unit }}</strong>
+    </li>
+  } @empty {
+    <li>Chưa có topping nào.</li>
+  }
 </ul>
- <!-- <pre>{{ toppingCanDung() | json }}</pre> -->
+}@else {
+  <p>không có món nào</p>
+}

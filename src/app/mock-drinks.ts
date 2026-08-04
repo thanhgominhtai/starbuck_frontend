@@ -3,7 +3,7 @@ import { DrinkModel } from "./models";
 export const MOCK_DRINKS: DrinkModel[] = [
     {
         id: 1,
-        name: " Trà sữa trân châu đường đen",
+        name: "Trà sữa trân châu đường đen",
         description: "thom ngon dam vi tra sua",
         giaCoBan: 30000,
         imgUrl: "https://images.unsplash.com/photo-1558857563-b371033873b8?w=600",
