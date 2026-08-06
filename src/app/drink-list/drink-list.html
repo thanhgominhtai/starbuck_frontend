@@ -1,41 +1,109 @@
-<a routerLink="/drinks/new" class="btn-add">Thêm món mới</a>
-<div class="search-box">
-  <label for="search">Tìm kiếm món trà sữa:</label>
-  <input 
-  type="search" 
-  id="search" 
-  (ngModelChange)="keyword.set($event)" 
-  [ngModel]="keyword()"
-  placeholder="Nhập từ khóa tìm kiếm (tên hoặc mô tả)..."
-  />
+<div class="drink-list-container">
+  
+  <!-- Thanh Công Cụ: Ô Tìm kiếm + Menu Sắp Xếp (D6) -->
+  <div class="filter-toolbar">
+    <!-- Ô nhập từ khóa bằng Material Input -->
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Tìm kiếm món trà</mat-label>
+      <input
+        matInput
+        type="text"
+        [ngModel]="keyword()"
+        (ngModelChange)="keyword.set($event)"
+        placeholder="Nhập tên hoặc mô tả món..."
+      />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <!-- 💡 D6: Menu Dropdown Sắp xếp bằng <mat-select> -->
+    <mat-form-field appearance="outline" class="sort-field">
+      <mat-label>Sắp xếp theo</mat-label>
+      <mat-select
+        [ngModel]="sortOption()"
+        (ngModelChange)="sortOption.set($event)"
+      >
+        <mat-option value="default">Mặc định</mat-option>
+        <mat-option value="price-asc">Giá tăng dần</mat-option>
+        <mat-option value="price-desc">Giá giảm dần</mat-option>
+        <mat-option value="name-asc">Tên A-Z</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- 💡 D2: Hàng Chip Lọc Loại Món bằng <mat-chip-set> -->
+  <div class="chips-container p-8">
+    <mat-chip-set aria-label="Bộ lọc loại món">
+      <mat-chip-option
+        [selected]="categoryFilter() === 'all'"
+        (click)="onCategoryChange('all')"
+      >
+        Tất cả món
+      </mat-chip-option>
+      <mat-chip-option
+        [selected]="categoryFilter() === 'popular'"
+        (click)="onCategoryChange('popular')"
+      >
+        ⭐ Phổ biến
+      </mat-chip-option>
+    </mat-chip-set>
+  </div>
+
+  <!-- 💡 M3-3: Danh Sách Dạng Lưới Card (Card Grid M3) -->
+  <div class="card-grid">
+    @for (drink of filteredDrinks(); track drink.id) {
+      <!-- Thẻ Card M3 hiển thị từng món trà -->
+      <mat-card class="drink-card" [routerLink]="['/drinks', drink.id]">
+        <!-- Ảnh món trà -->
+        <img
+          mat-card-image
+          [src]="drink.imgUrl"
+          [alt]="drink.name"
+          class="card-img"
+        />
+
+        <!-- Tiêu đề và mô tả của thẻ -->
+        <mat-card-header>
+          <mat-card-title class="card-title">{{ drink.name }}</mat-card-title>
+          <mat-card-subtitle class="card-subtitle">
+            {{ drink.description }}
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <!-- Giá tiền món trà -->
+        <mat-card-content class="card-content p-16">
+          <div class="price-tag">
+            <!-- 💡 Pipe number định dạng hiển thị dấu phẩy số tiền (ví dụ: 30,000đ) -->
+            <span class="price-value">{{ drink.giaCoBan | number }}đ</span>
+            @if (drink.isPopular) {
+              <span class="badge-popular">HOT</span>
+            }
+          </div>
+        </mat-card-content>
+
+        <!-- Các nút bấm hành động trên thẻ -->
+        <mat-card-actions align="end">
+          <!-- Nút Ngôi sao Yêu thích -->
+          <button
+            mat-icon-button
+            (click)="toggleFavorite(drink, $event)"
+            [aria-label]="drink.isPopular ? 'Bỏ yêu thích' : 'Yêu thích'"
+          >
+            <mat-icon [class.favorite-active]="drink.isPopular">
+              {{ drink.isPopular ? 'star' : 'star_border' }}
+            </mat-icon>
+          </button>
+          <!-- Nút Chi tiết -->
+          <a mat-button color="primary" [routerLink]="['/drinks', drink.id]">
+            Chi tiết
+          </a>
+        </mat-card-actions>
+      </mat-card>
+    } @empty {
+      <!-- Khối hiển thị khi không tìm thấy món nào khớp bộ lọc -->
+      <div class="empty-state surface-container-low p-24">
+        <mat-icon class="empty-icon">search_off</mat-icon>
+        <p>Không tìm thấy món trà nào phù hợp với bộ lọc!</p>
+      </div>
+    }
+  </div>
 </div>
-
-<!-- D3: Đếm kết quả tìm kiếm -->
-<p class="count-text">Tìm thấy {{ filteredDrinks().length }} món</p>
-
-<!-- D2: Sắp xếp theo giá -->
-<div class="sort-actions">
-  <span>Sắp xếp giá: </span>
-  <button type="button" [class.is-active]="sortOrder() === 'asc'" (click)="setSort('asc')">Giá tăng dần</button>
-  <button type="button" [class.is-active]="sortOrder() === 'desc'" (click)="setSort('desc')">Giá giảm dần</button>
-  @if (sortOrder() !== 'default') {
-    <button type="button" (click)="setSort('default')">Đặt lại</button>
-  }
-</div>
-<hr>
-
-@for (item of filteredDrinks(); track item.id) {
-  <a [routerLink]="['/drinks', item.id]" class="drink-item-link">
-    {{ item.name }}
-    @if (item.isPopular) {
-      <span aria-label="Món phổ biến">🔥</span>
-    }
-    @if (item.giaCoBan === maxPrice()) {
-      <span aria-label="Món đắt nhất">💎</span>
-    }
-  </a>
-}@empty {
-      <p class="empty-message">Không tìm thấy món nào</p>
-    }
-<hr>
-<!-- <app-drink-detail [drink]="chonTraSua()"></app-drink-detail> -->

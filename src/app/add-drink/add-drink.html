@@ -1,27 +1,98 @@
-<a routerLink="/drinks">← Quay lại danh sách</a>
-<h2>Thêm món trà sữa mới</h2>
+<!-- Bấm mở file: src/app/add-drink/add-drink.html -->
+<div class="add-drink-container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>Thêm món trà sữa mới</mat-card-title>
+      <mat-card-subtitle>Sử dụng Angular Signal Forms & Material Components</mat-card-subtitle>
+    </mat-card-header>
 
-<form [formGroup]="drinkForm" (ngSubmit)="save()">
-  <div>
-    <label for="name">Tên món trà sữa</label>
-    <input id="name" type="text" formControlName="name" />
-    @if (drinkForm.controls.name.touched && drinkForm.controls.name.invalid) {
-      <span style="color: red;">Vui lòng nhập tên món.</span>
-    }
-  </div>
+    <mat-card-content class="p-16">
+      <!-- 💡 C19: Thẻ form novalidate (submit)="save($event)", KHÔNG dùng [formRoot] -->
+      <form novalidate (submit)="save($event)" class="form-layout">
+        
+        <!-- 💡 C18 & C21: Ô Tên món -->
+        <mat-form-field appearance="outline">
+          <mat-label>Tên món trà</mat-label>
+          <!-- Directive [formField] liên kết ô input với field name của Signal Form -->
+          <input
+            matInput
+            type="text"
+            [formField]="drinkForm.name"
+            placeholder="Ví dụ: Trà sữa Ô Long"
+          />
+          <!-- 💡 C21: Hiển thị thông báo lỗi màu đỏ khi ô bị vi phạm luật -->
+          @for (err of drinkForm.name().errors(); track err.kind) {
+            <mat-error>{{ err.message }}</mat-error>
+          }
+        </mat-form-field>
 
-  <div>
-    <label for="description">Mô tả</label>
-    <input id="description" type="text" formControlName="description" />
-    @if (drinkForm.controls.description.touched && drinkForm.controls.description.invalid) {
-      <span style="color: red;">Vui lòng nhập mô tả.</span>
-    }
-  </div>
+        <!-- 💡 C18 & C21: Ô Mô tả chi tiết -->
+        <mat-form-field appearance="outline">
+          <mat-label>Mô tả chi tiết</mat-label>
+          <input
+            matInput
+            type="text"
+            [formField]="drinkForm.description"
+            placeholder="Mô tả hương vị, nguyên liệu..."
+          />
+          @for (err of drinkForm.description().errors(); track err.kind) {
+            <mat-error>{{ err.message }}</mat-error>
+          }
+        </mat-form-field>
 
-  <div>
-    <label for="giaCoBan">Giá cơ bản (đ)</label>
-    <input id="giaCoBan" type="number" formControlName="giaCoBan" />
-  </div>
+        <!-- 💡 C18 & C21: Ô Giá cơ bản (kiểu số type="number") -->
+        <mat-form-field appearance="outline">
+          <mat-label>Giá cơ bản (VNĐ)</mat-label>
+          <input
+            matInput
+            type="number"
+            [formField]="drinkForm.giaCoBan"
+            placeholder="35000"
+          />
+          @for (err of drinkForm.giaCoBan().errors(); track err.kind) {
+            <mat-error>{{ err.message }}</mat-error>
+          }
+        </mat-form-field>
 
-  <button type="submit">Lưu món mới</button>
-</form>
+        <!-- 💡 C18 & C21: Ô Email người tạo + Dòng gợi ý <mat-hint> -->
+        <mat-form-field appearance="outline">
+          <mat-label>Email người tạo</mat-label>
+          <input
+            matInput
+            type="email"
+            [formField]="drinkForm.authorEmail"
+            placeholder="admin@trasua.com"
+          />
+          <!-- 💡 C21: Dòng gợi ý hiển thị lúc bình thường bên dưới ô nhập -->
+          <mat-hint>Ví dụ: admin@trasua.com</mat-hint>
+          @for (err of drinkForm.authorEmail().errors(); track err.kind) {
+            <mat-error>{{ err.message }}</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Các nút bấm ở chân form -->
+        <div class="form-actions align-end gap-8">
+          <a mat-button routerLink="/drinks">Hủy bỏ</a>
+          
+          <!-- 💡 C19 & D5: Nút submit tự khóa [disabled] khi đang gửi (submitting === true) -->
+          <button
+            type="submit"
+            mat-filled-button
+            color="primary"
+            [disabled]="drinkForm().submitting()"
+          >
+            <!-- 💡 D5: Vòng xoay spinner hiển thị khi đang gửi -->
+            @if (drinkForm().submitting()) {
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Đang lưu...</span>
+            } @else {
+              <mat-icon>save</mat-icon>
+              <span>Lưu món</span>
+            }
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

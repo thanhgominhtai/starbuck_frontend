@@ -1,52 +1,87 @@
-<a routerLink="/drinks">quay lại danh sách</a>
+<div class="drink-detail-container">
+  @if (drink(); as d) {
+    <!-- Thẻ Card M3 chứa toàn bộ giao diện chi tiết món -->
+    <mat-card class="detail-card">
+      <!-- Ảnh minh họa lớn ở đỉnh card -->
+      <img mat-card-image [src]="d.imgUrl" [alt]="d.name" class="detail-img" />
 
-@if(selectedDrink(); as drink){
-<img [src]="drink.imgUrl" [alt]="'Ảnh ' + drink.name" width="300">
-<div>
-  <h2>{{ drink.name }}</h2>
-  <p>{{ drink.description }}</p>
-  <p>Giá cơ bản: {{ drink.giaCoBan | number }}đ</p>
-  @if (drink.giaCoBan < 40000) {
-    <span>Bình dân</span>
-  } @else if (drink.giaCoBan <= 50000) {
-    <span>Tiêu chuẩn</span>
+      <!-- Tiêu đề và mô tả món -->
+      <mat-card-header>
+        <mat-card-title class="detail-title">{{ d.name }}</mat-card-title>
+        <mat-card-subtitle>{{ d.description }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content class="p-16">
+        <!-- Thông tin email người tạo -->
+        <p class="author-info">Tác giả: <strong>{{ d.authorEmail }}</strong></p>
+
+        <!-- Giá tiền cơ bản -->
+        <div class="price-row">
+          <span>Giá cơ bản:</span>
+          <span class="price-val">{{ d.giaCoBan | number }}đ</span>
+        </div>
+
+        <!-- Khối điều khiển chọn số lượng ly -->
+        <div class="quantity-control p-16 surface-container-low">
+          <span>Số lượng ly:</span>
+          <div class="qty-actions">
+            <!-- Nút Giảm số ly (khóa khi số ly === 1) -->
+            <button
+              mat-icon-button
+              (click)="giamSoLuong()"
+              [disabled]="quantity() <= 1"
+              aria-label="Giảm số ly"
+            >
+              <mat-icon>remove</mat-icon>
+            </button>
+            
+            <!-- Ô hiển thị số ly có aria-live để thông báo cho trình đọc màn hình khi số ly đổi -->
+            <span class="qty-num" aria-live="polite">{{ quantity() }}</span>
+            
+            <!-- Nút Tăng số ly -->
+            <button
+              mat-icon-button
+              (click)="tangSoLuong()"
+              aria-label="Tăng số ly"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hiển thị Tổng tiền -->
+        <div class="total-row p-16">
+          <span>Tổng tiền:</span>
+          <span class="total-val">{{ totalPrice() | number }}đ</span>
+        </div>
+
+        <!-- Danh sách Topping kèm theo bằng <mat-list> -->
+        <h3>Danh sách Topping kèm theo:</h3>
+        <mat-list>
+          @for (top of d.toppings; track top.name) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>check_circle</mat-icon>
+              <span matListItemTitle>{{ top.name }}</span>
+              <span matListItemLine>{{ top.quantity }} {{ top.unit }}</span>
+            </mat-list-item>
+          } @empty {
+            <mat-list-item>Không có topping kèm theo.</mat-list-item>
+          }
+        </mat-list>
+      </mat-card-content>
+
+      <!-- Các nút bấm hành động chân thẻ -->
+      <mat-card-actions align="end" class="gap-8">
+        <a mat-button routerLink="/drinks">Trở về</a>
+        <!-- 💡 D4: Nút gọi confirmDelete() để bật Popup xác nhận xóa món -->
+        <button mat-button color="warn" (click)="confirmDelete()">Xóa món này</button>
+      </mat-card-actions>
+    </mat-card>
   } @else {
-    <span>Cao cấp</span>
+    <!-- Giao diện khi URL nhập id sai không tìm thấy món -->
+    <div class="not-found surface-container-low p-24">
+      <h2>Không tìm thấy món trà sữa!</h2>
+      <a mat-filled-button routerLink="/drinks">Quay lại danh sách món</a>
+    </div>
   }
 </div>
-
-<!-- D4 & D5: Nút xóa và yêu thích -->
-<div class="action-buttons" style="margin: 1rem 0;">
-  <button type="button" (click)="toggleFavorite(drink.id)">
-    {{ drink.isPopular ? 'Bỏ yêu thích 🔥' : 'Thêm yêu thích ❤️' }}
-  </button>
-  <button type="button" (click)="deleteDrink(drink.id)" style="color: red; margin-left: 0.5rem;">
-    🗑️ Xóa món này
-  </button>
-</div>
-
-<h2>Số lượng ly</h2>
-<button type="button" [disabled]="soLy() === 1" (click)="giamSoLy()" aria-label="Giảm số ly">−</button>
-<span> {{ soLy() }} </span>
-<button type="button" (click)="tangSoLy()" aria-label="Tăng số ly">+</button>
-
-<p>Tổng tiền: {{ tongTien() | number }}đ</p>
-@if (soLy() >= 5) {
-  <p>Đã giảm 10%</p>
-}
-
-<hr>
-<h3>Danh sách topping cần dùng</h3>
-<ul>
-  @for (topping of toppingCanDung(); track topping.name) {
-    <li [class.row-alt]="$even">
-      <span>{{ $index + 1 }}. {{ topping.name }}</span>
-      <strong>{{ topping.quantity }} {{ topping.unit }}</strong>
-    </li>
-  } @empty {
-    <li>Chưa có topping nào.</li>
-  }
-</ul>
-}@else {
-  <p>không có món nào</p>
-}

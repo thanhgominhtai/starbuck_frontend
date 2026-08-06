@@ -1,6 +1,61 @@
-:host {
-  display: block;
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 1.5rem 1rem;
+.app-sidenav-container {
+  height: 100vh;                         /* Phủ chiều cao bằng 100% màn hình trình duyệt */
+  background-color: var(--mat-sys-surface); /* 💡 M3-4: Token màu nền trang surface */
+}
+
+.app-sidenav {
+  width: 260px;                          /* Chiều rộng menu trượt bên trái */
+  background-color: var(--mat-sys-surface-container-high); /* 💡 M3-4: Nền menu dùng mức high */
+  border-right: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+}
+
+.sidenav-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;                             /* Khoảng cách giữa logo và tên thương hiệu */
+}
+
+.brand-title {
+  font: var(--mat-sys-title-large);      /* 💡 M3-5: Kiểu chữ dùng token title-large */
+  color: var(--mat-sys-on-surface);
+  font-weight: 600;
+}
+
+.brand-icon {
+  color: var(--mat-sys-primary);        /* 💡 M3-4: Màu icon dùng token primary chính */
+}
+
+.app-toolbar {
+  background-color: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface);
+  position: sticky;                      /* Thanh toolbar dính cố định đỉnh màn hình khi cuộn */
+  top: 0;
+  z-index: 10;
+}
+
+.toolbar-title {
+  font: var(--mat-sys-title-large);
+  margin-left: 8px;
+}
+
+.main-content {
+  max-width: 1200px;                     /* Giới hạn rộng tối đa 1200px cho nội dung */
+  margin: 0 auto;                        /* Căn giữa trang */
+  min-height: calc(100vh - 64px);
+}
+
+.app-fab {
+  position: fixed;                       /* Nút FAB ghim cố định góc dưới bên phải */
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  background-color: var(--mat-sys-primary-container);   /* 💡 M3-4: Nền nút FAB */
+  color: var(--mat-sys-on-primary-container);         /* 💡 M3-4: Icon trên nút FAB */
+}
+
+/* Kiểu dáng tô sáng link menu đang mở */
+.active-link {
+  background-color: var(--mat-sys-primary-container) !important;
+  color: var(--mat-sys-on-primary-container) !important;
+  border-radius: var(--mat-sys-corner-full, 28px);      /* 💡 M3-5: Bo góc tròn hoàn toàn */
 }

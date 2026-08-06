@@ -1,33 +1,54 @@
-.search-box{
-    display: flex;
-    flex-direction: column;
-    gap:  0.375rem;
-    margin-bottom: 1rem;
+.drink-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.search-box label{
-    font-size: 0.875rem;
-    color: var(--chu-nhat, #6b6259);
-    font-weight: 600;
+.filter-toolbar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.search-box input{
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    font-size: 1rem;
-    border: 1px solid var(--kem-dam, #f0e2c8);
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-family: inherit;
+.search-field { flex: 1; min-width: 240px; }
+.sort-field { width: 200px; }
+.chips-container { display: flex; gap: 8px; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
 }
 
-.search-box input:focus{
-    outline: 2px solid var(--cam, #d2683a);
-    outline-offset: 1px;
+.drink-card {
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: var(--mat-sys-corner-large, 16px);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 }
-.empty-message{
-    color: var(--chu-nhat, #6b6259);
-    font-style: italic;
-    padding: 1rem 0;
-    text-align: center;
+
+.drink-card:hover { transform: translateY(-4px); }
+.card-img { height: 180px; object-fit: cover; }
+.card-title { font: var(--mat-sys-title-large); color: var(--mat-sys-on-surface); }
+.card-subtitle { font: var(--mat-sys-body-medium); color: var(--mat-sys-on-surface-variant); }
+
+.price-tag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
 }
+
+.price-value { font-size: 1.25rem; font-weight: 700; color: var(--mat-sys-primary); }
+.badge-popular {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.favorite-active { color: #f59e0b; }
+.empty-state { grid-column: 1 / -1; text-align: center; border-radius: var(--mat-sys-corner-medium, 12px); margin-top: 24px; }
+.empty-icon { font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-on-surface-variant); }

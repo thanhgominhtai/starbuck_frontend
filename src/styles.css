@@ -1,26 +1,32 @@
-:root{
-    --kem-nhat: #fffdf7;
-  --kem: #fdf6e9;
-  --kem-dam: #f0e2c8;
-
-  --cam-nhat: #fbe3d6;
-  --cam: #d2683a;
-  --cam-dam: #b8512a;
-  --cam-tham: #93401f;
-
-  --xanh-nhat: #e3f0e0;
-  --xanh-dam: #38603b;
-
-  --chu-chinh: #3a332c;
-  --chu-nhat: #6b6259;
+/* 💡 M3-7: Cho phép trình duyệt tự động chuyển giữa Chế độ Sáng (Light) & Tối (Dark) theo HĐH */
+:root {
+  color-scheme: light dark;
 }
-body{
-    margin: 0;
-  background-color: var(--kem);
-  color: var(--chu-chinh);
-  font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+
+html, body {
+  height: 100%;                          /* Phủ toàn bộ 100% chiều cao màn hình */
+  margin: 0;                             /* Bỏ lề mặc định của thẻ body */
+  font-family: Roboto, "Helvetica Neue", sans-serif; /* Đặt font chữ Roboto chuẩn Material */
+  background-color: var(--mat-sys-surface); /* 💡 M3-4: Token CSS màu nền chính của trang */
+  color: var(--mat-sys-on-surface);      /* 💡 M3-4: Token CSS màu chữ tương phản trên nền surface */
+  line-height: 1.5;                      /* Khoảng cách các dòng chữ */
 }
-*{
-    box-sizing: border-box;
+
+* {
+  box-sizing: border-box;                /* Tính toán kích thước ô bao gồm border và padding */
 }
+
+/* 💡 M3-4: Các lớp nền bề mặt M3 (Surface Containers) theo 5 mức độ đậm nhạt thay vì bóng đổ */
+.surface-container-lowest  { background-color: var(--mat-sys-surface-container-lowest); }  /* Mức nhạt nhất */
+.surface-container-low     { background-color: var(--mat-sys-surface-container-low); }     /* Mức thấp (cho Card) */
+.surface-container         { background-color: var(--mat-sys-surface-container); }         /* Mức mặc định */
+.surface-container-high    { background-color: var(--mat-sys-surface-container-high); }    /* Mức cao (cho Drawer) */
+.surface-container-highest { background-color: var(--mat-sys-surface-container-highest); } /* Mức cao nhất (cho Input) */
+
+/* 💡 M3-6: Các lớp khoảng cách tuân theo quy tắc lưới bội số 8dp (8px, 16px, 24px) */
+.p-8   { padding: 8px; }
+.p-16  { padding: 16px; }
+.p-24  { padding: 24px; }
+.gap-8 { gap: 8px; }
+.gap-16{ gap: 16px; }
+.gap-24{ gap: 24px; }
