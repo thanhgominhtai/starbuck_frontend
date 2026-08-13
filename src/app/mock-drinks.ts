@@ -3,7 +3,7 @@ import { DrinkModel } from "./models";
 // 💡 GIẢI THÍCH: Dữ liệu khởi tạo mẫu gồm 3 món trà sữa có điền đủ thông tin authorEmail
 export const MOCK_DRINKS: DrinkModel[] = [
     {
-        id: 1,
+        id: "1",
         name: "Trà sữa trân châu đường đen",
         description: "Thơm ngon đậm vị trà sữa truyền thống",
         giaCoBan: 30000,
@@ -17,7 +17,7 @@ export const MOCK_DRINKS: DrinkModel[] = [
         ]
     },
     {
-        id: 2,
+        id: "2",
         name: "Trà sữa Matcha",
         description: "Hương vị Matcha Nhật Bản tươi mát",
         giaCoBan: 40000,
@@ -31,7 +31,7 @@ export const MOCK_DRINKS: DrinkModel[] = [
         ]
     },
     {
-        id: 3,
+        id: "3",
         name: "Hồng trà sữa",
         description: "Đậm đà hương vị hồng trà cổ điển",
         giaCoBan: 50000,

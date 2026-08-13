@@ -1,6 +1,6 @@
-/* 💡 M3-7: Cho phép trình duyệt tự động chuyển giữa Chế độ Sáng (Light) & Tối (Dark) theo HĐH */
+/* 💡 Cấu hình giao diện luôn luôn là Chế độ Sáng (Light) */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 html, body {

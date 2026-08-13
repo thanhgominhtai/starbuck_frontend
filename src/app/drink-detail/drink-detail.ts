@@ -31,13 +31,13 @@ export class DrinkDetail {
   private readonly drinkService = inject(DrinkService); // Inject service dữ liệu món trà
   private readonly dialog = inject(MatDialog);        // 💡 D4: Inject dịch vụ quản lý MatDialog
 
-  protected readonly drinkId = signal<number>(0);  // Signal lưu mã món trà được chọn từ URL
+  protected readonly drinkId = signal<string>('');  // Signal lưu mã món trà được chọn từ URL (kiểu string)
   protected readonly quantity = signal<number>(1); // Signal lưu số lượng ly người dùng chọn (mặc định 1)
 
   constructor() {
-    // Đọc tham số id trên đường dẫn URL (ví dụ /drinks/1 -> lấy số 1)
+    // Đọc tham số id trên đường dẫn URL (ví dụ /drinks/1 hoặc MongoDB ObjectId)
     this.route.paramMap.subscribe((params) => {
-      const id = Number(params.get('id'));
+      const id = params.get('id') ?? '';
       this.drinkId.set(id);
     });
   }

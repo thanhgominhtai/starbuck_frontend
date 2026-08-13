@@ -79,7 +79,7 @@ export class AddDrink {
       // 💡 D5: Giả lập delay 500ms để quan sát hiệu ứng spinner xoay trên nút Lưu
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const newId = Date.now();
+      const newId = Date.now().toString();
       const current = this.drinkModel(); // Đọc trực tiếp dữ liệu mới nhất từ signal gốc
 
       // Thêm món trà mới vào Service
