@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, HostListener, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -39,23 +39,106 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
             Từ cà phê hạt rang mộc, trà ủ lạnh thơm mát đến công thức độc quyền — trải nghiệm trọn vẹn nghệ thuật pha chế thủ công thượng hạng.
           </p>
 
-          <!-- Search Bar with REST API Debounce Constraints [FE-06] -->
-          <div class="search-bar-wrap">
-            <div class="search-input-box">
-              <mat-icon class="search-icon">search</mat-icon>
-              <input
-                type="text"
-                [formControl]="searchControl"
-                placeholder="Tìm kiếm theo tên món hoặc thành phần (tối thiểu 2 ký tự)..."
-              />
-              <button
-                type="button"
-                class="clear-btn"
-                *ngIf="searchControl.value"
-                (click)="clearSearch()"
+          <!-- Apple Spotlight & Dynamic Island Liquid Morphing Search Component -->
+          <div
+            class="spotlight-wrapper"
+            [class.morph-active]="showMorphActions()"
+            (mouseenter)="isSearchHovered.set(true)"
+            (mouseleave)="isSearchHovered.set(false)"
+          >
+            <div class="spotlight-morph-track">
+              <!-- Search Capsule (Full length by default, contracts/morphs to the left when hovered/focused) -->
+              <div
+                class="search-capsule"
+                [class.has-focus]="isSearchFocused()"
+                (click)="focusSearchInput()"
               >
-                <mat-icon>close</mat-icon>
-              </button>
+                <div class="search-icon-box">
+                  <mat-icon class="search-icon">search</mat-icon>
+                </div>
+
+                <input
+                  #searchInputRef
+                  type="text"
+                  [formControl]="searchControl"
+                  [placeholder]="showMorphActions() ? 'Tìm theo tên, topping, hương vị...' : 'Tìm kiếm theo tên món hoặc thành phần (tối thiểu 2 ký tự)...'"
+                  (focus)="isSearchFocused.set(true)"
+                  (blur)="onSearchBlur()"
+                  class="search-text-input"
+                />
+
+                <!-- Clear Button when text entered -->
+                <button
+                  type="button"
+                  class="clear-btn"
+                  *ngIf="searchControl.value"
+                  (click)="clearSearch($event)"
+                  title="Xoá tìm kiếm"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <!-- 4 Action Buttons (Hidden by default, emerges like liquid droplets when hovered/focused) -->
+              <div class="action-buttons-group" [class.is-visible]="showMorphActions()">
+                <!-- 1. All Menu Items -->
+                <button
+                  type="button"
+                  class="spotlight-action-btn btn-step-1"
+                  (click)="selectCategory('Tất cả')"
+                  title="Toàn bộ thực đơn"
+                >
+                  <mat-icon>widgets</mat-icon>
+                </button>
+
+                <!-- 2. Categories -->
+                <button
+                  type="button"
+                  class="spotlight-action-btn btn-step-2"
+                  (click)="scrollToDock()"
+                  title="Danh mục món ăn"
+                >
+                  <mat-icon>category</mat-icon>
+                </button>
+
+                <!-- 3. Trending / Bán chạy -->
+                <button
+                  type="button"
+                  class="spotlight-action-btn btn-step-3"
+                  (click)="filterPopularOnly()"
+                  title="Món bán chạy"
+                >
+                  <mat-icon>local_fire_department</mat-icon>
+                </button>
+
+                <!-- 4. Favorites -->
+                <button
+                  type="button"
+                  class="spotlight-action-btn fav-btn btn-step-4"
+                  (click)="selectCategory('❤️ Yêu thích')"
+                  title="Món yêu thích của bạn"
+                >
+                  <mat-icon>favorite</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Spotlight Quick Suggestion Dropdown (Floats smoothly on Focus) -->
+            <div class="spotlight-suggestions" *ngIf="isSearchFocused()">
+              <div class="suggestions-head">
+                <mat-icon>auto_awesome</mat-icon>
+                <span>Gợi ý tìm nhanh:</span>
+              </div>
+              <div class="suggestion-chips">
+                <button
+                  type="button"
+                  *ngFor="let sug of quickSuggestions"
+                  class="sug-chip"
+                  (mousedown)="applySuggestion(sug)"
+                >
+                  {{ sug }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -255,32 +338,78 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       margin-left: auto;
       margin-right: auto;
     }
-    .search-bar-wrap {
-      max-width: 580px;
+    .spotlight-wrapper {
+      position: relative;
+      max-width: 640px;
       margin: 0 auto;
+      z-index: 150;
     }
-    .search-input-box {
+    .spotlight-morph-track {
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: #ffffff;
+      gap: 0;
+      height: 52px;
+      width: 100%;
+      transition: gap 0.4s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .spotlight-wrapper.morph-active .spotlight-morph-track {
+      gap: 8px;
+    }
+
+    /* Search Capsule: Full width by default, shrinks organically on hover/focus */
+    .search-capsule {
+      flex: 1;
+      height: 52px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-radius: 50px;
-      padding: 10px 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      padding: 0 16px 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      cursor: text;
+      transition: all 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .search-capsule.has-focus {
+      background: #ffffff;
+      border-color: #cba258;
+      box-shadow: 0 14px 40px rgba(0, 117, 74, 0.35), 0 0 0 3px rgba(0, 117, 74, 0.25);
+    }
+    .search-icon-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00754a;
+      flex-shrink: 0;
     }
     .search-icon {
-      color: #00754a;
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      transition: transform 0.2s;
     }
-    .search-input-box input {
+    .search-capsule.has-focus .search-icon {
+      transform: scale(1.1);
+      color: #00754a;
+    }
+    .search-text-input {
       flex: 1;
       border: none;
+      background: transparent;
       outline: none;
-      font-size: 15px;
+      font-size: 14.5px;
+      font-weight: 500;
       color: #1e3932;
       font-family: inherit;
+      min-width: 80px;
+    }
+    .search-text-input::placeholder {
+      color: rgba(30, 57, 50, 0.5);
+      font-size: 13.5px;
+      transition: opacity 0.2s;
     }
     .clear-btn {
       background: none;
@@ -288,6 +417,153 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       color: rgba(0, 0, 0, 0.4);
       cursor: pointer;
       display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      border-radius: 50%;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .clear-btn:hover {
+      background: #edebe9;
+      color: #c82014;
+    }
+    .clear-btn mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    /* 4 Action Buttons Group: Hidden by default, emerges like liquid droplets when hovered/focused */
+    .action-buttons-group {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      width: 0;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transition: width 0.45s cubic-bezier(0.34, 1.4, 0.64, 1),
+                  gap 0.45s cubic-bezier(0.34, 1.4, 0.64, 1),
+                  opacity 0.25s ease;
+    }
+    .action-buttons-group.is-visible {
+      width: 236px;
+      opacity: 1;
+      gap: 8px;
+      overflow: visible;
+      pointer-events: auto;
+    }
+    .spotlight-action-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(16px);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      color: #1e3932;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+      transform: scale(0.3) translateX(-20px);
+      opacity: 0;
+      transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                  opacity 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  background 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+    }
+    .action-buttons-group.is-visible .spotlight-action-btn {
+      transform: scale(1) translateX(0);
+      opacity: 1;
+    }
+    /* Staggered popping out like thick liquid droplets / yogurt drops */
+    .action-buttons-group.is-visible .btn-step-1 { transition-delay: 0.04s; }
+    .action-buttons-group.is-visible .btn-step-2 { transition-delay: 0.08s; }
+    .action-buttons-group.is-visible .btn-step-3 { transition-delay: 0.12s; }
+    .action-buttons-group.is-visible .btn-step-4 { transition-delay: 0.16s; }
+
+    /* Staggered retraction when mouse leaves */
+    .action-buttons-group:not(.is-visible) .btn-step-4 { transition-delay: 0s; }
+    .action-buttons-group:not(.is-visible) .btn-step-3 { transition-delay: 0.03s; }
+    .action-buttons-group:not(.is-visible) .btn-step-2 { transition-delay: 0.06s; }
+    .action-buttons-group:not(.is-visible) .btn-step-1 { transition-delay: 0.09s; }
+
+    .spotlight-action-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: #00754a;
+      transition: transform 0.2s;
+    }
+    .spotlight-action-btn:hover {
+      background: #ffffff;
+      transform: translateY(-3px) scale(1.12);
+      border-color: #cba258;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+    }
+    .spotlight-action-btn:hover mat-icon {
+      transform: scale(1.15);
+    }
+    .spotlight-action-btn.fav-btn mat-icon {
+      color: #e53935;
+    }
+
+    /* Floating Suggestions Box */
+    .spotlight-suggestions {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 14px 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(203, 162, 88, 0.35);
+      animation: suggestionFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+    }
+    .suggestions-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #00754a;
+      margin-bottom: 10px;
+    }
+    .suggestions-head mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #cba258;
+    }
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .sug-chip {
+      padding: 6px 14px;
+      border-radius: 50px;
+      background: #faf6ee;
+      border: 1px solid #edebe9;
+      color: #1e3932;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sug-chip:hover {
+      background: #00754a;
+      color: #ffffff;
+      border-color: #00754a;
+      transform: translateY(-1px);
+    }
+    @keyframes suggestionFadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .catalog-container {
       max-width: 1280px;
@@ -700,11 +976,20 @@ export class RecipeCatalogComponent implements OnInit, OnDestroy {
   private toast = inject(ToastService);
 
   @ViewChild('dockRef') dockRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('searchInputRef') searchInputRef?: ElementRef<HTMLInputElement>;
 
   searchControl = new FormControl('');
   recipes = signal<Recipe[]>([]);
   loading = signal<boolean>(true);
   selectedCategory = signal<string>('Tất cả');
+
+  // Spotlight Morphing Search States
+  isSearchFocused = signal<boolean>(false);
+  isSearchHovered = signal<boolean>(false);
+  showMorphActions = computed(() => this.isSearchHovered() || this.isSearchFocused());
+  isSearchActive = computed(() => this.isSearchFocused() || this.isSearchHovered() || !!this.searchControl.value);
+
+  quickSuggestions = ['Caramel Macchiato', 'Matcha Latte', 'Trà Sữa Oolong', 'Cold Brew', 'Trà Dâu Tây'];
 
   categoryItems = [
     { id: 'Tất cả', label: 'Tất cả', icon: 'local_cafe', tag: 'Toàn bộ thực đơn' },
@@ -719,6 +1004,49 @@ export class RecipeCatalogComponent implements OnInit, OnDestroy {
   mousePositionX = signal<number | null>(null);
 
   private sub = new Subscription();
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardShortcut(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      this.focusSearchInput();
+    }
+  }
+
+  focusSearchInput() {
+    this.searchInputRef?.nativeElement.focus();
+    this.isSearchFocused.set(true);
+  }
+
+  onSearchBlur() {
+    setTimeout(() => {
+      this.isSearchFocused.set(false);
+    }, 200);
+  }
+
+  applySuggestion(keyword: string) {
+    this.searchControl.setValue(keyword);
+    this.isSearchFocused.set(false);
+    this.fetchRecipes();
+  }
+
+  scrollToDock() {
+    this.dockRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  filterPopularOnly() {
+    this.searchControl.setValue('');
+    this.selectedCategory.set('Tất cả');
+    this.loading.set(true);
+    this.recipeService.getRecipes('', 'Tất cả').subscribe({
+      next: (data) => {
+        this.recipes.set(data.filter((r) => r.isPopular));
+        this.loading.set(false);
+        this.toast.info('Đang hiển thị danh sách món Bán chạy nhất ⭐');
+      },
+      error: () => this.loading.set(false),
+    });
+  }
 
   onDockMouseMove(event: MouseEvent) {
     this.mousePositionX.set(event.clientX);
@@ -821,7 +1149,11 @@ export class RecipeCatalogComponent implements OnInit, OnDestroy {
     this.fetchRecipes();
   }
 
-  clearSearch() {
+  clearSearch(event?: MouseEvent) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
     this.searchControl.setValue('');
     this.selectedCategory.set('Tất cả');
     this.fetchRecipes();
