@@ -286,10 +286,31 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
       color: #1e3932;
     }
     .btn-close {
-      background: none;
-      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f2f0eb;
+      border: 1px solid #e0dedc;
+      color: #1e3932;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      color: rgba(0, 0, 0, 0.4);
+      padding: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-close mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.25s;
+    }
+    .btn-close:hover {
+      background: #edebe9;
+      color: #c82014;
+      border-color: #c82014;
+      transform: rotate(90deg) scale(1.08);
+      box-shadow: 0 2px 8px rgba(200, 32, 20, 0.2);
     }
     .modal-desc {
       font-size: 13px;

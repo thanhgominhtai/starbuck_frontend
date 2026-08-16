@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -63,16 +63,43 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
 
       <!-- Main Content Area -->
       <div class="catalog-container">
-        <!-- Category Filter Chips -->
-        <div class="category-chips">
-          <button
-            *ngFor="let cat of categories"
-            class="chip-btn"
-            [class.active]="selectedCategory() === cat"
-            (click)="selectCategory(cat)"
+        <!-- Apple-Style Interactive Magnification Category Dock -->
+        <div class="dock-container-wrap">
+          <div
+            #dockRef
+            class="apple-dock"
+            (mousemove)="onDockMouseMove($event)"
+            (mouseleave)="onDockMouseLeave()"
+            role="toolbar"
+            aria-label="Thanh tùy chọn danh mục món ăn"
           >
-            {{ cat }}
-          </button>
+            <button
+              *ngFor="let item of categoryItems; let i = index"
+              type="button"
+              class="dock-item"
+              [class.active]="selectedCategory() === item.id"
+              [style.transform]="getDockItemTransform(i)"
+              (click)="selectCategory(item.id)"
+              (mouseenter)="hoveredIndex.set(i)"
+              (mouseleave)="hoveredIndex.set(-1)"
+            >
+              <!-- Floating Tooltip Label (DockLabel) -->
+              <div class="dock-label" *ngIf="hoveredIndex() === i">
+                <span class="dock-label-title">{{ item.label }}</span>
+                <span class="dock-label-sub">{{ item.tag }}</span>
+              </div>
+
+              <!-- Dock Item Icon -->
+              <div class="dock-icon-box" [class.is-fav]="item.id === '❤️ Yêu thích'">
+                <mat-icon>{{ item.icon }}</mat-icon>
+              </div>
+
+              <span class="dock-text">{{ item.label }}</span>
+
+              <!-- Active Glowing Dot (Dock Indicator) -->
+              <span class="dock-active-dot" *ngIf="selectedCategory() === item.id"></span>
+            </button>
+          </div>
         </div>
 
         <!-- Loading State Skeleton [FE-09] -->
@@ -267,34 +294,140 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       margin: 0 auto;
       padding: 32px 24px 0;
     }
-    .category-chips {
+    .dock-container-wrap {
       display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 32px;
+      justify-content: center;
+      margin: 8px 0 36px;
+      position: sticky;
+      top: 14px;
+      z-index: 100;
+      padding: 0 12px;
     }
-    .chip-btn {
-      padding: 8px 20px;
+    .apple-dock {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: 50px;
-      border: 1px solid #edebe9;
-      background: #ffffff;
-      color: rgba(0, 0, 0, 0.75);
-      font-size: 14px;
-      font-weight: 600;
+      border: 1.5px solid rgba(203, 162, 88, 0.35);
+      box-shadow: 0 14px 34px rgba(30, 57, 50, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.3s;
+    }
+    .apple-dock:hover {
+      box-shadow: 0 20px 44px rgba(30, 57, 50, 0.18), 0 6px 16px rgba(0, 0, 0, 0.08);
+      border-color: rgba(203, 162, 88, 0.6);
+    }
+    .dock-item {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: 50px;
+      border: 1px solid transparent;
+      background: rgba(242, 240, 235, 0.7);
+      color: #1e3932;
+      font-size: 13.5px;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
+      outline: none;
       white-space: nowrap;
+      transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s, color 0.2s, box-shadow 0.2s;
+      transform-origin: bottom center;
     }
-    .chip-btn:hover {
-      background: #edebe9;
-      color: #006241;
+    .dock-item:hover {
+      background: #ffffff;
+      color: #00754a;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-    .chip-btn.active {
+    .dock-item.active {
       background: #00754a;
       color: #ffffff;
       border-color: #00754a;
-      box-shadow: 0 2px 8px rgba(0, 117, 74, 0.3);
+      box-shadow: 0 4px 14px rgba(0, 117, 74, 0.4);
+    }
+    .dock-icon-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dock-icon-box mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #00754a;
+      transition: color 0.2s;
+    }
+    .dock-item.active .dock-icon-box mat-icon {
+      color: #ffffff;
+    }
+    .dock-icon-box.is-fav mat-icon {
+      color: #e53935;
+    }
+    .dock-item.active .dock-icon-box.is-fav mat-icon {
+      color: #ffcdd2;
+    }
+    .dock-text {
+      font-weight: 700;
+    }
+    .dock-active-dot {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #dfc49d;
+      box-shadow: 0 0 6px #dfc49d;
+    }
+    .dock-label {
+      position: absolute;
+      top: -46px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e3932;
+      color: #ffffff;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      white-space: nowrap;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(203, 162, 88, 0.4);
+      animation: labelPop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+    }
+    .dock-label::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 8px;
+      height: 8px;
+      background: #1e3932;
+      border-right: 1px solid rgba(203, 162, 88, 0.4);
+      border-bottom: 1px solid rgba(203, 162, 88, 0.4);
+    }
+    .dock-label-title {
+      font-weight: 800;
+      color: #dfc49d;
+    }
+    .dock-label-sub {
+      font-size: 9.5px;
+      color: #d4e9e2;
+      opacity: 0.9;
+    }
+    @keyframes labelPop {
+      from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
     .recipe-grid {
       display: grid;
@@ -566,14 +699,61 @@ export class RecipeCatalogComponent implements OnInit, OnDestroy {
   public favoriteService = inject(FavoriteService);
   private toast = inject(ToastService);
 
+  @ViewChild('dockRef') dockRef?: ElementRef<HTMLDivElement>;
+
   searchControl = new FormControl('');
   recipes = signal<Recipe[]>([]);
   loading = signal<boolean>(true);
   selectedCategory = signal<string>('Tất cả');
 
-  categories = ['Tất cả', '❤️ Yêu thích', 'Cà phê', 'Trà sữa', 'Trà trái cây', 'Đặc biệt'];
+  categoryItems = [
+    { id: 'Tất cả', label: 'Tất cả', icon: 'local_cafe', tag: 'Toàn bộ thực đơn' },
+    { id: '❤️ Yêu thích', label: 'Yêu thích', icon: 'favorite', tag: 'Món bạn đã lưu' },
+    { id: 'Cà phê', label: 'Cà phê', icon: 'coffee', tag: 'Espresso & Cold Brew' },
+    { id: 'Trà sữa', label: 'Trà sữa', icon: 'bubble_chart', tag: 'Trà sữa & Macchiato' },
+    { id: 'Trà trái cây', label: 'Trà trái cây', icon: 'eco', tag: 'Trà hoa quả thanh mát' },
+    { id: 'Đặc biệt', label: 'Đặc biệt', icon: 'auto_awesome', tag: 'Công thức độc quyền' },
+  ];
+
+  hoveredIndex = signal<number>(-1);
+  mousePositionX = signal<number | null>(null);
 
   private sub = new Subscription();
+
+  onDockMouseMove(event: MouseEvent) {
+    this.mousePositionX.set(event.clientX);
+  }
+
+  onDockMouseLeave() {
+    this.mousePositionX.set(null);
+    this.hoveredIndex.set(-1);
+  }
+
+  getDockItemTransform(index: number): string {
+    const mouseX = this.mousePositionX();
+    if (mouseX === null) return 'scale(1) translateY(0)';
+
+    const dock = this.dockRef?.nativeElement;
+    if (!dock) return 'scale(1) translateY(0)';
+
+    const items = dock.querySelectorAll('.dock-item');
+    const item = items[index] as HTMLElement;
+    if (!item) return 'scale(1) translateY(0)';
+
+    const rect = item.getBoundingClientRect();
+    const itemCenterX = rect.left + rect.width / 2;
+    const distance = Math.abs(mouseX - itemCenterX);
+
+    const maxDistance = 120; // Pixel influence radius
+    if (distance > maxDistance) return 'scale(1) translateY(0)';
+
+    // Smooth bell curve / cosine magnification
+    const scaleFactor = Math.cos((distance / maxDistance) * (Math.PI / 2));
+    const scale = 1 + scaleFactor * 0.16; // Max scale 1.16x
+    const translateY = -scaleFactor * 6; // Lift up 6px
+
+    return `scale(${scale.toFixed(3)}) translateY(${translateY.toFixed(1)}px)`;
+  }
 
   ngOnInit() {
     this.fetchRecipes();

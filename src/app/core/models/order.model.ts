@@ -5,6 +5,8 @@ export interface OrderRecipeSnapshot {
   giaCoBan: number;
   imgUrl: string;
   category?: string;
+  description?: string;
+  toppings?: Array<{ name: string; quantity: number; unit: string }>;
 }
 
 export interface Order {
