@@ -1,0 +1,444 @@
+/* ==========================================================================
+   DRINK DETAIL STYLES (STARBUCKS M3 PDP)
+   ========================================================================== */
+
+.sb-drink-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detail-nav-bar {
+  display: flex;
+  align-items: center;
+}
+
+.back-pill-btn {
+  background-color: var(--sb-surface-white) !important;
+}
+
+.back-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* --- PDP 2-Column Showcase --- */
+.sb-pdp-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Left Column: Media */
+.pdp-media-col {
+  position: sticky;
+  top: 96px;
+}
+
+.pdp-media-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background-color: var(--sb-surface-white);
+  border: 1px solid var(--sb-border);
+  aspect-ratio: 4 / 3.6;
+  box-shadow: var(--sb-shadow-card);
+}
+
+.pdp-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pdp-gold-rewards-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background-color: var(--sb-green-house);
+  color: var(--sb-gold);
+  border: 1px solid rgba(203, 162, 88, 0.4);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sodo);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.rewards-star {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--sb-gold);
+}
+
+/* Right Column: Info & Recipe Specs */
+.pdp-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background-color: var(--sb-surface-white);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--radius-xl);
+  padding: 36px 32px;
+  box-shadow: var(--sb-shadow-card);
+}
+
+.barista-cup-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background-color: var(--sb-canvas-ceramic);
+  border-radius: var(--radius-pill);
+  width: fit-content;
+  color: var(--sb-green-house);
+}
+
+.cup-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--sb-green-starbucks);
+}
+
+.barista-text {
+  font-size: 1rem;
+  color: var(--sb-green-house);
+}
+
+.barista-text strong {
+  color: var(--sb-green-accent);
+}
+
+.pdp-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pdp-title {
+  font-size: 2.35rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.pdp-desc {
+  font-size: 0.9375rem;
+  color: var(--sb-text-muted);
+  line-height: 1.6;
+}
+
+.sb-hairline {
+  height: 1px;
+  background-color: var(--sb-border);
+}
+
+/* Order Spec Card */
+.pdp-order-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background-color: var(--sb-canvas-cream);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--radius-card);
+}
+
+.order-spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spec-label, .stepper-label {
+  font-family: var(--font-sodo);
+  font-size: 0.875rem;
+  color: var(--sb-text-muted);
+  font-weight: 600;
+}
+
+.spec-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+}
+
+.curr {
+  font-size: 0.875rem;
+  color: var(--sb-green-accent);
+  margin-left: 2px;
+}
+
+/* Stepper Row */
+.stepper-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--sb-border);
+}
+
+.sb-stepper-control {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--sb-surface-white);
+  border: 1px solid var(--sb-border-input);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.stepper-circle-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--sb-canvas-ceramic);
+  color: var(--sb-green-house);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stepper-circle-btn:hover:not(:disabled) {
+  background-color: var(--sb-green-accent);
+  color: #ffffff;
+}
+
+.stepper-circle-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.stepper-circle-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepper-circle-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.stepper-val {
+  min-width: 38px;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+}
+
+/* Total Summary Band */
+.total-summary-band {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background-color: var(--sb-green-uplift);
+  border-radius: var(--radius-md);
+  margin-top: 4px;
+}
+
+.total-label {
+  font-family: var(--font-sodo);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+}
+
+.total-price-val {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+}
+
+.curr-total {
+  font-size: 0.9375rem;
+  color: var(--sb-green-accent);
+  margin-left: 2px;
+}
+
+/* Toppings Section */
+.toppings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.toppings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toppings-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+}
+
+.toppings-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+  background-color: var(--sb-green-uplift);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.toppings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.topping-pill-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: var(--sb-canvas-cream);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--radius-md);
+}
+
+.top-check-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--sb-green-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.top-check-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #ffffff;
+}
+
+.top-text-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-name {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+}
+
+.top-qty {
+  font-size: 0.6875rem;
+  color: var(--sb-text-muted);
+}
+
+.no-toppings-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: var(--sb-canvas-cream);
+  border: 1px dashed var(--sb-border-input);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: var(--sb-text-muted);
+}
+
+.no-top-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--sb-green-starbucks);
+}
+
+/* Actions */
+.pdp-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-delete-danger {
+  padding: 8px 18px !important;
+  background-color: var(--sb-error-subtle) !important;
+  border-color: rgba(200, 32, 20, 0.25) !important;
+  color: var(--sb-error) !important;
+}
+
+.btn-delete-danger:hover {
+  background-color: var(--sb-error) !important;
+  color: #ffffff !important;
+  border-color: var(--sb-error) !important;
+}
+
+.del-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Not found */
+.pdp-not-found-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  background-color: var(--sb-surface-white);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--radius-xl);
+  text-align: center;
+  max-width: 500px;
+  margin: 40px auto;
+}
+
+.not-found-cup-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: var(--sb-error);
+  margin-bottom: 16px;
+}
+
+.not-found-title {
+  font-size: 1.6rem;
+  color: var(--sb-green-house);
+  margin-bottom: 8px;
+}
+
+.not-found-desc {
+  font-size: 0.875rem;
+  color: var(--sb-text-muted);
+  margin-bottom: 24px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sb-pdp-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .pdp-media-col {
+    position: static;
+  }
+
+  .pdp-info-col {
+    padding: 24px 20px;
+  }
+}

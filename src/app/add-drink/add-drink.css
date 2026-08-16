@@ -1,0 +1,173 @@
+/* ==========================================================================
+   ADD DRINK STYLES (STARBUCKS M3)
+   ========================================================================== */
+
+.sb-add-drink-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.add-nav-bar {
+  display: flex;
+  align-items: center;
+}
+
+.back-pill-btn {
+  background-color: var(--sb-surface-white) !important;
+}
+
+.back-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Form Wrapper --- */
+.sb-form-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.creation-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.creation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background-color: var(--sb-green-uplift);
+  border-radius: var(--radius-pill);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--sb-green-house);
+}
+
+.badge-star-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--sb-gold);
+}
+
+.creation-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--sb-green-house);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.creation-desc {
+  font-size: 0.9375rem;
+  color: var(--sb-text-muted);
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+/* --- Form Container Card --- */
+.sb-form-card {
+  background-color: var(--sb-surface-white);
+  border: 1px solid var(--sb-border);
+  border-radius: var(--radius-xl);
+  padding: 36px 32px;
+  box-shadow: var(--sb-shadow-card);
+}
+
+.sb-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-field-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.sb-field-full {
+  width: 100%;
+}
+
+.field-icon {
+  color: var(--sb-green-starbucks) !important;
+  margin-right: 6px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.field-curr {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--sb-green-starbucks);
+  margin-right: 8px;
+}
+
+.sb-hint-text {
+  font-size: 0.75rem !important;
+  color: var(--sb-text-muted) !important;
+}
+
+.sb-error-text {
+  font-size: 0.75rem !important;
+  color: var(--sb-error) !important;
+  font-weight: 600;
+}
+
+/* --- Actions Bar --- */
+.form-actions-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--sb-border);
+}
+
+.submit-pill-btn {
+  padding: 10px 26px !important;
+  font-size: 0.875rem !important;
+}
+
+.btn-check-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.submit-spinner {
+  display: inline-block;
+}
+
+.submit-spinner circle {
+  stroke: #ffffff !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sb-form-card {
+    padding: 24px 18px;
+  }
+
+  .creation-title {
+    font-size: 1.85rem;
+  }
+
+  .form-actions-bar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}

@@ -1,32 +1,311 @@
-/* 💡 Cấu hình giao diện luôn luôn là Chế độ Sáng (Light) */
+/* ==========================================================================
+   STARBUCKS DESIGN SYSTEM & MATERIAL 3 (LIGHT MODE)
+   Based on DESIGN-starbucks.md & Anti-Slop Frontend Taste Principles
+   ========================================================================== */
+
 :root {
   color-scheme: light;
+
+  /* --- Starbucks 4-Tier Green Brand Palette --- */
+  --sb-green-starbucks: #006241;
+  --sb-green-accent: #00754a;
+  --sb-green-accent-hover: #005c3b;
+  --sb-green-accent-active: #00482e;
+  --sb-green-house: #1e3932;
+  --sb-green-uplift: #d4e9e2;
+  --sb-green-uplift-subtle: rgba(212, 233, 226, 0.45);
+  --sb-green-valid-tint: rgba(212, 233, 226, 0.33);
+
+  /* --- Gold Ceremony & Rewards Accent --- */
+  --sb-gold: #cba258;
+  --sb-gold-light: #dfc49d;
+  --sb-gold-lightest: #faf6ee;
+
+  /* --- Canvas & Neutral Surfaces --- */
+  --sb-canvas-cream: #f2f0eb;
+  --sb-canvas-ceramic: #edebe9;
+  --sb-surface-white: #ffffff;
+  --sb-surface-cool: #f9f9f9;
+
+  /* --- Text & Ink --- */
+  --sb-text-black: rgba(0, 0, 0, 0.87);
+  --sb-text-muted: rgba(0, 0, 0, 0.58);
+  --sb-text-white: #ffffff;
+  --sb-text-white-muted: rgba(255, 255, 255, 0.75);
+
+  /* --- Borders & Hairlines --- */
+  --sb-border: #edebe9;
+  --sb-border-input: #d6dbde;
+
+  /* --- Semantics --- */
+  --sb-error: #c82014;
+  --sb-error-subtle: #fde8e7;
+  --sb-warning: #fbbc05;
+
+  /* --- Typography Families --- */
+  --font-sodo: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-script: "Kalam", cursive;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* --- Radius & Geometry --- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-card: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 50px;
+  --radius-full: 9999px;
+
+  /* --- Starbucks Elevation Shadow Stack --- */
+  --sb-shadow-card: 0px 1px 3px rgba(0, 0, 0, 0.08), 0px 1px 1px rgba(0, 0, 0, 0.04);
+  --sb-shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.1);
+  --sb-shadow-frap: 0 0 6px rgba(0, 0, 0, 0.24), 0 8px 12px rgba(0, 0, 0, 0.14);
+
+  /* --- Angular Material M3 System Tokens Mapping --- */
+  --mat-sys-surface: var(--sb-canvas-cream);
+  --mat-sys-on-surface: var(--sb-text-black);
+  --mat-sys-surface-container: var(--sb-canvas-ceramic);
+  --mat-sys-surface-container-low: var(--sb-surface-white);
+  --mat-sys-surface-container-high: var(--sb-canvas-ceramic);
+  --mat-sys-primary: var(--sb-green-accent);
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: var(--sb-green-uplift);
+  --mat-sys-on-primary-container: var(--sb-green-house);
+  --mat-sys-outline: var(--sb-border-input);
+  --mat-sys-outline-variant: var(--sb-border);
+}
+
+/* ==========================================================================
+   Base Elements & Reset
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
-  height: 100%;                          /* Phủ toàn bộ 100% chiều cao màn hình */
-  margin: 0;                             /* Bỏ lề mặc định của thẻ body */
-  font-family: Roboto, "Helvetica Neue", sans-serif; /* Đặt font chữ Roboto chuẩn Material */
-  background-color: var(--mat-sys-surface); /* 💡 M3-4: Token CSS màu nền chính của trang */
-  color: var(--mat-sys-on-surface);      /* 💡 M3-4: Token CSS màu chữ tương phản trên nền surface */
-  line-height: 1.5;                      /* Khoảng cách các dòng chữ */
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-sodo);
+  background-color: var(--sb-canvas-cream);
+  color: var(--sb-text-black);
+  line-height: 1.5;
+  letter-spacing: -0.01em; /* Tight -0.01em characteristic of SoDoSans */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;                /* Tính toán kích thước ô bao gồm border và padding */
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--sb-text-black);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
-/* 💡 M3-4: Các lớp nền bề mặt M3 (Surface Containers) theo 5 mức độ đậm nhạt thay vì bóng đổ */
-.surface-container-lowest  { background-color: var(--mat-sys-surface-container-lowest); }  /* Mức nhạt nhất */
-.surface-container-low     { background-color: var(--mat-sys-surface-container-low); }     /* Mức thấp (cho Card) */
-.surface-container         { background-color: var(--mat-sys-surface-container); }         /* Mức mặc định */
-.surface-container-high    { background-color: var(--mat-sys-surface-container-high); }    /* Mức cao (cho Drawer) */
-.surface-container-highest { background-color: var(--mat-sys-surface-container-highest); } /* Mức cao nhất (cho Input) */
+.font-serif {
+  font-family: var(--font-serif) !important;
+}
 
-/* 💡 M3-6: Các lớp khoảng cách tuân theo quy tắc lưới bội số 8dp (8px, 16px, 24px) */
-.p-8   { padding: 8px; }
-.p-16  { padding: 16px; }
-.p-24  { padding: 24px; }
-.gap-8 { gap: 8px; }
-.gap-16{ gap: 16px; }
-.gap-24{ gap: 24px; }
+.font-script {
+  font-family: var(--font-script) !important;
+}
+
+.font-mono {
+  font-family: var(--font-mono) !important;
+}
+
+p {
+  color: var(--sb-text-black);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--sb-green-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--sb-green-accent-hover);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sb-canvas-ceramic);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sb-border-input);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sb-green-starbucks);
+}
+
+/* ==========================================================================
+   Starbucks Button & Interaction Standards
+   ========================================================================== */
+
+.sb-btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 7px 18px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sodo);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease, transform 0.15s ease;
+}
+
+.sb-btn-pill:active {
+  transform: scale(0.95); /* Signature Starbucks active press */
+}
+
+.sb-btn-primary {
+  background-color: var(--sb-green-accent);
+  color: #ffffff;
+  border-color: var(--sb-green-accent);
+}
+
+.sb-btn-primary:hover {
+  background-color: var(--sb-green-accent-hover);
+  border-color: var(--sb-green-accent-hover);
+}
+
+.sb-btn-outlined {
+  background-color: transparent;
+  color: var(--sb-green-accent);
+  border-color: var(--sb-green-accent);
+}
+
+.sb-btn-outlined:hover {
+  background-color: var(--sb-green-uplift-subtle);
+}
+
+.sb-btn-dark {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.sb-btn-dark:hover {
+  background-color: #212121;
+}
+
+/* ==========================================================================
+   Material 3 Overrides for Starbucks Theme
+   ========================================================================== */
+
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: var(--sb-surface-white) !important;
+  border: 1px solid var(--sb-border) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--sb-shadow-hover) !important;
+  padding: 12px !important;
+}
+
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  background-color: var(--sb-green-house) !important;
+  color: var(--sb-text-white) !important;
+  border-radius: var(--radius-card) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: var(--sb-shadow-hover) !important;
+  font-family: var(--font-sodo) !important;
+  padding: 8px 16px !important;
+}
+
+.mat-mdc-snack-bar-container .mat-mdc-snack-bar-label {
+  color: var(--sb-text-white) !important;
+  font-family: var(--font-sodo) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+/* Nút Action "Đóng" trên Toast Snackbar */
+.mat-mdc-snack-bar-container .mat-mdc-button,
+.mat-mdc-snack-bar-container .mat-mdc-snack-bar-action,
+.mat-mdc-snack-bar-container .mat-mdc-snack-bar-actions .mat-mdc-button {
+  --mat-text-button-hover-state-layer-color: transparent !important;
+  --mat-button-hover-state-layer-color: transparent !important;
+  --mdc-text-button-hover-state-layer-color: transparent !important;
+  color: var(--sb-gold) !important;
+  font-family: var(--font-sodo) !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  border-radius: var(--radius-pill) !important;
+  padding: 6px 14px !important;
+  background-color: transparent !important;
+  transition: all 0.2s ease !important;
+  min-width: unset !important;
+}
+
+/* Tắt lớp phủ tối màu mặc định */
+.mat-mdc-snack-bar-container .mat-mdc-button .mat-mdc-button-persistent-ripple::before,
+.mat-mdc-snack-bar-container .mat-mdc-button .mat-mdc-button-touch-target {
+  background-color: transparent !important;
+}
+
+/* Hover trên nút Đóng: Nền vàng gold trong suốt êm dịu, chữ sáng trắng rõ ràng, KHÔNG bị đen */
+.mat-mdc-snack-bar-container .mat-mdc-button:hover,
+.mat-mdc-snack-bar-container .mat-mdc-snack-bar-action:hover,
+.mat-mdc-snack-bar-container .mat-mdc-snack-bar-actions .mat-mdc-button:hover {
+  background-color: rgba(203, 162, 88, 0.22) !important;
+  color: #ffffff !important;
+}
+
+.mat-mdc-snack-bar-container .mat-mdc-button:active,
+.mat-mdc-snack-bar-container .mat-mdc-snack-bar-action:active {
+  transform: scale(0.95) !important;
+  background-color: rgba(203, 162, 88, 0.35) !important;
+}
+
+/* Form fields styling */
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-outline-color: var(--sb-border-input) !important;
+  --mdc-outlined-text-field-focus-outline-color: var(--sb-green-accent) !important;
+  --mdc-outlined-text-field-hover-outline-color: var(--sb-green-starbucks) !important;
+  --mdc-outlined-text-field-label-text-color: var(--sb-text-muted) !important;
+  --mdc-outlined-text-field-focus-label-text-color: var(--sb-green-accent) !important;
+  --mdc-outlined-text-field-input-text-color: var(--sb-text-black) !important;
+  font-family: var(--font-sodo) !important;
+}
+
+.mat-mdc-form-field .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+  border-width: 1px !important;
+}
+
+.mat-mdc-card {
+  box-shadow: none !important;
+}
+
+/* Material List Item State Layer Reset */
+.mat-mdc-list-item-interactive::before {
+  background-color: transparent !important;
+}
+
+.mat-mdc-nav-list .mat-mdc-list-item,
+.mat-mdc-list-base .mat-mdc-list-item {
+  --mat-list-list-item-hover-state-layer-color: transparent !important;
+  --mat-list-list-item-focus-state-layer-color: transparent !important;
+  --mat-list-list-item-active-state-layer-color: transparent !important;
+  --mdc-list-list-item-hover-state-layer-color: transparent !important;
+  --mdc-list-list-item-focus-state-layer-color: transparent !important;
+}

@@ -1,98 +1,123 @@
-<!-- Bấm mở file: src/app/add-drink/add-drink.html -->
-<div class="add-drink-container">
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>Thêm món trà sữa mới</mat-card-title>
-      <mat-card-subtitle>Sử dụng Angular Signal Forms & Material Components</mat-card-subtitle>
-    </mat-card-header>
+<div class="sb-add-drink-page">
+  
+  <!-- Breadcrumb Navigation Bar -->
+  <nav class="add-nav-bar">
+    <a routerLink="/drinks" class="sb-btn-pill sb-btn-outlined back-pill-btn">
+      <mat-icon class="back-icon">arrow_back</mat-icon>
+      <span>Quay lại Thực Đơn</span>
+    </a>
+  </nav>
 
-    <mat-card-content class="p-16">
-      <!-- 💡 C19: Thẻ form novalidate (submit)="save($event)", KHÔNG dùng [formRoot] -->
-      <form novalidate (submit)="save($event)" class="form-layout">
+  <!-- Creation Card Form -->
+  <div class="sb-form-wrapper">
+    <div class="creation-header">
+      <div class="creation-badge">
+        <mat-icon class="badge-star-icon">star</mat-icon>
+        <span class="badge-label font-mono">STARBUCKS RECIPE CREATOR</span>
+      </div>
+      <h1 class="creation-title font-serif">Thêm Món Trà Sữa Mới</h1>
+      <p class="creation-desc">
+        Thiết lập công thức món trà đặc sản mới vào thực đơn phục vụ của quầy pha chế Starbucks.
+      </p>
+    </div>
+
+    <div class="sb-form-card">
+      <form novalidate (submit)="save($event)" class="sb-form-body">
         
-        <!-- 💡 C18 & C21: Ô Tên món -->
-        <mat-form-field appearance="outline">
-          <mat-label>Tên món trà</mat-label>
-          <!-- Directive [formField] liên kết ô input với field name của Signal Form -->
-          <input
-            matInput
-            type="text"
-            [formField]="drinkForm.name"
-            placeholder="Ví dụ: Trà sữa Ô Long"
-          />
-          <!-- 💡 C21: Hiển thị thông báo lỗi màu đỏ khi ô bị vi phạm luật -->
-          @for (err of drinkForm.name().errors(); track err.kind) {
-            <mat-error>{{ err.message }}</mat-error>
-          }
-        </mat-form-field>
+        <!-- Field 1: Tên món trà -->
+        <div class="form-field-row">
+          <mat-form-field appearance="outline" class="sb-field-full">
+            <mat-label>Tên món trà sữa</mat-label>
+            <mat-icon matPrefix class="field-icon">local_cafe</mat-icon>
+            <input
+              matInput
+              type="text"
+              [formField]="drinkForm.name"
+              placeholder="Ví dụ: Matcha Đá Xay Kem Cheese"
+            />
+            @for (err of drinkForm.name().errors(); track err.kind) {
+              <mat-error class="sb-error-text">{{ err.message }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-        <!-- 💡 C18 & C21: Ô Mô tả chi tiết -->
-        <mat-form-field appearance="outline">
-          <mat-label>Mô tả chi tiết</mat-label>
-          <input
-            matInput
-            type="text"
-            [formField]="drinkForm.description"
-            placeholder="Mô tả hương vị, nguyên liệu..."
-          />
-          @for (err of drinkForm.description().errors(); track err.kind) {
-            <mat-error>{{ err.message }}</mat-error>
-          }
-        </mat-form-field>
+        <!-- Field 2: Mô tả chi tiết -->
+        <div class="form-field-row">
+          <mat-form-field appearance="outline" class="sb-field-full">
+            <mat-label>Mô tả hương vị & đặc trưng</mat-label>
+            <mat-icon matPrefix class="field-icon">notes</mat-icon>
+            <input
+              matInput
+              type="text"
+              [formField]="drinkForm.description"
+              placeholder="Hương vị trà thanh mát kết hợp lớp foam béo ngậy..."
+            />
+            @for (err of drinkForm.description().errors(); track err.kind) {
+              <mat-error class="sb-error-text">{{ err.message }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-        <!-- 💡 C18 & C21: Ô Giá cơ bản (kiểu số type="number") -->
-        <mat-form-field appearance="outline">
-          <mat-label>Giá cơ bản (VNĐ)</mat-label>
-          <input
-            matInput
-            type="number"
-            [formField]="drinkForm.giaCoBan"
-            placeholder="35000"
-          />
-          @for (err of drinkForm.giaCoBan().errors(); track err.kind) {
-            <mat-error>{{ err.message }}</mat-error>
-          }
-        </mat-form-field>
+        <!-- Field 3: Giá cơ bản (VNĐ) -->
+        <div class="form-field-row">
+          <mat-form-field appearance="outline" class="sb-field-full">
+            <mat-label>Giá cơ bản (VNĐ)</mat-label>
+            <mat-icon matPrefix class="field-icon">payments</mat-icon>
+            <input
+              matInput
+              type="number"
+              [formField]="drinkForm.giaCoBan"
+              placeholder="45000"
+              class="font-mono"
+            />
+            <span matSuffix class="field-curr font-mono">VNĐ</span>
+            @for (err of drinkForm.giaCoBan().errors(); track err.kind) {
+              <mat-error class="sb-error-text">{{ err.message }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-        <!-- 💡 C18 & C21: Ô Email người tạo + Dòng gợi ý <mat-hint> -->
-        <mat-form-field appearance="outline">
-          <mat-label>Email người tạo</mat-label>
-          <input
-            matInput
-            type="email"
-            [formField]="drinkForm.authorEmail"
-            placeholder="admin@trasua.com"
-          />
-          <!-- 💡 C21: Dòng gợi ý hiển thị lúc bình thường bên dưới ô nhập -->
-          <mat-hint>Ví dụ: admin@trasua.com</mat-hint>
-          @for (err of drinkForm.authorEmail().errors(); track err.kind) {
-            <mat-error>{{ err.message }}</mat-error>
-          }
-        </mat-form-field>
+        <!-- Field 4: Email tác giả -->
+        <div class="form-field-row">
+          <mat-form-field appearance="outline" class="sb-field-full">
+            <mat-label>Email Barista / Tác giả</mat-label>
+            <mat-icon matPrefix class="field-icon">alternate_email</mat-icon>
+            <input
+              matInput
+              type="email"
+              [formField]="drinkForm.authorEmail"
+              placeholder="barista@starbucks.vn"
+            />
+            <mat-hint class="sb-hint-text">Ghi nhận công thức sáng tạo dưới danh nghĩa Barista này</mat-hint>
+            @for (err of drinkForm.authorEmail().errors(); track err.kind) {
+              <mat-error class="sb-error-text">{{ err.message }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-        <!-- Các nút bấm ở chân form -->
-        <div class="form-actions align-end gap-8">
-          <a mat-button routerLink="/drinks">Hủy bỏ</a>
-          
-          <!-- 💡 C19 & D5: Nút submit tự khóa [disabled] khi đang gửi (submitting === true) -->
+        <!-- Form Actions Bar -->
+        <div class="form-actions-bar">
+          <a routerLink="/drinks" class="sb-btn-pill sb-btn-outlined">
+            Hủy bỏ
+          </a>
+
           <button
             type="submit"
-            mat-filled-button
-            color="primary"
+            class="sb-btn-pill sb-btn-primary submit-pill-btn"
             [disabled]="drinkForm().submitting()"
           >
-            <!-- 💡 D5: Vòng xoay spinner hiển thị khi đang gửi -->
             @if (drinkForm().submitting()) {
-              <mat-spinner diameter="20"></mat-spinner>
-              <span>Đang lưu...</span>
+              <mat-spinner diameter="18" class="submit-spinner"></mat-spinner>
+              <span>Đang lưu công thức...</span>
             } @else {
-              <mat-icon>save</mat-icon>
-              <span>Lưu món</span>
+              <mat-icon class="btn-check-icon">check</mat-icon>
+              <span>Lưu Món Vào Thực Đơn</span>
             }
           </button>
         </div>
 
       </form>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
+
 </div>

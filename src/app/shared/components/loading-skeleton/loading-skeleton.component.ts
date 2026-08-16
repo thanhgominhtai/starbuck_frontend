@@ -1,0 +1,80 @@
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-loading-skeleton',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="skeleton-grid" [style.gridTemplateColumns]="'repeat(' + count + ', minmax(0, 1fr))'">
+      <div *ngFor="let item of items" class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line desc"></div>
+          <div class="skeleton-line price"></div>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .skeleton-grid {
+      display: grid;
+      gap: 20px;
+      width: 100%;
+    }
+    @media (max-width: 768px) {
+      .skeleton-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    .skeleton-card {
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border: 1px solid #edebe9;
+    }
+    .skeleton-img {
+      height: 190px;
+      background: linear-gradient(90deg, #edebe9 25%, #f5f4f2 50%, #edebe9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .skeleton-line {
+      height: 14px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #edebe9 25%, #f5f4f2 50%, #edebe9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-line.title {
+      width: 70%;
+      height: 18px;
+    }
+    .skeleton-line.desc {
+      width: 90%;
+    }
+    .skeleton-line.price {
+      width: 40%;
+      height: 16px;
+      margin-top: 6px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  `],
+})
+export class LoadingSkeletonComponent {
+  @Input() count = 3;
+  get items(): number[] {
+    return Array.from({ length: this.count });
+  }
+}

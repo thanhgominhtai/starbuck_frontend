@@ -1,87 +1,149 @@
-<div class="drink-detail-container">
+<div class="sb-drink-detail-page">
+  
+  <!-- Breadcrumb Navigation Bar -->
+  <nav class="detail-nav-bar">
+    <a routerLink="/drinks" class="sb-btn-pill sb-btn-outlined back-pill-btn">
+      <mat-icon class="back-icon">arrow_back</mat-icon>
+      <span>Quay lại Thực Đơn</span>
+    </a>
+  </nav>
+
   @if (drink(); as d) {
-    <!-- Thẻ Card M3 chứa toàn bộ giao diện chi tiết món -->
-    <mat-card class="detail-card">
-      <!-- Ảnh minh họa lớn ở đỉnh card -->
-      <img mat-card-image [src]="d.imgUrl" [alt]="d.name" class="detail-img" />
+    <!-- Main PDP (Product Detail Page) 2-Column Showcase Layout -->
+    <div class="sb-pdp-layout">
+      
+      <!-- Left Column: Product Imagery -->
+      <div class="pdp-media-col">
+        <div class="pdp-media-card">
+          <img [src]="d.imgUrl" [alt]="d.name" class="pdp-main-img" />
+          
+          @if (d.isPopular) {
+            <div class="pdp-gold-rewards-badge">
+              <mat-icon class="rewards-star">star</mat-icon>
+              <span>MÓN ĐƯỢC YÊU THÍCH NHẤT · 200★</span>
+            </div>
+          }
+        </div>
+      </div>
 
-      <!-- Tiêu đề và mô tả món -->
-      <mat-card-header>
-        <mat-card-title class="detail-title">{{ d.name }}</mat-card-title>
-        <mat-card-subtitle>{{ d.description }}</mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content class="p-16">
-        <!-- Thông tin email người tạo -->
-        <p class="author-info">Tác giả: <strong>{{ d.authorEmail }}</strong></p>
-
-        <!-- Giá tiền cơ bản -->
-        <div class="price-row">
-          <span>Giá cơ bản:</span>
-          <span class="price-val">{{ d.giaCoBan | number }}đ</span>
+      <!-- Right Column: Recipe Specs & Customization -->
+      <div class="pdp-info-col">
+        
+        <!-- Barista Handwritten Cup Note -->
+        <div class="barista-cup-tag">
+          <mat-icon class="cup-icon">local_cafe</mat-icon>
+          <span class="barista-text font-script">Pha chế bởi Barista: <strong>{{ d.authorEmail }}</strong></span>
         </div>
 
-        <!-- Khối điều khiển chọn số lượng ly -->
-        <div class="quantity-control p-16 surface-container-low">
-          <span>Số lượng ly:</span>
-          <div class="qty-actions">
-            <!-- Nút Giảm số ly (khóa khi số ly === 1) -->
-            <button
-              mat-icon-button
-              (click)="giamSoLuong()"
-              [disabled]="quantity() <= 1"
-              aria-label="Giảm số ly"
-            >
-              <mat-icon>remove</mat-icon>
-            </button>
+        <!-- Recipe Title & Description -->
+        <div class="pdp-header">
+          <h1 class="pdp-title font-serif">{{ d.name }}</h1>
+          <p class="pdp-desc">{{ d.description }}</p>
+        </div>
+
+        <div class="sb-hairline"></div>
+
+        <!-- Customization & Stepper Card -->
+        <div class="pdp-order-card">
+          <div class="order-spec-row">
+            <span class="spec-label">Đơn giá cơ bản</span>
+            <span class="spec-price font-mono">{{ d.giaCoBan | number }}<span class="curr">đ</span></span>
+          </div>
+
+          <!-- Quantity Stepper (32x32px circular buttons) -->
+          <div class="stepper-row">
+            <span class="stepper-label">Số lượng ly phục vụ</span>
             
-            <!-- Ô hiển thị số ly có aria-live để thông báo cho trình đọc màn hình khi số ly đổi -->
-            <span class="qty-num" aria-live="polite">{{ quantity() }}</span>
-            
-            <!-- Nút Tăng số ly -->
-            <button
-              mat-icon-button
-              (click)="tangSoLuong()"
-              aria-label="Tăng số ly"
-            >
-              <mat-icon>add</mat-icon>
-            </button>
+            <div class="sb-stepper-control">
+              <button
+                type="button"
+                class="stepper-circle-btn"
+                (click)="giamSoLuong()"
+                [disabled]="quantity() <= 1"
+                aria-label="Giảm số lượng 1 ly"
+              >
+                <mat-icon>remove</mat-icon>
+              </button>
+              
+              <span class="stepper-val font-mono" aria-live="polite">
+                {{ quantity() }}
+              </span>
+
+              <button
+                type="button"
+                class="stepper-circle-btn"
+                (click)="tangSoLuong()"
+                aria-label="Tăng số lượng 1 ly"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Total Calculation Display -->
+          <div class="total-summary-band">
+            <span class="total-label">Tổng cộng tạm tính:</span>
+            <span class="total-price-val font-mono">{{ totalPrice() | number }}<span class="curr-total">đ</span></span>
           </div>
         </div>
 
-        <!-- Hiển thị Tổng tiền -->
-        <div class="total-row p-16">
-          <span>Tổng tiền:</span>
-          <span class="total-val">{{ totalPrice() | number }}đ</span>
+        <!-- Toppings Section (M3 Ingredients) -->
+        <div class="toppings-section">
+          <div class="toppings-header">
+            <h2 class="toppings-title font-serif">Topping & Tùy Chọn Đi Kèm</h2>
+            <span class="toppings-count font-mono">{{ d.toppings.length }} loại</span>
+          </div>
+
+          @if (d.toppings.length > 0) {
+            <div class="toppings-grid">
+              @for (top of d.toppings; track top.name) {
+                <div class="topping-pill-card">
+                  <div class="top-check-badge">
+                    <mat-icon class="top-check-icon">check</mat-icon>
+                  </div>
+                  <div class="top-text-wrap">
+                    <span class="top-name">{{ top.name }}</span>
+                    <span class="top-qty font-mono">{{ top.quantity }} {{ top.unit }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="no-toppings-pill">
+              <mat-icon class="no-top-icon">info</mat-icon>
+              <span>Món trà nguyên bản tiêu chuẩn, chưa thêm topping tùy biến.</span>
+            </div>
+          }
         </div>
 
-        <!-- Danh sách Topping kèm theo bằng <mat-list> -->
-        <h3>Danh sách Topping kèm theo:</h3>
-        <mat-list>
-          @for (top of d.toppings; track top.name) {
-            <mat-list-item>
-              <mat-icon matListItemIcon>check_circle</mat-icon>
-              <span matListItemTitle>{{ top.name }}</span>
-              <span matListItemLine>{{ top.quantity }} {{ top.unit }}</span>
-            </mat-list-item>
-          } @empty {
-            <mat-list-item>Không có topping kèm theo.</mat-list-item>
-          }
-        </mat-list>
-      </mat-card-content>
+        <div class="sb-hairline"></div>
 
-      <!-- Các nút bấm hành động chân thẻ -->
-      <mat-card-actions align="end" class="gap-8">
-        <a mat-button routerLink="/drinks">Trở về</a>
-        <!-- 💡 D4: Nút gọi confirmDelete() để bật Popup xác nhận xóa món -->
-        <button mat-button color="warn" (click)="confirmDelete()">Xóa món này</button>
-      </mat-card-actions>
-    </mat-card>
+        <!-- Actions -->
+        <div class="pdp-actions">
+          <button
+            type="button"
+            class="sb-btn-pill btn-delete-danger"
+            (click)="confirmDelete()"
+          >
+            <mat-icon class="del-icon">delete_outline</mat-icon>
+            <span>Xóa món khỏi thực đơn</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
   } @else {
-    <!-- Giao diện khi URL nhập id sai không tìm thấy món -->
-    <div class="not-found surface-container-low p-24">
-      <h2>Không tìm thấy món trà sữa!</h2>
-      <a mat-filled-button routerLink="/drinks">Quay lại danh sách món</a>
+    <!-- Not Found State -->
+    <div class="pdp-not-found-card">
+      <mat-icon class="not-found-cup-icon">local_cafe</mat-icon>
+      <h2 class="not-found-title font-serif">Món Trà Không Tồn Tại</h2>
+      <p class="not-found-desc">
+        Mã định danh món không hợp lệ hoặc món đã được cập nhật gỡ khỏi hệ thống.
+      </p>
+      <a routerLink="/drinks" class="sb-btn-pill sb-btn-primary">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Quay về danh sách món</span>
+      </a>
     </div>
   }
 </div>
