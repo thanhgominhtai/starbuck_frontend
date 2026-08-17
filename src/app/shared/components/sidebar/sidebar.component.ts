@@ -1,8 +1,9 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
+import { SidebarService } from '../../../core/services/sidebar.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -506,24 +507,22 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class SidebarComponent {
   public authService = inject(AuthService);
+  public sidebarService = inject(SidebarService);
   private router = inject(Router);
 
-  isHovered = signal<boolean>(false);
-  isPinned = signal<boolean>(false);
-
-  isExpanded = computed(() => this.isHovered() || this.isPinned());
+  isExpanded = this.sidebarService.isExpanded;
+  isPinned = this.sidebarService.isPinned;
 
   onMouseEnter() {
-    this.isHovered.set(true);
+    this.sidebarService.setHover(true);
   }
 
   onMouseLeave() {
-    this.isHovered.set(false);
+    this.sidebarService.setHover(false);
   }
 
   togglePin(event: MouseEvent) {
-    event.stopPropagation();
-    this.isPinned.update((p) => !p);
+    this.sidebarService.togglePin(event);
   }
 
   isAuthPage(): boolean {

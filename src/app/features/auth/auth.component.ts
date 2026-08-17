@@ -53,7 +53,13 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         </div>
 
         <!-- 1. SIGN IN FORM -->
-        <form *ngIf="mode() === 'signin'" [formGroup]="signInForm" (ngSubmit)="onSignIn()" class="auth-form" novalidate>
+        <form
+          *ngIf="mode() === 'signin'"
+          [formGroup]="signInForm"
+          (ngSubmit)="onSignIn()"
+          class="auth-form"
+          novalidate
+        >
           <div class="form-group" [class.has-error]="isFieldInvalid(signInForm, 'email')">
             <label>Địa chỉ Email <span class="req-star">*</span></label>
             <div class="input-wrap">
@@ -66,8 +72,12 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
               />
             </div>
             <div class="error-text" *ngIf="isFieldInvalid(signInForm, 'email')">
-              <span *ngIf="signInForm.get('email')?.errors?.['required']">Vui lòng nhập địa chỉ email</span>
-              <span *ngIf="signInForm.get('email')?.errors?.['pattern']">Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span>
+              <span *ngIf="signInForm.get('email')?.errors?.['required']"
+                >Vui lòng nhập địa chỉ email</span
+              >
+              <span *ngIf="signInForm.get('email')?.errors?.['pattern']"
+                >Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span
+              >
             </div>
           </div>
 
@@ -86,13 +96,22 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 placeholder="Nhập mật khẩu của bạn"
                 autocomplete="current-password"
               />
-              <button type="button" class="eye-btn" (click)="toggleShowPassword()" title="Ẩn/Hiện mật khẩu">
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="toggleShowPassword()"
+                title="Ẩn/Hiện mật khẩu"
+              >
                 <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
             </div>
             <div class="error-text" *ngIf="isFieldInvalid(signInForm, 'password')">
-              <span *ngIf="signInForm.get('password')?.errors?.['required']">Vui lòng nhập mật khẩu</span>
-              <span *ngIf="signInForm.get('password')?.errors?.['minlength']">Mật khẩu phải có ít nhất 6 ký tự</span>
+              <span *ngIf="signInForm.get('password')?.errors?.['required']"
+                >Vui lòng nhập mật khẩu</span
+              >
+              <span *ngIf="signInForm.get('password')?.errors?.['minlength']"
+                >Mật khẩu phải có ít nhất 6 ký tự</span
+              >
             </div>
           </div>
 
@@ -103,7 +122,13 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         </form>
 
         <!-- 2. SIGN UP FORM -->
-        <form *ngIf="mode() === 'signup'" [formGroup]="signUpForm" (ngSubmit)="onSignUp()" class="auth-form" novalidate>
+        <form
+          *ngIf="mode() === 'signup'"
+          [formGroup]="signUpForm"
+          (ngSubmit)="onSignUp()"
+          class="auth-form"
+          novalidate
+        >
           <div class="form-group" [class.has-error]="isFieldInvalid(signUpForm, 'name')">
             <label>Họ và tên <span class="req-star">*</span></label>
             <div class="input-wrap">
@@ -116,8 +141,12 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
               />
             </div>
             <div class="error-text" *ngIf="isFieldInvalid(signUpForm, 'name')">
-              <span *ngIf="signUpForm.get('name')?.errors?.['required']">Vui lòng nhập họ và tên</span>
-              <span *ngIf="signUpForm.get('name')?.errors?.['minlength']">Họ và tên phải có ít nhất 2 ký tự</span>
+              <span *ngIf="signUpForm.get('name')?.errors?.['required']"
+                >Vui lòng nhập họ và tên</span
+              >
+              <span *ngIf="signUpForm.get('name')?.errors?.['minlength']"
+                >Họ và tên phải có ít nhất 2 ký tự</span
+              >
             </div>
           </div>
 
@@ -133,8 +162,12 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
               />
             </div>
             <div class="error-text" *ngIf="isFieldInvalid(signUpForm, 'email')">
-              <span *ngIf="signUpForm.get('email')?.errors?.['required']">Vui lòng nhập địa chỉ email</span>
-              <span *ngIf="signUpForm.get('email')?.errors?.['pattern']">Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span>
+              <span *ngIf="signUpForm.get('email')?.errors?.['required']"
+                >Vui lòng nhập địa chỉ email</span
+              >
+              <span *ngIf="signUpForm.get('email')?.errors?.['pattern']"
+                >Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span
+              >
             </div>
           </div>
 
@@ -148,13 +181,22 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
                 placeholder="Tạo mật khẩu (tối thiểu 6 ký tự)"
                 autocomplete="new-password"
               />
-              <button type="button" class="eye-btn" (click)="toggleShowPassword()" title="Ẩn/Hiện mật khẩu">
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="toggleShowPassword()"
+                title="Ẩn/Hiện mật khẩu"
+              >
                 <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
             </div>
             <div class="error-text" *ngIf="isFieldInvalid(signUpForm, 'password')">
-              <span *ngIf="signUpForm.get('password')?.errors?.['required']">Vui lòng nhập mật khẩu</span>
-              <span *ngIf="signUpForm.get('password')?.errors?.['minlength']">Mật khẩu phải có ít nhất 6 ký tự</span>
+              <span *ngIf="signUpForm.get('password')?.errors?.['required']"
+                >Vui lòng nhập mật khẩu</span
+              >
+              <span *ngIf="signUpForm.get('password')?.errors?.['minlength']"
+                >Mật khẩu phải có ít nhất 6 ký tự</span
+              >
             </div>
           </div>
 
@@ -162,7 +204,8 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             class="form-group"
             [class.has-error]="
               isFieldInvalid(signUpForm, 'confirmPassword') ||
-              (signUpForm.get('confirmPassword')?.touched && signUpForm.errors?.['passwordMismatch'])
+              (signUpForm.get('confirmPassword')?.touched &&
+                signUpForm.errors?.['passwordMismatch'])
             "
           >
             <label>Xác nhận lại mật khẩu <span class="req-star">*</span></label>
@@ -176,7 +219,9 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
               />
             </div>
             <div class="error-text" *ngIf="signUpForm.get('confirmPassword')?.touched">
-              <span *ngIf="signUpForm.get('confirmPassword')?.errors?.['required']">Vui lòng nhập lại mật khẩu xác nhận</span>
+              <span *ngIf="signUpForm.get('confirmPassword')?.errors?.['required']"
+                >Vui lòng nhập lại mật khẩu xác nhận</span
+              >
               <span
                 *ngIf="
                   !signUpForm.get('confirmPassword')?.errors?.['required'] &&
@@ -195,7 +240,13 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         </form>
 
         <!-- 3. FORGOT PASSWORD - STEP 1 (Input Email) -->
-        <form *ngIf="mode() === 'forgot_step1'" [formGroup]="forgotStep1Form" (ngSubmit)="onForgotStep1()" class="auth-form" novalidate>
+        <form
+          *ngIf="mode() === 'forgot_step1'"
+          [formGroup]="forgotStep1Form"
+          (ngSubmit)="onForgotStep1()"
+          class="auth-form"
+          novalidate
+        >
           <p class="guide-text">
             Nhập email tài khoản của bạn để hệ thống gửi mã OTP 6 số xác thực khôi phục mật khẩu.
           </p>
@@ -212,26 +263,37 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
               />
             </div>
             <div class="error-text" *ngIf="isFieldInvalid(forgotStep1Form, 'email')">
-              <span *ngIf="forgotStep1Form.get('email')?.errors?.['required']">Vui lòng nhập email</span>
-              <span *ngIf="forgotStep1Form.get('email')?.errors?.['pattern']">Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span>
+              <span *ngIf="forgotStep1Form.get('email')?.errors?.['required']"
+                >Vui lòng nhập email</span
+              >
+              <span *ngIf="forgotStep1Form.get('email')?.errors?.['pattern']"
+                >Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span
+              >
             </div>
           </div>
 
           <div class="btn-group">
             <button type="button" class="btn-back" (click)="setMode('signin')">Quay lại</button>
-            <button type="submit" class="btn-submit" [disabled]="loading()">
-              Gửi mã OTP
-            </button>
+            <button type="submit" class="btn-submit" [disabled]="loading()">Gửi mã OTP</button>
           </div>
         </form>
 
         <!-- 4. FORGOT PASSWORD - STEP 2 (Verify OTP) -->
-        <form *ngIf="mode() === 'forgot_step2'" [formGroup]="forgotStep2Form" (ngSubmit)="onForgotStep2()" class="auth-form" novalidate>
+        <form
+          *ngIf="mode() === 'forgot_step2'"
+          [formGroup]="forgotStep2Form"
+          (ngSubmit)="onForgotStep2()"
+          class="auth-form"
+          novalidate
+        >
           <div class="mail-sent-banner">
             <mat-icon>mark_email_read</mat-icon>
             <div>
               <strong>Mã xác thực đã được gửi!</strong>
-              <p>Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam) của <b>{{ resetEmail() }}</b> để lấy mã OTP 6 chữ số (hiệu lực 10 phút).</p>
+              <p>
+                Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam) của <b>{{ resetEmail() }}</b> để
+                lấy mã OTP 6 chữ số (hiệu lực 10 phút).
+              </p>
             </div>
           </div>
 
@@ -248,26 +310,39 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
               />
             </div>
             <div class="error-text" *ngIf="isFieldInvalid(forgotStep2Form, 'otp')">
-              <span *ngIf="forgotStep2Form.get('otp')?.errors?.['required']">Vui lòng nhập mã OTP</span>
-              <span *ngIf="forgotStep2Form.get('otp')?.errors?.['pattern']">Mã OTP phải gồm đúng 6 chữ số</span>
+              <span *ngIf="forgotStep2Form.get('otp')?.errors?.['required']"
+                >Vui lòng nhập mã OTP</span
+              >
+              <span *ngIf="forgotStep2Form.get('otp')?.errors?.['pattern']"
+                >Mã OTP phải gồm đúng 6 chữ số</span
+              >
             </div>
           </div>
 
           <div class="btn-group">
-            <button type="button" class="btn-back" (click)="setMode('forgot_step1')">Nhập lại email</button>
-            <button type="submit" class="btn-submit" [disabled]="loading()">
-              Xác thực OTP
+            <button type="button" class="btn-back" (click)="setMode('forgot_step1')">
+              Nhập lại email
             </button>
+            <button type="submit" class="btn-submit" [disabled]="loading()">Xác thực OTP</button>
           </div>
         </form>
 
         <!-- 5. FORGOT PASSWORD - STEP 3 (New Password with Eye Icon) -->
-        <form *ngIf="mode() === 'forgot_step3'" [formGroup]="forgotStep3Form" (ngSubmit)="onForgotStep3()" class="auth-form" novalidate>
+        <form
+          *ngIf="mode() === 'forgot_step3'"
+          [formGroup]="forgotStep3Form"
+          (ngSubmit)="onForgotStep3()"
+          class="auth-form"
+          novalidate
+        >
           <p class="guide-text">
             Xác thực thành công! Vui lòng thiết lập mật khẩu mới cho tài khoản của bạn.
           </p>
 
-          <div class="form-group" [class.has-error]="isFieldInvalid(forgotStep3Form, 'newPassword')">
+          <div
+            class="form-group"
+            [class.has-error]="isFieldInvalid(forgotStep3Form, 'newPassword')"
+          >
             <label>Mật khẩu mới (tối thiểu 6 ký tự) <span class="req-star">*</span></label>
             <div class="input-wrap">
               <mat-icon>lock_reset</mat-icon>
@@ -288,8 +363,12 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
               </button>
             </div>
             <div class="error-text" *ngIf="isFieldInvalid(forgotStep3Form, 'newPassword')">
-              <span *ngIf="forgotStep3Form.get('newPassword')?.errors?.['required']">Vui lòng nhập mật khẩu mới</span>
-              <span *ngIf="forgotStep3Form.get('newPassword')?.errors?.['minlength']">Mật khẩu mới phải có ít nhất 6 ký tự</span>
+              <span *ngIf="forgotStep3Form.get('newPassword')?.errors?.['required']"
+                >Vui lòng nhập mật khẩu mới</span
+              >
+              <span *ngIf="forgotStep3Form.get('newPassword')?.errors?.['minlength']"
+                >Mật khẩu mới phải có ít nhất 6 ký tự</span
+              >
             </div>
           </div>
 
@@ -300,274 +379,284 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       </div>
     </div>
   `,
-  styles: [`
-    .auth-page {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 16px;
-      background: radial-gradient(circle at top, #faf6ee 0%, #f2f0eb 100%);
-    }
-    .auth-card {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 36px 32px;
-      max-width: 440px;
-      width: 100%;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
-      border: 1px solid #edebe9;
-    }
-    .auth-header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .brand-badge {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: #006241;
-      color: #ffffff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 12px rgba(0, 98, 65, 0.3);
-    }
-    .brand-badge mat-icon {
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-    }
-    .auth-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: #1e3932;
-      letter-spacing: -0.01em;
-      margin-bottom: 4px;
-    }
-    .auth-subtitle {
-      font-size: 13px;
-      color: rgba(0, 0, 0, 0.58);
-    }
-    .server-error-banner {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      background: #fde8e7;
-      border: 1px solid #f29c95;
-      color: #c82014;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 18px;
-      animation: fadeIn 0.2s ease-in-out;
-    }
-    .server-error-banner mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .tab-switcher {
-      display: flex;
-      background: #f2f0eb;
-      border-radius: 50px;
-      padding: 4px;
-      margin-bottom: 24px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 8px 16px;
-      border: none;
-      background: transparent;
-      border-radius: 50px;
-      font-size: 13px;
-      font-weight: 700;
-      color: rgba(0, 0, 0, 0.6);
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .tab-btn.active {
-      background: #ffffff;
-      color: #006241;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    .auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .form-group label {
-      font-size: 13px;
-      font-weight: 700;
-      color: #1e3932;
-    }
-    .req-star {
-      color: #c82014;
-    }
-    .label-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .link-btn {
-      background: none;
-      border: none;
-      color: #00754a;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 0;
-    }
-    .link-btn:hover {
-      text-decoration: underline;
-    }
-    .input-wrap {
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      height: 48px;
-      border-radius: 12px;
-      background: #ffffff;
-      border: 1.5px solid #d6dbde;
-      transition: all 0.2s;
-    }
-    .input-wrap:focus-within {
-      border-color: #00754a;
-      box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.15);
-    }
-    .form-group.has-error .input-wrap {
-      border-color: #c82014;
-      background: #fffafa;
-    }
-    .form-group.has-error .input-wrap:focus-within {
-      box-shadow: 0 0 0 3px rgba(200, 32, 20, 0.15);
-    }
-    .input-wrap mat-icon {
-      color: rgba(0, 0, 0, 0.4);
-      margin-right: 10px;
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-    .input-wrap input {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-size: 14px;
-      font-family: inherit;
-      color: #1e3932;
-      background: transparent;
-    }
-    .eye-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: rgba(0, 0, 0, 0.45);
-      display: flex;
-      align-items: center;
-      padding: 4px;
-    }
-    .eye-btn:hover {
-      color: #1e3932;
-    }
-    .error-text {
-      font-size: 11.5px;
-      color: #c82014;
-      font-weight: 600;
-      line-height: 1.3;
-      padding-left: 2px;
-    }
-    .btn-submit {
-      margin-top: 6px;
-      padding: 13px 24px;
-      border-radius: 50px;
-      background: #00754a;
-      color: #ffffff;
-      border: none;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 117, 74, 0.3);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .btn-submit:hover:not(:disabled) {
-      background: #005c3b;
-      transform: translateY(-1px);
-    }
-    .btn-submit:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-    .btn-submit:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    .btn-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 8px;
-    }
-    .btn-back {
-      padding: 12px 20px;
-      border-radius: 50px;
-      background: #edebe9;
-      color: rgba(0, 0, 0, 0.87);
-      border: none;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn-back:hover {
-      background: #e0dedc;
-    }
-    .guide-text {
-      font-size: 13px;
-      color: rgba(0, 0, 0, 0.65);
-      line-height: 1.5;
-    }
-    .mail-sent-banner {
-      display: flex;
-      gap: 12px;
-      padding: 14px 16px;
-      background: #faf6ee;
-      border: 1.5px dashed #cba258;
-      border-radius: 12px;
-      color: #1e3932;
-      align-items: flex-start;
-    }
-    .mail-sent-banner mat-icon {
-      color: #00754a;
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .mail-sent-banner strong {
-      font-size: 14px;
-      display: block;
-      margin-bottom: 4px;
-      color: #00754a;
-    }
-    .mail-sent-banner p {
-      font-size: 12.5px;
-      color: rgba(0, 0, 0, 0.7);
-      line-height: 1.45;
-      margin: 0;
-    }
-  `],
+  styles: [
+    `
+      .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+        background: radial-gradient(circle at top, #faf6ee 0%, #f2f0eb 100%);
+      }
+      .auth-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 36px 32px;
+        max-width: 440px;
+        width: 100%;
+        box-shadow:
+          0 12px 32px rgba(0, 0, 0, 0.08),
+          0 2px 6px rgba(0, 0, 0, 0.04);
+        border: 1px solid #edebe9;
+      }
+      .auth-header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .brand-badge {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: #006241;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 12px rgba(0, 98, 65, 0.3);
+      }
+      .brand-badge mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+      .auth-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #1e3932;
+        letter-spacing: -0.01em;
+        margin-bottom: 4px;
+      }
+      .auth-subtitle {
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.58);
+      }
+      .server-error-banner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: #fde8e7;
+        border: 1px solid #f29c95;
+        color: #c82014;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 18px;
+        animation: fadeIn 0.2s ease-in-out;
+      }
+      .server-error-banner mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .tab-switcher {
+        display: flex;
+        background: #f2f0eb;
+        border-radius: 50px;
+        padding: 4px;
+        margin-bottom: 24px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 8px 16px;
+        border: none;
+        background: transparent;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 700;
+        color: rgba(0, 0, 0, 0.6);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .tab-btn.active {
+        background: #ffffff;
+        color: #006241;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .form-group label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e3932;
+      }
+      .req-star {
+        color: #c82014;
+      }
+      .label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .link-btn {
+        background: none;
+        border: none;
+        color: #00754a;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0;
+      }
+      .link-btn:hover {
+        text-decoration: underline;
+      }
+      .input-wrap {
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+        height: 48px;
+        border-radius: 12px;
+        background: #ffffff;
+        border: 1.5px solid #d6dbde;
+        transition: all 0.2s;
+      }
+      .input-wrap:focus-within {
+        border-color: #00754a;
+        box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.15);
+      }
+      .form-group.has-error .input-wrap {
+        border-color: #c82014;
+        background: #fffafa;
+      }
+      .form-group.has-error .input-wrap:focus-within {
+        box-shadow: 0 0 0 3px rgba(200, 32, 20, 0.15);
+      }
+      .input-wrap mat-icon {
+        color: rgba(0, 0, 0, 0.4);
+        margin-right: 10px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+      .input-wrap input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 14px;
+        font-family: inherit;
+        color: #1e3932;
+        background: transparent;
+      }
+      .eye-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: rgba(0, 0, 0, 0.45);
+        display: flex;
+        align-items: center;
+        padding: 4px;
+      }
+      .eye-btn:hover {
+        color: #1e3932;
+      }
+      .error-text {
+        font-size: 11.5px;
+        color: #c82014;
+        font-weight: 600;
+        line-height: 1.3;
+        padding-left: 2px;
+      }
+      .btn-submit {
+        margin-top: 6px;
+        padding: 13px 24px;
+        border-radius: 50px;
+        background: #00754a;
+        color: #ffffff;
+        border: none;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 117, 74, 0.3);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .btn-submit:hover:not(:disabled) {
+        background: #005c3b;
+        transform: translateY(-1px);
+      }
+      .btn-submit:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+      }
+      .btn-back {
+        padding: 12px 20px;
+        border-radius: 50px;
+        background: #edebe9;
+        color: rgba(0, 0, 0, 0.87);
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-back:hover {
+        background: #e0dedc;
+      }
+      .guide-text {
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.65);
+        line-height: 1.5;
+      }
+      .mail-sent-banner {
+        display: flex;
+        gap: 12px;
+        padding: 14px 16px;
+        background: #faf6ee;
+        border: 1.5px dashed #cba258;
+        border-radius: 12px;
+        color: #1e3932;
+        align-items: flex-start;
+      }
+      .mail-sent-banner mat-icon {
+        color: #00754a;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .mail-sent-banner strong {
+        font-size: 14px;
+        display: block;
+        margin-bottom: 4px;
+        color: #00754a;
+      }
+      .mail-sent-banner p {
+        font-size: 12.5px;
+        color: rgba(0, 0, 0, 0.7);
+        line-height: 1.45;
+        margin: 0;
+      }
+    `,
+  ],
 })
 export class AuthComponent {
   private fb = inject(FormBuilder);
@@ -641,21 +730,31 @@ export class AuthComponent {
 
   getHeaderTitle(): string {
     switch (this.mode()) {
-      case 'signin': return 'Đăng nhập Starbucks';
-      case 'signup': return 'Tạo tài khoản mới';
-      case 'forgot_step1': return 'Quên mật khẩu';
-      case 'forgot_step2': return 'Nhập mã OTP';
-      case 'forgot_step3': return 'Thiết lập mật khẩu mới';
+      case 'signin':
+        return 'Đăng nhập Starbucks';
+      case 'signup':
+        return 'Tạo tài khoản mới';
+      case 'forgot_step1':
+        return 'Quên mật khẩu';
+      case 'forgot_step2':
+        return 'Nhập mã OTP';
+      case 'forgot_step3':
+        return 'Thiết lập mật khẩu mới';
     }
   }
 
   getHeaderSubtitle(): string {
     switch (this.mode()) {
-      case 'signin': return 'Đăng nhập để đặt món & nhận ưu đãi';
-      case 'signup': return 'Tham gia cộng đồng thưởng thức trà sữa & cà phê';
-      case 'forgot_step1': return 'Khôi phục quyền truy cập vào tài khoản của bạn';
-      case 'forgot_step2': return 'Xác thực mã bảo mật 6 chữ số gửi qua email';
-      case 'forgot_step3': return 'Thiết lập mật khẩu an toàn mới';
+      case 'signin':
+        return 'Đăng nhập để đặt món & nhận ưu đãi';
+      case 'signup':
+        return 'Tham gia cộng đồng thưởng thức trà sữa & cà phê';
+      case 'forgot_step1':
+        return 'Khôi phục quyền truy cập vào tài khoản của bạn';
+      case 'forgot_step2':
+        return 'Xác thực mã bảo mật 6 chữ số gửi qua email';
+      case 'forgot_step3':
+        return 'Thiết lập mật khẩu an toàn mới';
     }
   }
 
@@ -689,18 +788,20 @@ export class AuthComponent {
     this.errorMessage.set('');
     const { name, email, password } = this.signUpForm.value;
 
-    this.authService.signUp({ name: name!.trim(), email: email!.trim(), password: password! }).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.toast.success('Đăng ký tài khoản thành công!');
-        this.router.navigate(['/menu']);
-      },
-      error: (err) => {
-        this.loading.set(false);
-        const msg = err.error?.message || 'Không thể tạo tài khoản, vui lòng thử lại';
-        this.errorMessage.set(msg);
-      },
-    });
+    this.authService
+      .signUp({ name: name!.trim(), email: email!.trim(), password: password! })
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.toast.success('Đăng ký tài khoản thành công!');
+          this.router.navigate(['/menu']);
+        },
+        error: (err) => {
+          this.loading.set(false);
+          const msg = err.error?.message || 'Không thể tạo tài khoản, vui lòng thử lại';
+          this.errorMessage.set(msg);
+        },
+      });
   }
 
   onForgotStep1() {

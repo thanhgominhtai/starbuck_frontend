@@ -260,38 +260,61 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       position: absolute;
       top: 14px;
       right: 14px;
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(4px);
-      border: none;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: #757575;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      color: #888888;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 2;
     }
     .btn-fav-detail mat-icon {
       font-size: 24px;
       width: 24px;
       height: 24px;
-      transition: transform 0.2s;
+      font-variation-settings: 'FILL' 0, 'wght' 500;
+      transition: all 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+    /* 1. Khi di chuột vào lúc CHƯA yêu thích: Đỏ viền trái tim */
     .btn-fav-detail:hover {
-      transform: scale(1.1);
+      transform: scale(1.15);
       background: #ffffff;
+      color: #e53935;
+      box-shadow: 0 4px 16px rgba(229, 57, 53, 0.25);
+    }
+    .btn-fav-detail:hover mat-icon {
       color: #e53935;
     }
+    /* 2. Khi ĐÃ BẤM YÊU THÍCH (.is-fav): ĐỎ ĐẶC TOÀN BỘ TRÁI TIM */
     .btn-fav-detail.is-fav {
-      color: #e53935;
       background: #ffffff;
+      color: #e53935;
+      border-color: rgba(229, 57, 53, 0.25);
+      box-shadow: 0 4px 14px rgba(229, 57, 53, 0.3);
     }
     .btn-fav-detail.is-fav mat-icon {
-      transform: scale(1.08);
+      font-family: 'Material Icons', 'Material Symbols Outlined' !important;
+      font-variation-settings: 'FILL' 1, 'wght' 700 !important;
+      color: #e53935 !important;
+      animation: heartPopDetail 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-fav-detail.is-fav:hover {
+      transform: scale(1.15);
+      background: #fff5f5;
+      box-shadow: 0 6px 18px rgba(229, 57, 53, 0.35);
+    }
+
+    @keyframes heartPopDetail {
+      0% { transform: scale(0.6); }
+      50% { transform: scale(1.35); }
+      100% { transform: scale(1); }
     }
     .meta-card {
       background: #f2f0eb;

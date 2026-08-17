@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
+import { SidebarService } from './core/services/sidebar.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
 })
 export class App {
   private router = inject(Router);
+  public sidebarService = inject(SidebarService);
 
   isAuthPage(): boolean {
     return this.router.url.startsWith('/auth');

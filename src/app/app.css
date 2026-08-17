@@ -2,16 +2,45 @@
   display: flex;
   min-height: 100vh;
   background: #f2f0eb;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .app-main {
   flex: 1;
   margin-left: 72px;
   min-height: 100vh;
-  transition: margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  width: calc(100% - 72px);
+  max-width: calc(100% - 72px);
+  transition: margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+              width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+              max-width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Khi sidebar sổ ra (expanded): Đẩy lùi nội dung vào trong 260px và thu hẹp width để không che khuất nội dung */
+.app-layout.sidebar-expanded .app-main {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  max-width: calc(100% - 260px);
 }
 
 .app-layout.no-sidebar .app-main {
   margin-left: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  .app-layout.sidebar-expanded .app-main {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
 }

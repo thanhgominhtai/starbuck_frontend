@@ -118,12 +118,12 @@
           <button
             type="button"
             class="star-fav-btn"
-            [class.star-fav-active]="drink.isPopular"
+            [class.star-fav-active]="favoriteService.isFavorite(drink.id)"
             (click)="toggleFavorite(drink, $event)"
-            [attr.aria-label]="drink.isPopular ? 'Bỏ đánh dấu sao' : 'Đánh dấu sao yêu thích'"
+            [attr.aria-label]="favoriteService.isFavorite(drink.id) ? 'Bỏ đánh dấu sao' : 'Đánh dấu sao yêu thích'"
           >
             <mat-icon class="star-icon">
-              {{ drink.isPopular ? 'star' : 'star_border' }}
+              {{ favoriteService.isFavorite(drink.id) ? 'star' : 'star_border' }}
             </mat-icon>
           </button>
         </div>

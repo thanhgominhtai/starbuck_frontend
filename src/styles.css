@@ -309,3 +309,19 @@ a:hover {
   --mdc-list-list-item-hover-state-layer-color: transparent !important;
   --mdc-list-list-item-focus-state-layer-color: transparent !important;
 }
+
+/* ==========================================================================
+   FAVORITE HEART INTERACTION SYSTEM (OUTLINE HOVER vs FILLED ACTIVE)
+   ========================================================================== */
+.is-fav mat-icon,
+mat-icon.fav-active {
+  font-family: 'Material Icons', 'Material Symbols Outlined' !important;
+  font-variation-settings: 'FILL' 1, 'wght' 700 !important;
+  color: #e53935 !important;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(0.6); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}

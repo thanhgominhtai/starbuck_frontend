@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 
 import { DrinkService } from '../drink-service';
+import { FavoriteService } from '../core/services/favorite.service';
 import { DrinkModel } from '../models';
 
 export type FilterCategory = 'all' | 'popular';
@@ -36,6 +37,7 @@ export type SortOption = 'default' | 'price-asc' | 'price-desc' | 'name-asc';
 })
 export class DrinkList {
   private readonly drinkService = inject(DrinkService);
+  protected readonly favoriteService = inject(FavoriteService);
 
   protected readonly drinks = this.drinkService.drinks;
   protected readonly keyword = signal<string>('');
@@ -44,7 +46,7 @@ export class DrinkList {
 
   // Đếm số lượng món Hot/Phổ biến
   protected readonly popularCount = computed(() => {
-    return this.drinks().filter((d) => d.isPopular).length;
+    return this.drinks().filter((d) => d.isPopular || this.favoriteService.isFavorite(d.id)).length;
   });
 
   // Computed tự động tính toán danh sách lọc & sắp xếp
@@ -90,6 +92,6 @@ export class DrinkList {
   protected toggleFavorite(drink: DrinkModel, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    this.drinkService.toggleFavorite(drink.id);
+    this.favoriteService.toggleFavorite(drink.id);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, HostListener, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject, signal, computed, HostListener, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -24,8 +24,19 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
   ],
   template: `
     <div class="catalog-page">
-      <!-- Hero Banner with Starbucks House Green Band -->
-      <section class="hero-band">
+      <!-- Hero Banner with Interactive Canvas & Symmetrical Gold Ambient Glow -->
+      <section
+        class="hero-band"
+        (mousemove)="onHeroMouseMove($event)"
+        (mouseleave)="onHeroMouseLeave()"
+      >
+        <!-- Luxury Symmetrical Gold Ambient Glow Layers -->
+        <div class="hero-ambient-glow glow-top-left"></div>
+        <div class="hero-ambient-glow glow-top-right"></div>
+
+        <!-- Interactive Canvas Dot-Grid & Floating Aroma Particles -->
+        <canvas #heroCanvas class="hero-dot-canvas"></canvas>
+
         <div class="hero-content">
           <div class="hero-eyebrow">
             <mat-icon class="star-mini">star</mat-icon>
@@ -178,9 +189,6 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
               </div>
 
               <span class="dock-text">{{ item.label }}</span>
-
-              <!-- Active Glowing Dot (Dock Indicator) -->
-              <span class="dock-active-dot" *ngIf="selectedCategory() === item.id"></span>
             </button>
           </div>
         </div>
@@ -276,16 +284,49 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       padding-bottom: 60px;
     }
     .hero-band {
-      background: radial-gradient(circle at 50% 25%, rgba(0, 117, 74, 0.32) 0%, rgba(30, 57, 50, 0.98) 75%), #13241f;
+      background: radial-gradient(circle at 50% 30%, #152d24 0%, #0d1a15 80%, #08120e 100%);
       color: #ffffff;
-      padding: 60px 24px 50px;
+      padding: 68px 24px 54px;
       text-align: center;
       position: relative;
-      border-bottom: 1px solid rgba(203, 162, 88, 0.2);
+      border-bottom: 1px solid rgba(203, 162, 88, 0.25);
+      overflow: hidden;
+    }
+    .hero-ambient-glow {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-top-left {
+      top: -80px;
+      left: -80px;
+      width: 420px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(203, 162, 88, 0.28) 0%, rgba(203, 162, 88, 0.08) 45%, transparent 70%);
+      filter: blur(75px);
+    }
+    .glow-top-right {
+      top: -80px;
+      right: -80px;
+      width: 420px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(203, 162, 88, 0.28) 0%, rgba(203, 162, 88, 0.08) 45%, transparent 70%);
+      filter: blur(75px);
+    }
+    .hero-dot-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
     }
     .hero-content {
-      max-width: 820px;
+      max-width: 860px;
       margin: 0 auto;
+      position: relative;
+      z-index: 2;
     }
     .hero-eyebrow {
       display: inline-flex;
@@ -293,14 +334,26 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       gap: 8px;
       font-size: 11.5px;
       font-weight: 800;
-      color: #dfc49d;
-      letter-spacing: 0.2em;
-      background: rgba(203, 162, 88, 0.12);
-      padding: 5px 18px;
+      color: #f7eedc;
+      letter-spacing: 0.22em;
+      background: rgba(203, 162, 88, 0.16);
+      padding: 6px 22px;
       border-radius: 50px;
-      border: 1px solid rgba(203, 162, 88, 0.35);
-      margin-bottom: 16px;
-      backdrop-filter: blur(6px);
+      border: 1.5px solid rgba(203, 162, 88, 0.55);
+      margin-bottom: 18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(203, 162, 88, 0.25), 0 0 12px rgba(203, 162, 88, 0.2), inset 0 0 14px rgba(203, 162, 88, 0.12);
+      animation: eyebrowGlow 3s ease-in-out infinite alternate;
+    }
+    @keyframes eyebrowGlow {
+      0% {
+        border-color: rgba(203, 162, 88, 0.45);
+        box-shadow: 0 4px 20px rgba(203, 162, 88, 0.22), 0 0 10px rgba(203, 162, 88, 0.16);
+      }
+      100% {
+        border-color: rgba(203, 162, 88, 0.85);
+        box-shadow: 0 6px 26px rgba(203, 162, 88, 0.38), 0 0 18px rgba(203, 162, 88, 0.3);
+      }
     }
     .star-mini {
       font-size: 13px;
@@ -309,32 +362,36 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       color: #cba258;
     }
     .hero-title {
-      font-size: 40px;
-      font-weight: 800;
-      color: #f7f5f0;
-      letter-spacing: -0.025em;
-      margin-bottom: 14px;
+      font-size: 42px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
       line-height: 1.25;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
     .highlight-gold {
-      background: linear-gradient(135deg, #fcefd6 0%, #dfc49d 45%, #cba258 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #fcefd6 25%, #dfc49d 60%, #cba258 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       display: inline-block;
       font-weight: 900;
+      text-shadow: none;
     }
     .highlight-green {
-      color: #b2ebd4;
-      font-weight: 800;
-      text-shadow: 0 0 16px rgba(0, 117, 74, 0.4);
+      margin-left: 10px;
+      color: #7ee0b8;
+      font-weight: 900;
+      display: inline-block;
+      text-shadow: 0 0 24px rgba(0, 117, 74, 0.6);
     }
     .hero-desc {
       font-size: 15.5px;
       color: #d4e9e2;
-      line-height: 1.65;
-      margin-bottom: 32px;
-      opacity: 0.88;
-      max-width: 640px;
+      line-height: 1.7;
+      margin-bottom: 34px;
+      opacity: 0.9;
+      max-width: 660px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -649,17 +706,6 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
     .dock-text {
       font-weight: 700;
     }
-    .dock-active-dot {
-      position: absolute;
-      bottom: 2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #dfc49d;
-      box-shadow: 0 0 6px #dfc49d;
-    }
     .dock-label {
       position: absolute;
       top: -46px;
@@ -781,38 +827,61 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       position: absolute;
       top: 12px;
       right: 12px;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(4px);
-      border: none;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: #757575;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      color: #888888;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 2;
     }
     .btn-fav-card mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
-      transition: transform 0.2s;
+      font-variation-settings: 'FILL' 0, 'wght' 500;
+      transition: all 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+    /* 1. Khi di chuột vào lúc CHƯA yêu thích: Đỏ viền trái tim */
     .btn-fav-card:hover {
-      transform: scale(1.1);
+      transform: scale(1.15);
       background: #ffffff;
+      color: #e53935;
+      box-shadow: 0 4px 14px rgba(229, 57, 53, 0.25);
+    }
+    .btn-fav-card:hover mat-icon {
       color: #e53935;
     }
+    /* 2. Khi ĐÃ BẤM YÊU THÍCH (.is-fav): ĐỎ ĐẶC TOÀN BỘ TRÁI TIM */
     .btn-fav-card.is-fav {
-      color: #e53935;
       background: #ffffff;
+      color: #e53935;
+      border-color: rgba(229, 57, 53, 0.25);
+      box-shadow: 0 3px 12px rgba(229, 57, 53, 0.3);
     }
     .btn-fav-card.is-fav mat-icon {
-      transform: scale(1.08);
+      font-family: 'Material Icons', 'Material Symbols Outlined' !important;
+      font-variation-settings: 'FILL' 1, 'wght' 700 !important;
+      color: #e53935 !important;
+      animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-fav-card.is-fav:hover {
+      transform: scale(1.15);
+      background: #fff5f5;
+      box-shadow: 0 5px 16px rgba(229, 57, 53, 0.35);
+    }
+
+    @keyframes heartPop {
+      0% { transform: scale(0.6); }
+      50% { transform: scale(1.35); }
+      100% { transform: scale(1); }
     }
     .cat-badge {
       position: absolute;
@@ -970,13 +1039,18 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
     }
   `],
 })
-export class RecipeCatalogComponent implements OnInit, OnDestroy {
+export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy {
   private recipeService = inject(RecipeService);
   public favoriteService = inject(FavoriteService);
   private toast = inject(ToastService);
 
+  @ViewChild('heroCanvas') heroCanvasRef?: ElementRef<HTMLCanvasElement>;
   @ViewChild('dockRef') dockRef?: ElementRef<HTMLDivElement>;
   @ViewChild('searchInputRef') searchInputRef?: ElementRef<HTMLInputElement>;
+
+  private heroAnimationId?: number;
+  private heroMouseX = -1000;
+  private heroMouseY = -1000;
 
   searchControl = new FormControl('');
   recipes = signal<Recipe[]>([]);
@@ -1117,8 +1191,153 @@ export class RecipeCatalogComponent implements OnInit, OnDestroy {
     this.sub.add(searchSub);
   }
 
+  ngAfterViewInit() {
+    this.initHeroCanvas();
+  }
+
   ngOnDestroy() {
     this.sub.unsubscribe();
+    if (this.heroAnimationId) {
+      cancelAnimationFrame(this.heroAnimationId);
+    }
+  }
+
+  onHeroMouseMove(e: MouseEvent) {
+    const canvas = this.heroCanvasRef?.nativeElement;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      // 1:1 Accurate coordinate mapping between visual pointer and internal canvas buffer
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      this.heroMouseX = (e.clientX - rect.left) * scaleX;
+      this.heroMouseY = (e.clientY - rect.top) * scaleY;
+    }
+  }
+
+  onHeroMouseLeave() {
+    this.heroMouseX = -1000;
+    this.heroMouseY = -1000;
+  }
+
+  private initHeroCanvas() {
+    const canvas = this.heroCanvasRef?.nativeElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Sync buffer resolution to actual rendered bounding box
+    const updateCanvasSize = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        if (canvas.width !== Math.round(rect.width) || canvas.height !== Math.round(rect.height)) {
+          canvas.width = Math.round(rect.width);
+          canvas.height = Math.round(rect.height);
+        }
+      }
+    };
+
+    updateCanvasSize();
+
+    const SPACING = 24;          // Uniform square grid spacing
+    const BASE_R = 1.05;         // Base dot radius
+    const HOVER_R = 88;          // Balanced circular glow radius (~176px diameter)
+    const DEFAULT_DOT_COLOR = 'rgba(212, 233, 226, 0.12)';
+    const ACTIVE_GOLD_COLOR = '#dfc49d';
+    const ACTIVE_GREEN_COLOR = '#52d6a4';
+
+    class Particle {
+      x = 0;
+      y = 0;
+      vx = 0;
+      vy = 0;
+      size = 0;
+      alpha = 0;
+      color = '203, 162, 88';
+
+      constructor(w: number, h: number) {
+        this.reset(w, h, true);
+      }
+
+      reset(w: number, h: number, initial = false) {
+        this.x = Math.random() * w;
+        this.y = initial ? Math.random() * h : h + 10;
+        this.vx = (Math.random() - 0.5) * 0.32;
+        this.vy = -0.22 - Math.random() * 0.38; // float gently upward
+        this.size = Math.random() * 2.0 + 0.9;
+        this.alpha = Math.random() * 0.35 + 0.14;
+        // 60% Luxury Gold aroma, 40% Uplift Mint aroma
+        this.color = Math.random() > 0.4 ? '203, 162, 88' : '126, 224, 184';
+      }
+
+      update(w: number, h: number) {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0) this.x = w;
+        if (this.x > w) this.x = 0;
+        if (this.y < -10) this.reset(w, h);
+      }
+
+      draw(c: CanvasRenderingContext2D) {
+        c.beginPath();
+        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+        c.fill();
+      }
+    }
+
+    const particles: Particle[] = [];
+    const particleCount = 30; // Increased by 1.5x as requested
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle(canvas.width, canvas.height));
+    }
+
+    const draw = () => {
+      updateCanvasSize();
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Floating Aroma Particles
+      particles.forEach((p) => {
+        p.update(w, h);
+        p.draw(ctx);
+      });
+
+      // 2. Square Grid with Centered Offsets for Exact Geometric Circle
+      const startX = (w % SPACING) / 2 + SPACING / 2;
+      const startY = (h % SPACING) / 2 + SPACING / 2;
+
+      for (let x = startX; x < w; x += SPACING) {
+        for (let y = startY; y < h; y += SPACING) {
+          const dx = x - this.heroMouseX;
+          const dy = y - this.heroMouseY;
+          const dist = Math.hypot(dx, dy); // Accurate Euclidean distance
+
+          if (dist < HOVER_R) {
+            const ratio = 1 - dist / HOVER_R;
+            ctx.fillStyle = ratio > 0.45 ? ACTIVE_GOLD_COLOR : ACTIVE_GREEN_COLOR;
+            ctx.shadowBlur = 10 * ratio;
+            ctx.shadowColor = 'rgba(203, 162, 88, 0.45)';
+            ctx.beginPath();
+            ctx.arc(x, y, BASE_R + ratio * 1.8, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillStyle = DEFAULT_DOT_COLOR;
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = 'transparent';
+            ctx.beginPath();
+            ctx.arc(x, y, BASE_R, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      this.heroAnimationId = requestAnimationFrame(draw);
+    };
+
+    draw();
   }
 
   fetchRecipes() {

@@ -54,18 +54,4 @@ export class DrinkService {
       this.drinksState.update((drinks) => drinks.filter((d) => d.id !== id));
     });
   }
-
-  // 4. CHỈNH SỬA (VÍ DỤ: YÊU THÍCH)
-  toggleFavorite(id: string): void {
-    // Cập nhật giao diện trước cho ngầu
-    this.drinksState.update((drinks) =>
-      drinks.map((d) => (d.id === id ? { ...d, isPopular: !d.isPopular } : d)),
-    );
-
-    // Gửi ngầm lên API để lưu vĩnh viễn trạng thái đó
-    const drink = this.getDrinkById(id);
-    if (drink) {
-      this.http.patch(`${this.API_URL}/${id}`, { isPopular: !drink.isPopular }).subscribe();
-    }
-  }
 }
