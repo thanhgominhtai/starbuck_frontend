@@ -1,6 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DrinkModel } from './models';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +9,7 @@ import { DrinkModel } from './models';
 export class DrinkService {
   // Tiêm "ống hút" dữ liệu từ thư viện Angular
   private http = inject(HttpClient);
-  private API_URL = 'http://localhost:3000/drinks';
+  private API_URL = `${environment.apiUrl}/drinks`;
 
   // Khởi tạo danh sách bằng mảng rỗng (thay vì MOCK_DRINKS)
   private readonly drinksState = signal<DrinkModel[]>([]);

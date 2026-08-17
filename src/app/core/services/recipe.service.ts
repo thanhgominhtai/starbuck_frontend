@@ -2,8 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Recipe, CreateRecipeDto } from '../models/recipe.model';
+import { environment } from '../../../environments/environment';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = environment.apiUrl;
 
 @Injectable({
   providedIn: 'root',

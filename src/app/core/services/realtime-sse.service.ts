@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { ToastService } from './toast.service';
+import { environment } from '../../../environments/environment';
 
 export interface SseNotification {
   type: 'ORDER_CREATED' | 'ORDER_STATUS_CHANGED' | 'RECIPE_UPDATED';
@@ -12,7 +13,7 @@ export interface SseNotification {
   timestamp: string;
 }
 
-const SSE_URL = 'http://localhost:3000/realtime/events';
+const SSE_URL = environment.sseUrl;
 
 @Injectable({
   providedIn: 'root',

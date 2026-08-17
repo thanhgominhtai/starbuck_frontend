@@ -4,8 +4,9 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { User, AuthResponse } from '../models/user.model';
 import { ToastService } from './toast.service';
+import { environment } from '../../../environments/environment';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = environment.apiUrl;
 const ACCESS_TOKEN_KEY = 'sb_recipe_access_token';
 const REFRESH_TOKEN_KEY = 'sb_recipe_refresh_token';
 const USER_KEY = 'sb_recipe_user';
