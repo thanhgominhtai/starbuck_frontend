@@ -36,7 +36,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
                   <mat-icon>local_fire_department</mat-icon>
                   Bán chạy
                 </span>
-                <span class="badge-special" *ngIf="recipe()!.category === 'Đặc biệt'">
+                <span class="badge-special" *ngIf="recipe()!.isSpecial || recipe()!.category === 'Đặc biệt'">
                   <mat-icon>auto_awesome</mat-icon>
                   Đặc biệt
                 </span>

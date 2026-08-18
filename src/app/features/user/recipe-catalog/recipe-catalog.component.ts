@@ -255,7 +255,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
                   <mat-icon>local_fire_department</mat-icon>
                   Bán chạy
                 </span>
-                <span class="special-badge" *ngIf="recipe.category === 'Đặc biệt'">
+                <span class="special-badge" *ngIf="recipe.isSpecial || recipe.category === 'Đặc biệt'">
                   <mat-icon>auto_awesome</mat-icon>
                   Đặc biệt
                 </span>
@@ -322,7 +322,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       text-align: center;
       position: relative;
       border-bottom: 1px solid rgba(203, 162, 88, 0.25);
-      z-index: 110;
+      z-index: 10;
     }
     .hero-backdrop {
       position: absolute;
@@ -825,15 +825,17 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
     .catalog-container {
       max-width: 1280px;
       margin: 0 auto;
-      padding: 32px 24px 0;
+      padding: 24px 24px 0;
+      position: relative;
+      z-index: 50;
     }
     .dock-container-wrap {
       display: flex;
       justify-content: center;
-      margin: 8px 0 36px;
+      margin: 16px 0 36px;
       position: sticky;
       top: 14px;
-      z-index: 100;
+      z-index: 300;
       padding: 0 12px;
     }
     .apple-dock {
@@ -908,35 +910,35 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
     }
     .dock-label {
       position: absolute;
-      top: -46px;
+      top: -50px;
       left: 50%;
       transform: translateX(-50%);
       background: #1e3932;
       color: #ffffff;
-      padding: 4px 12px;
-      border-radius: 8px;
+      padding: 5px 14px;
+      border-radius: 10px;
       font-size: 11px;
       white-space: nowrap;
       pointer-events: none;
       display: flex;
       flex-direction: column;
       align-items: center;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(203, 162, 88, 0.4);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      border: 1.5px solid rgba(203, 162, 88, 0.65);
       animation: labelPop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 1000;
+      z-index: 99999;
     }
     .dock-label::after {
       content: '';
       position: absolute;
-      bottom: -4px;
+      bottom: -5px;
       left: 50%;
       transform: translateX(-50%) rotate(45deg);
       width: 8px;
       height: 8px;
       background: #1e3932;
-      border-right: 1px solid rgba(203, 162, 88, 0.4);
-      border-bottom: 1px solid rgba(203, 162, 88, 0.4);
+      border-right: 1.5px solid rgba(203, 162, 88, 0.65);
+      border-bottom: 1.5px solid rgba(203, 162, 88, 0.65);
     }
     .dock-label-title {
       font-weight: 800;
