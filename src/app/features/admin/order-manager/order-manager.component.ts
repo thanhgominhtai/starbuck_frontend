@@ -48,16 +48,17 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
             </button>
           </div>
 
-          <div class="filter-select-wrap">
-            <mat-icon class="filter-icon">tune</mat-icon>
-            <select [formControl]="statusFilter" class="status-select">
-              <option value="Tất cả">Tất cả trạng thái</option>
-              <option value="Pending">⏳ Chờ tiếp nhận (Pending)</option>
-              <option value="Đang làm">☕ Đang làm</option>
-              <option value="Hoàn thành">✅ Hoàn thành</option>
-              <option value="Bị huỷ">❌ Bị huỷ</option>
-            </select>
-            <mat-icon class="filter-arrow">expand_more</mat-icon>
+          <div class="filter-dropdown-wrap" (click)="$event.stopPropagation()">
+            <button
+              type="button"
+              class="filter-select-btn"
+              [class.is-open]="filterDropdownOpen()"
+              (click)="toggleFilterDropdown($event)"
+            >
+              <mat-icon class="filter-icon">tune</mat-icon>
+              <span class="filter-label">{{ getFilterLabel() }}</span>
+              <mat-icon class="filter-arrow" [class.rotated]="filterDropdownOpen()">expand_more</mat-icon>
+            </button>
           </div>
         </div>
       </div>
@@ -154,6 +155,29 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
           <mat-icon class="item-icon">{{ opt.icon }}</mat-icon>
           <span class="item-label">{{ opt.label }}</span>
           <mat-icon class="item-check" *ngIf="activeDropdownOrder()!.status === opt.value">done</mat-icon>
+        </button>
+      </div>
+
+      <!-- FIXED FLOATING STATUS FILTER MENU (Never clipped by table overflow) -->
+      <div
+        class="custom-filter-menu-fixed"
+        *ngIf="filterDropdownOpen()"
+        [style.top]="filterDropdownStyle().top"
+        [style.left]="filterDropdownStyle().left"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="menu-header-label">Lọc theo trạng thái</div>
+        <button
+          type="button"
+          *ngFor="let opt of filterOptions"
+          class="status-menu-item"
+          [class.active-item]="statusFilter.value === opt.value"
+          [ngClass]="'item-' + opt.slug"
+          (click)="selectFilter(opt.value, $event)"
+        >
+          <mat-icon class="item-icon">{{ opt.icon }}</mat-icon>
+          <span class="item-label">{{ opt.label }}</span>
+          <mat-icon class="item-check" *ngIf="statusFilter.value === opt.value">done</mat-icon>
         </button>
       </div>
 
@@ -272,51 +296,58 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       width: 16px;
       height: 16px;
     }
-    .filter-select-wrap {
+    .filter-dropdown-wrap {
       position: relative;
       display: inline-flex;
+    }
+    .filter-select-btn {
+      display: inline-flex;
       align-items: center;
+      gap: 8px;
       background: #ffffff;
       border: 1.5px solid #edebe9;
       border-radius: 50px;
-      padding: 0 12px 0 12px;
+      padding: 9px 16px 9px 12px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      transition: all 0.2s ease;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e3932;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+      user-select: none;
     }
-    .filter-select-wrap:hover, .filter-select-wrap:focus-within {
+    .filter-select-btn:hover {
       border-color: #00754a;
       box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.12);
+      transform: translateY(-1px);
+    }
+    .filter-select-btn.is-open {
+      border-color: #00754a;
+      box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.2);
     }
     .filter-icon {
       color: #00754a;
       font-size: 18px;
       width: 18px;
       height: 18px;
-      margin-right: 4px;
-      pointer-events: none;
+      flex-shrink: 0;
     }
-    .status-select {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      padding: 9px 24px 9px 4px;
-      background: transparent;
-      border: none;
-      font-size: 13px;
-      font-weight: 600;
-      color: #1e3932;
-      outline: none;
-      cursor: pointer;
-      font-family: inherit;
+    .filter-label {
+      white-space: nowrap;
     }
     .filter-arrow {
-      position: absolute;
-      right: 10px;
       font-size: 18px;
       width: 18px;
       height: 18px;
       color: rgba(0, 0, 0, 0.45);
-      pointer-events: none;
+      transition: transform 0.25s ease;
+      margin-left: 2px;
+    }
+    .filter-arrow.rotated {
+      transform: rotate(180deg);
+      color: #00754a;
     }
     .table-card {
       background: #ffffff;
@@ -484,7 +515,8 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
     }
 
     /* Fixed Floating custom dropdown menu (Never clipped by table overflow) */
-    .custom-status-menu-fixed {
+    .custom-status-menu-fixed,
+    .custom-filter-menu-fixed {
       position: fixed;
       min-width: 195px;
       background: #ffffff;
@@ -497,6 +529,9 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       flex-direction: column;
       gap: 3px;
       animation: menuPopFixed 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .custom-filter-menu-fixed {
+      min-width: 235px;
     }
     @keyframes menuPopFixed {
       from {
@@ -549,11 +584,13 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       height: 18px;
       flex-shrink: 0;
     }
+    .item-all .item-icon { color: #00754a; }
     .item-pending .item-icon { color: #d97706; }
     .item-preparing .item-icon { color: #0d6efd; }
     .item-completed .item-icon { color: #00754a; }
     .item-cancelled .item-icon { color: #dc3545; }
     
+    .status-menu-item.active-item.item-all { background: #e6f4ea; color: #00754a; }
     .status-menu-item.active-item.item-pending { background: #fff8eb; color: #946200; }
     .status-menu-item.active-item.item-preparing { background: #eef7ff; color: #0d6efd; }
     .status-menu-item.active-item.item-completed { background: #edf7ed; color: #0f5132; }
@@ -790,6 +827,18 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
   activeDropdownOrder = signal<Order | null>(null);
   dropdownStyle = signal<{ top: string; left: string }>({ top: '0px', left: '0px' });
 
+  // Custom filter dropdown menu state
+  filterDropdownOpen = signal<boolean>(false);
+  filterDropdownStyle = signal<{ top: string; left: string }>({ top: '0px', left: '0px' });
+
+  filterOptions = [
+    { label: 'Tất cả trạng thái', value: 'Tất cả', icon: 'all_inclusive', slug: 'all' },
+    { label: '⏳ Chờ tiếp nhận (Pending)', value: 'Pending', icon: 'hourglass_top', slug: 'pending' },
+    { label: '☕ Đang làm', value: 'Đang làm', icon: 'local_cafe', slug: 'preparing' },
+    { label: '✅ Hoàn thành', value: 'Hoàn thành', icon: 'check_circle', slug: 'completed' },
+    { label: '❌ Bị huỷ', value: 'Bị huỷ', icon: 'cancel', slug: 'cancelled' },
+  ];
+
   statusOptions: { label: string; value: OrderStatus; icon: string; slug: string }[] = [
     { label: 'Chờ tiếp nhận', value: 'Pending', icon: 'hourglass_top', slug: 'pending' },
     { label: 'Đang làm', value: 'Đang làm', icon: 'local_cafe', slug: 'preparing' },
@@ -804,7 +853,7 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
 
   @HostListener('window:scroll')
   onWindowScroll() {
-    if (this.activeDropdownOrderId()) {
+    if (this.activeDropdownOrderId() || this.filterDropdownOpen()) {
       this.closeDropdown();
     }
   }
@@ -812,10 +861,60 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
   closeDropdown() {
     this.activeDropdownOrderId.set(null);
     this.activeDropdownOrder.set(null);
+    this.filterDropdownOpen.set(false);
+  }
+
+  toggleFilterDropdown(event: MouseEvent) {
+    event.stopPropagation();
+    this.activeDropdownOrderId.set(null);
+    this.activeDropdownOrder.set(null);
+
+    if (this.filterDropdownOpen()) {
+      this.filterDropdownOpen.set(false);
+      return;
+    }
+
+    const button = event.currentTarget as HTMLElement;
+    const rect = button.getBoundingClientRect();
+    const menuHeight = 230;
+    const menuWidth = 235;
+
+    // Check if space below is enough, else open upward
+    const spaceBelow = window.innerHeight - rect.bottom;
+    let top = rect.bottom + 6;
+    if (spaceBelow < menuHeight && rect.top > menuHeight) {
+      top = rect.top - menuHeight - 6;
+    }
+
+    let left = rect.left;
+    if (left + menuWidth > window.innerWidth - 16) {
+      left = window.innerWidth - menuWidth - 16;
+    }
+    if (left < 16) left = 16;
+
+    this.filterDropdownStyle.set({
+      top: `${top}px`,
+      left: `${left}px`,
+    });
+    this.filterDropdownOpen.set(true);
+  }
+
+  selectFilter(val: string, event: MouseEvent) {
+    event.stopPropagation();
+    this.statusFilter.setValue(val);
+    this.filterDropdownOpen.set(false);
+  }
+
+  getFilterLabel(): string {
+    const val = this.statusFilter.value || 'Tất cả';
+    const found = this.filterOptions.find((o) => o.value === val);
+    return found ? found.label : 'Tất cả trạng thái';
   }
 
   toggleStatusDropdown(order: Order, event: MouseEvent) {
     event.stopPropagation();
+    this.filterDropdownOpen.set(false);
+
     if (this.activeDropdownOrderId() === order.id) {
       this.closeDropdown();
       return;
