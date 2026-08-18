@@ -175,6 +175,29 @@
         color: #1e3932;
         background: transparent;
       }
+      .input-wrap.otp-wrap {
+        background: #faf8f5;
+        border-color: #dcdad5;
+      }
+      .input-wrap.otp-wrap:focus-within {
+        background: #ffffff;
+        border-color: #00754a;
+      }
+      .input-wrap.otp-wrap mat-icon {
+        color: #00754a;
+      }
+      .otp-input {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        letter-spacing: 6px;
+        color: #1e3932 !important;
+      }
+      .otp-input::placeholder {
+        letter-spacing: normal !important;
+        font-weight: 400 !important;
+        font-size: 13.5px !important;
+        color: rgba(0, 0, 0, 0.4) !important;
+      }
       .eye-btn {
         background: none;
         border: none;
@@ -477,4 +500,48 @@
       }
       .modal-footer-close {
         margin-top: 12px;
+      }
+
+      /* OTP Resend Inline Header (Top-Right of Input) */
+      .form-label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      .form-label-row label {
+        margin-bottom: 0 !important;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #1e3932;
+      }
+      .btn-resend-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: transparent;
+        border: none;
+        color: #00754a;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 6px;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .btn-resend-inline:hover:not(:disabled) {
+        background: #e8f5e9;
+        text-decoration: underline;
+      }
+      .btn-resend-inline:disabled {
+        color: #8c8c8c;
+        cursor: not-allowed;
+        background: transparent;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .btn-resend-inline mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
       }

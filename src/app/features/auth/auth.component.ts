@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -17,7 +17,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.css',
 })
-export class AuthComponent {
+export class AuthComponent implements OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private toast = inject(ToastService);
@@ -33,6 +33,8 @@ export class AuthComponent {
   // Password reset flow state
   resetEmail = signal<string>('');
   resetToken = signal<string>('');
+  forgotOtpCountdown = signal<number>(0);
+  private forgotTimer: any = null;
 
   // Reactivate modal signals
   showReactivateModal = signal<boolean>(false);
@@ -44,6 +46,8 @@ export class AuthComponent {
   signUpRecoveryStep = signal<'choose' | 'otp'>('choose');
   pendingSignUpData = signal<{ name: string; email: string; password: string } | null>(null);
   restoreOtpInput = signal<string>('');
+  restoreOtpCountdown = signal<number>(0);
+  private restoreTimer: any = null;
 
   signInForm = this.fb.group({
     email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
@@ -222,6 +226,7 @@ export class AuthComponent {
         this.loading.set(false);
         this.toast.success(res.message);
         this.signUpRecoveryStep.set('otp');
+        this.startRestoreOtpCountdown(120);
       },
       error: (err) => {
         this.loading.set(false);
@@ -293,6 +298,7 @@ export class AuthComponent {
         this.resetEmail.set(email);
         this.toast.success(res.message);
         this.setMode('forgot_step2');
+        this.startForgotOtpCountdown(120);
       },
       error: (err) => {
         this.loading.set(false);
@@ -345,6 +351,84 @@ export class AuthComponent {
         this.errorMessage.set(msg);
       },
     });
+  }
+
+  formatTimer(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  startForgotOtpCountdown(seconds = 120) {
+    this.forgotOtpCountdown.set(seconds);
+    if (this.forgotTimer) clearInterval(this.forgotTimer);
+    this.forgotTimer = setInterval(() => {
+      const cur = this.forgotOtpCountdown();
+      if (cur <= 1) {
+        this.forgotOtpCountdown.set(0);
+        clearInterval(this.forgotTimer);
+      } else {
+        this.forgotOtpCountdown.set(cur - 1);
+      }
+    }, 1000);
+  }
+
+  resendForgotOtp() {
+    if (this.forgotOtpCountdown() > 0 || this.loading()) return;
+    const email = this.resetEmail().trim();
+    if (!email) return;
+
+    this.loading.set(true);
+    this.errorMessage.set('');
+    this.authService.forgotPassword(email).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        this.toast.success(res.message || 'Mã OTP mới đã được gửi lại vào email của bạn! ✉️');
+        this.startForgotOtpCountdown(120);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.toast.error(err.error?.message || 'Không thể gửi lại mã OTP');
+      },
+    });
+  }
+
+  startRestoreOtpCountdown(seconds = 120) {
+    this.restoreOtpCountdown.set(seconds);
+    if (this.restoreTimer) clearInterval(this.restoreTimer);
+    this.restoreTimer = setInterval(() => {
+      const cur = this.restoreOtpCountdown();
+      if (cur <= 1) {
+        this.restoreOtpCountdown.set(0);
+        clearInterval(this.restoreTimer);
+      } else {
+        this.restoreOtpCountdown.set(cur - 1);
+      }
+    }, 1000);
+  }
+
+  resendRestoreOtp() {
+    if (this.restoreOtpCountdown() > 0 || this.loading()) return;
+    const data = this.pendingSignUpData();
+    if (!data) return;
+
+    this.loading.set(true);
+    this.authService.sendRestoreOtp(data.email).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        this.toast.success(res.message || 'Mã OTP khôi phục mới đã được gửi! ✉️');
+        this.startRestoreOtpCountdown(120);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.toast.error(err.error?.message || 'Không thể gửi lại mã OTP khôi phục');
+      },
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.forgotTimer) clearInterval(this.forgotTimer);
+    if (this.restoreTimer) clearInterval(this.restoreTimer);
   }
 
   private markAllTouched(form: any) {
