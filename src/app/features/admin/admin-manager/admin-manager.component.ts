@@ -66,15 +66,37 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
               </td>
               <td>{{ admin.createdAt | date: 'dd/MM/yyyy' }}</td>
               <td>
-                <button
-                  class="btn-revoke"
-                  (click)="openRevokeConfirm(admin)"
-                  [disabled]="admin.id === authService.currentUser()?.id && admins().length <= 1"
-                  title="Thu hồi quyền Admin"
-                >
-                  <mat-icon>person_remove</mat-icon>
-                  Thu hồi Admin
-                </button>
+                <div class="action-cell">
+                  <button
+                    *ngIf="canRevoke(admin)"
+                    class="btn-revoke"
+                    (click)="openRevokeConfirm(admin)"
+                    title="Thu hồi quyền Quản trị viên"
+                  >
+                    <mat-icon>person_remove</mat-icon>
+                    Thu hồi Admin
+                  </button>
+
+                  <!-- Protected Root Admin Pill -->
+                  <span
+                    class="badge-protected root-admin-badge"
+                    *ngIf="isRootAdmin(admin)"
+                    title="Quản trị viên gốc hệ thống - Không thể bị thu hồi quyền"
+                  >
+                    <mat-icon class="prot-icon">verified_user</mat-icon>
+                    Admin Gốc (Bảo vệ)
+                  </span>
+
+                  <!-- Current User Self-Protection Pill -->
+                  <span
+                    class="badge-protected self-admin-badge"
+                    *ngIf="!isRootAdmin(admin) && isCurrentUser(admin)"
+                    title="Tài khoản Quản trị viên của bạn - Không thể tự thu hồi chính mình"
+                  >
+                    <mat-icon class="prot-icon">account_circle</mat-icon>
+                    Tài khoản của bạn
+                  </span>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -238,6 +260,11 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
       color: #b4852e;
       border: 1px solid #cba258;
     }
+    .action-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .btn-revoke {
       display: inline-flex;
       align-items: center;
@@ -250,10 +277,45 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s;
     }
-    .btn-revoke:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+    .btn-revoke:hover {
+      background: #fbd5d3;
+      box-shadow: 0 2px 6px rgba(200, 32, 20, 0.15);
+    }
+    .badge-protected {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: default;
+      user-select: none;
+    }
+    .root-admin-badge {
+      background: linear-gradient(135deg, #fdf8e6 0%, #faecd0 100%);
+      color: #8c6819;
+      border: 1px solid rgba(203, 162, 88, 0.45);
+      box-shadow: 0 2px 6px rgba(203, 162, 88, 0.12);
+    }
+    .root-admin-badge .prot-icon {
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
+      color: #cba258;
+    }
+    .self-admin-badge {
+      background: #e6f4ea;
+      color: #137333;
+      border: 1px solid rgba(19, 115, 51, 0.25);
+    }
+    .self-admin-badge .prot-icon {
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
+      color: #137333;
     }
     .modal-backdrop {
       position: fixed;
@@ -435,7 +497,37 @@ export class AdminManagerComponent implements OnInit {
     });
   }
 
+  isRootAdmin(admin: User): boolean {
+    return (admin.email || '').toLowerCase() === 'admin@starbucks.vn';
+  }
+
+  isCurrentUser(admin: User): boolean {
+    const current = this.authService.currentUser();
+    if (!current) return false;
+    const sameId = Boolean(admin.id && current.id && admin.id === current.id);
+    const sameEmail = Boolean(
+      admin.email &&
+        current.email &&
+        admin.email.toLowerCase() === current.email.toLowerCase(),
+    );
+    return sameId || sameEmail;
+  }
+
+  canRevoke(admin: User): boolean {
+    if (this.isRootAdmin(admin)) return false;
+    if (this.isCurrentUser(admin)) return false;
+    return true;
+  }
+
   openRevokeConfirm(admin: User) {
+    if (!this.canRevoke(admin)) {
+      if (this.isRootAdmin(admin)) {
+        this.toast.error('Không thể thu hồi quyền Quản trị viên gốc (admin@starbucks.vn)');
+      } else if (this.isCurrentUser(admin)) {
+        this.toast.error('Bạn không thể tự thu hồi quyền Admin của chính mình');
+      }
+      return;
+    }
     this.targetAdmin.set(admin);
     this.revokeDialogOpen.set(true);
   }

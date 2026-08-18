@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators, FormBuilder } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { Subscription } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { OrderService } from '../../../core/services/order.service';
 import { RealtimeSseService } from '../../../core/services/realtime-sse.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -30,17 +30,25 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
         </div>
 
         <div class="mgr-filters">
-          <div class="search-box">
-            <mat-icon>search</mat-icon>
+          <div class="search-box" [class.has-text]="!!searchControl.value">
+            <mat-icon class="search-icon">search</mat-icon>
             <input
               type="text"
               [formControl]="searchControl"
-              placeholder="Tìm theo khách hàng, email, món ăn..."
-              (keyup.enter)="fetchOrders()"
+              placeholder="Tìm theo khách hàng, email, món ăn, mã đơn..."
             />
+            <button
+              type="button"
+              class="btn-clear-search"
+              *ngIf="searchControl.value"
+              (click)="clearSearch()"
+              title="Xóa tìm kiếm"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
           </div>
 
-          <select [formControl]="statusFilter" (change)="fetchOrders()" class="status-select">
+          <select [formControl]="statusFilter" class="status-select">
             <option value="Tất cả">Tất cả trạng thái</option>
             <option value="Pending">Chờ tiếp nhận (Pending)</option>
             <option value="Đang làm">Đang làm</option>
@@ -192,27 +200,64 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       gap: 8px;
       padding: 8px 14px;
       background: #ffffff;
-      border: 1px solid #edebe9;
+      border: 1.5px solid #edebe9;
       border-radius: 50px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+    .search-box:focus-within, .search-box.has-text {
+      border-color: #00754a;
+      box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.12);
+    }
+    .search-box .search-icon {
+      color: #00754a;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
     .search-box input {
       border: none;
       outline: none;
       font-size: 13px;
       font-family: inherit;
-      width: 240px;
+      width: 260px;
+      color: #1e3932;
+    }
+    .btn-clear-search {
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      cursor: pointer;
+      border-radius: 50%;
+      color: rgba(0, 0, 0, 0.4);
+      transition: all 0.15s;
+    }
+    .btn-clear-search:hover {
+      background: #edebe9;
+      color: #1e3932;
+    }
+    .btn-clear-search mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
     .status-select {
       padding: 8px 16px;
       background: #ffffff;
-      border: 1px solid #edebe9;
+      border: 1.5px solid #edebe9;
       border-radius: 50px;
       font-size: 13px;
       font-weight: 600;
       color: #1e3932;
       outline: none;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .status-select:focus {
+      border-color: #00754a;
     }
     .table-card {
       background: #ffffff;
@@ -430,23 +475,48 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
     cancelReason: ['', [Validators.required, Validators.minLength(3)]],
   });
 
-  private sseSub?: Subscription;
+  private sub = new Subscription();
 
   ngOnInit() {
     this.fetchOrders();
 
-    this.sseSub = this.sseService.events$.subscribe(() => {
+    // Debounced real-time reactive search (350ms buffer)
+    const searchSub = this.searchControl.valueChanges
+      .pipe(
+        debounceTime(350),
+        distinctUntilChanged(),
+      )
+      .subscribe(() => {
+        this.fetchOrders(true);
+      });
+    this.sub.add(searchSub);
+
+    // Status filter reactive change
+    const statusSub = this.statusFilter.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe(() => {
+        this.fetchOrders(true);
+      });
+    this.sub.add(statusSub);
+
+    // Realtime SSE updates
+    const sseSub = this.sseService.events$.subscribe(() => {
       this.fetchOrders(false);
     });
+    this.sub.add(sseSub);
   }
 
   ngOnDestroy() {
-    this.sseSub?.unsubscribe();
+    this.sub.unsubscribe();
+  }
+
+  clearSearch() {
+    this.searchControl.setValue('');
   }
 
   fetchOrders(showLoading: boolean = true) {
     if (showLoading) this.loading.set(true);
-    const keyword = this.searchControl.value || '';
+    const keyword = this.searchControl.value?.trim() || '';
     const status = this.statusFilter.value || 'Tất cả';
 
     this.orderService.getAdminOrders(status, keyword).subscribe({

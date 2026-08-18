@@ -119,12 +119,12 @@ import { SidebarService } from '../../../core/services/sidebar.service';
             routerLink="/admin/recipes"
             routerLinkActive="active"
             class="nav-link admin-nav-link"
-            [title]="!isExpanded() ? 'Quản lý Món ăn' : ''"
+            [title]="!isExpanded() ? 'Quản lý Nước uống' : ''"
           >
             <div class="icon-wrap">
-              <mat-icon>menu_book</mat-icon>
+              <mat-icon>local_cafe</mat-icon>
             </div>
-            <span class="link-label" *ngIf="isExpanded()">Quản lý Món ăn</span>
+            <span class="link-label" *ngIf="isExpanded()">Quản lý Nước uống</span>
           </a>
 
           <a

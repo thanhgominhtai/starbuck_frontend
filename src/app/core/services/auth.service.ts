@@ -56,20 +56,55 @@ export class AuthService {
     this.userSignal.set(null);
   }
 
-  signUp(payload: { name: string; email: string; password: string }): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API_BASE}/auth/signup`, payload).pipe(
+  signUp(payload: { name: string; email: string; password: string }): Observable<any> {
+    return this.http.post<any>(`${API_BASE}/auth/signup`, payload).pipe(
       tap((res) => {
-        this.saveSession(res);
-        this.toast.success(`Chào mừng ${res.user.name} đến với Starbucks Recipe!`);
+        if (res && res.accessToken) {
+          this.saveSession(res);
+          this.toast.success(`Chào mừng ${res.user.name} đến với Starbucks Recipe!`);
+        }
       }),
     );
   }
 
-  signIn(payload: { email: string; password: string }): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API_BASE}/auth/signin`, payload).pipe(
+  signIn(payload: { email: string; password: string }): Observable<any> {
+    return this.http.post<any>(`${API_BASE}/auth/signin`, payload).pipe(
+      tap((res) => {
+        if (res && res.accessToken) {
+          this.saveSession(res);
+          this.toast.success(`Đăng nhập thành công! Chào bạn ${res.user.name}`);
+        }
+      }),
+    );
+  }
+
+  reactivateAccount(payload: { email: string; password: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API_BASE}/auth/reactivate`, payload).pipe(
       tap((res) => {
         this.saveSession(res);
-        this.toast.success(`Đăng nhập thành công! Chào bạn ${res.user.name}`);
+        this.toast.success(`Chào mừng bạn quay trở lại! Đã kích hoạt lại tài khoản thành công.`);
+      }),
+    );
+  }
+
+  sendRestoreOtp(email: string): Observable<{ message: string; email: string }> {
+    return this.http.post<{ message: string; email: string }>(`${API_BASE}/auth/send-restore-otp`, { email });
+  }
+
+  confirmRestoreOtp(payload: { email: string; otp: string; newPassword?: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API_BASE}/auth/confirm-restore-otp`, payload).pipe(
+      tap((res) => {
+        this.saveSession(res);
+        this.toast.success(`Khôi phục tài khoản thành công! Dữ liệu của bạn đã được phục hồi nguyên vẹn.`);
+      }),
+    );
+  }
+
+  overwriteAccount(payload: { name: string; email: string; password: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API_BASE}/auth/overwrite-account`, payload).pipe(
+      tap((res) => {
+        this.saveSession(res);
+        this.toast.success(`Tạo mới tài khoản thành công!`);
       }),
     );
   }

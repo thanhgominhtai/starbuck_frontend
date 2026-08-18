@@ -376,6 +376,114 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             Cập nhật mật khẩu mới
           </button>
         </form>
+
+        <!-- MODAL 1: KÍCH HOẠT LẠI TÀI KHOẢN (KHI SIGN IN) -->
+        <div class="recovery-overlay" *ngIf="showReactivateModal()">
+          <div class="recovery-modal">
+            <div class="modal-icon-circle accent-gold">
+              <mat-icon>hourglass_top</mat-icon>
+            </div>
+            <h3 class="modal-title">Tài khoản đang tạm ngưng</h3>
+            <p class="modal-desc">
+              Tài khoản <b>{{ reactivateEmail() }}</b> của bạn đang trong thời gian ân hạn 90 ngày sau khi xóa mềm.
+              Toàn bộ danh sách Yêu thích ❤️ và Lịch sử đơn hàng vẫn được lưu giữ an toàn.
+            </p>
+            <div class="modal-box-info">
+              <mat-icon>verified</mat-icon>
+              <span>Bạn có muốn kích hoạt lại tài khoản ngay bây giờ để tiếp tục sử dụng?</span>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-modal-cancel" (click)="showReactivateModal.set(false)">
+                Để sau
+              </button>
+              <button type="button" class="btn-modal-confirm" (click)="onConfirmReactivate()" [disabled]="loading()">
+                {{ loading() ? 'Đang kích hoạt...' : 'Kích hoạt lại ngay' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL 2: PHÁT HIỆN TÀI KHOẢN CŨ (KHI SIGN UP) -->
+        <div class="recovery-overlay" *ngIf="showSignUpRecoveryModal()">
+          <div class="recovery-modal wide-modal">
+            <div class="modal-icon-circle accent-green">
+              <mat-icon>account_circle</mat-icon>
+            </div>
+            <h3 class="modal-title">Phát hiện tài khoản từng tồn tại!</h3>
+            <p class="modal-desc">
+              Email <b>{{ pendingSignUpData()?.email }}</b> từng có tài khoản trước đây và đang trong thời gian ân hạn 90 ngày. Vui lòng chọn cách bạn muốn tiếp tục:
+            </p>
+
+            <!-- Choice step -->
+            <div class="recovery-options" *ngIf="signUpRecoveryStep() === 'choose'">
+              <div class="option-card featured-option" (click)="onSelectRestoreWithOtp()">
+                <div class="opt-badge">Khuyên dùng</div>
+                <div class="opt-icon">
+                  <mat-icon>history</mat-icon>
+                </div>
+                <div class="opt-content">
+                  <h4>Khôi phục tài khoản cũ</h4>
+                  <p>Giữ lại toàn bộ danh sách Món yêu thích ❤️ và Lịch sử đơn hàng cũ. Xác thực an toàn qua mã OTP gửi về email.</p>
+                </div>
+                <mat-icon class="arrow-icon">chevron_right</mat-icon>
+              </div>
+
+              <div class="option-card" (click)="onSelectOverwriteFresh()">
+                <div class="opt-icon reset-icon">
+                  <mat-icon>refresh</mat-icon>
+                </div>
+                <div class="opt-content">
+                  <h4>Bắt đầu mới hoàn toàn 100%</h4>
+                  <p>Làm sạch toàn bộ dữ liệu cũ và khởi tạo một hồ sơ mới tinh với thông tin bạn vừa đăng ký.</p>
+                </div>
+                <mat-icon class="arrow-icon">chevron_right</mat-icon>
+              </div>
+            </div>
+
+            <!-- OTP step -->
+            <div class="otp-restore-box" *ngIf="signUpRecoveryStep() === 'otp'">
+              <div class="mail-sent-banner">
+                <mat-icon>mark_email_read</mat-icon>
+                <div>
+                  <strong>Mã xác thực đã được gửi!</strong>
+                  <p>
+                    Vui lòng kiểm tra email <b>{{ pendingSignUpData()?.email }}</b> để lấy mã OTP 6 chữ số khôi phục tài khoản (hiệu lực 10 phút).
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 16px;">
+                <label>Nhập mã OTP 6 số <span class="req-star">*</span></label>
+                <div class="input-wrap">
+                  <mat-icon>pin</mat-icon>
+                  <input
+                    type="text"
+                    [value]="restoreOtpInput()"
+                    (input)="restoreOtpInput.set($any($event.target).value)"
+                    placeholder="123456"
+                    maxlength="6"
+                    style="letter-spacing: 4px; font-weight: 700;"
+                  />
+                </div>
+              </div>
+
+              <div class="modal-actions" style="margin-top: 20px;">
+                <button type="button" class="btn-modal-cancel" (click)="signUpRecoveryStep.set('choose')">
+                  Quay lại
+                </button>
+                <button type="button" class="btn-modal-confirm" (click)="onConfirmRestoreOtp()" [disabled]="loading() || restoreOtpInput().length !== 6">
+                  {{ loading() ? 'Đang khôi phục...' : 'Xác thực & Mở lại tài khoản' }}
+                </button>
+              </div>
+            </div>
+
+            <div class="modal-footer-close" *ngIf="signUpRecoveryStep() === 'choose'">
+              <button type="button" class="btn-modal-cancel" (click)="showSignUpRecoveryModal.set(false)">
+                Đóng lại
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -655,6 +763,212 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         line-height: 1.45;
         margin: 0;
       }
+
+      /* RECOVERY MODALS */
+      .recovery-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.65);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeInOverlay 0.25s ease-out;
+      }
+      @keyframes fadeInOverlay {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .recovery-modal {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 32px 28px;
+        max-width: 440px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .wide-modal {
+        max-width: 520px;
+      }
+      @keyframes slideUpModal {
+        from { opacity: 0; transform: translateY(20px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .modal-icon-circle {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-icon-circle mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+      .accent-gold {
+        background: #faf6ee;
+        color: #b4852e;
+        border: 2px solid #cba258;
+      }
+      .accent-green {
+        background: #e6f4ea;
+        color: #00754a;
+        border: 2px solid #00754a;
+      }
+      .modal-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1e3932;
+        margin: 0 0 8px;
+      }
+      .modal-desc {
+        font-size: 13.5px;
+        color: rgba(0, 0, 0, 0.7);
+        line-height: 1.5;
+        margin: 0 0 20px;
+      }
+      .modal-box-info {
+        background: #f4f9f4;
+        border: 1px solid #c3e6cb;
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        text-align: left;
+        font-size: 13px;
+        color: #1e3932;
+        margin-bottom: 24px;
+      }
+      .modal-box-info mat-icon {
+        color: #00754a;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+      }
+      .btn-modal-cancel {
+        padding: 12px 22px;
+        border-radius: 50px;
+        background: #edebe9;
+        color: #333333;
+        font-size: 14px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-modal-cancel:hover {
+        background: #e0dedc;
+      }
+      .btn-modal-confirm {
+        padding: 12px 26px;
+        border-radius: 50px;
+        background: #00754a;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(0, 117, 74, 0.35);
+        transition: all 0.2s;
+      }
+      .btn-modal-confirm:hover:not(:disabled) {
+        background: #005c3b;
+        transform: translateY(-1px);
+      }
+      .btn-modal-confirm:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .recovery-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      .option-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 16px;
+        border: 1.5px solid #edebe9;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .option-card:hover {
+        border-color: #00754a;
+        background: #f9fcfb;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      }
+      .featured-option {
+        border-color: #00754a;
+        background: linear-gradient(135deg, #f4fbf7 0%, #ffffff 100%);
+      }
+      .opt-badge {
+        position: absolute;
+        top: -9px;
+        right: 16px;
+        background: #00754a;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 10px;
+        letter-spacing: 0.5px;
+      }
+      .opt-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #e6f4ea;
+        color: #00754a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .opt-icon.reset-icon {
+        background: #f0f0f0;
+        color: #666666;
+      }
+      .opt-content h4 {
+        font-size: 14.5px;
+        font-weight: 700;
+        color: #1e3932;
+        margin: 0 0 2px;
+      }
+      .opt-content p {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.65);
+        margin: 0;
+        line-height: 1.4;
+      }
+      .arrow-icon {
+        color: #aaa;
+        margin-left: auto;
+      }
+      .modal-footer-close {
+        margin-top: 12px;
+      }
     `,
   ],
 })
@@ -674,6 +988,17 @@ export class AuthComponent {
   // Password reset flow state
   resetEmail = signal<string>('');
   resetToken = signal<string>('');
+
+  // Reactivate modal signals
+  showReactivateModal = signal<boolean>(false);
+  reactivateEmail = signal<string>('');
+  reactivatePassword = signal<string>('');
+
+  // SignUp recovery modal signals
+  showSignUpRecoveryModal = signal<boolean>(false);
+  signUpRecoveryStep = signal<'choose' | 'otp'>('choose');
+  pendingSignUpData = signal<{ name: string; email: string; password: string } | null>(null);
+  restoreOtpInput = signal<string>('');
 
   signInForm = this.fb.group({
     email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
@@ -767,8 +1092,14 @@ export class AuthComponent {
     const { email, password } = this.signInForm.value;
 
     this.authService.signIn({ email: email!.trim(), password: password! }).subscribe({
-      next: () => {
+      next: (res) => {
         this.loading.set(false);
+        if (res && res.isDeactivatedAccount) {
+          this.reactivateEmail.set(email!.trim());
+          this.reactivatePassword.set(password!);
+          this.showReactivateModal.set(true);
+          return;
+        }
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/menu';
         this.router.navigateByUrl(returnUrl);
       },
@@ -791,8 +1122,19 @@ export class AuthComponent {
     this.authService
       .signUp({ name: name!.trim(), email: email!.trim(), password: password! })
       .subscribe({
-        next: () => {
+        next: (res) => {
           this.loading.set(false);
+          if (res && res.isDeactivatedAccount) {
+            this.pendingSignUpData.set({
+              name: name!.trim(),
+              email: email!.trim(),
+              password: password!,
+            });
+            this.signUpRecoveryStep.set('choose');
+            this.restoreOtpInput.set('');
+            this.showSignUpRecoveryModal.set(true);
+            return;
+          }
           this.toast.success('Đăng ký tài khoản thành công!');
           this.router.navigate(['/menu']);
         },
@@ -800,6 +1142,94 @@ export class AuthComponent {
           this.loading.set(false);
           const msg = err.error?.message || 'Không thể tạo tài khoản, vui lòng thử lại';
           this.errorMessage.set(msg);
+        },
+      });
+  }
+
+  onConfirmReactivate() {
+    this.loading.set(true);
+    this.authService
+      .reactivateAccount({
+        email: this.reactivateEmail(),
+        password: this.reactivatePassword(),
+      })
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.showReactivateModal.set(false);
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/menu';
+          this.router.navigateByUrl(returnUrl);
+        },
+        error: (err) => {
+          this.loading.set(false);
+          this.toast.error(err.error?.message || 'Không thể kích hoạt lại tài khoản');
+        },
+      });
+  }
+
+  onSelectRestoreWithOtp() {
+    const data = this.pendingSignUpData();
+    if (!data) return;
+
+    this.loading.set(true);
+    this.authService.sendRestoreOtp(data.email).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        this.toast.success(res.message);
+        this.signUpRecoveryStep.set('otp');
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.toast.error(err.error?.message || 'Không thể gửi mã OTP khôi phục');
+      },
+    });
+  }
+
+  onConfirmRestoreOtp() {
+    const data = this.pendingSignUpData();
+    const otp = this.restoreOtpInput().trim();
+    if (!data || !otp) return;
+
+    this.loading.set(true);
+    this.authService
+      .confirmRestoreOtp({
+        email: data.email,
+        otp,
+        newPassword: data.password,
+      })
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.showSignUpRecoveryModal.set(false);
+          this.router.navigate(['/menu']);
+        },
+        error: (err) => {
+          this.loading.set(false);
+          this.toast.error(err.error?.message || 'Mã OTP không hợp lệ hoặc đã hết hạn');
+        },
+      });
+  }
+
+  onSelectOverwriteFresh() {
+    const data = this.pendingSignUpData();
+    if (!data) return;
+
+    this.loading.set(true);
+    this.authService
+      .overwriteAccount({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      })
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.showSignUpRecoveryModal.set(false);
+          this.router.navigate(['/menu']);
+        },
+        error: (err) => {
+          this.loading.set(false);
+          this.toast.error(err.error?.message || 'Không thể tạo mới tài khoản');
         },
       });
   }

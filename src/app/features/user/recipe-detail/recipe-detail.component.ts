@@ -33,7 +33,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
               <!-- Badges on top left -->
               <div class="detail-top-badges">
                 <span class="badge-pop" *ngIf="recipe()!.isPopular">
-                  <mat-icon>star</mat-icon>
+                  <mat-icon>local_fire_department</mat-icon>
                   Bán chạy
                 </span>
                 <span class="badge-special" *ngIf="recipe()!.category === 'Đặc biệt'">
@@ -227,16 +227,24 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       z-index: 2;
     }
     .badge-pop {
-      background: #cba258;
+      background: linear-gradient(135deg, #ff6d00 0%, #e65100 100%);
       color: #ffffff;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
       padding: 6px 14px;
       border-radius: 50px;
       display: flex;
       align-items: center;
       gap: 5px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 12px rgba(230, 81, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .badge-pop mat-icon {
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
+      font-variation-settings: 'FILL' 1;
+      color: #ffffff;
     }
     .badge-special {
       background: linear-gradient(135deg, #00754a 0%, #1e3932 100%);

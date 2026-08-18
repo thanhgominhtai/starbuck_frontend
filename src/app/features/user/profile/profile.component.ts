@@ -227,17 +227,30 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             <hr class="divider" />
 
             <!-- 3. Danger Zone: Delete Account [US-13, US-14] -->
-            <div class="danger-zone">
+            <div class="danger-zone" *ngIf="!isRootAdmin()">
               <div>
-                <h4 class="danger-title">Xoá vĩnh viễn tài khoản</h4>
+                <h4 class="danger-title">Xoá / Tạm ngưng tài khoản</h4>
                 <p class="danger-desc">
-                  Toàn bộ thông tin tài khoản và đơn hàng sẽ bị xoá vĩnh viễn khỏi hệ thống. Nếu sau này đăng ký lại bằng cùng email, hệ thống sẽ khởi tạo một hồ sơ mới hoàn toàn 100%.
+                  Tài khoản sẽ chuyển sang trạng thái tạm ngưng (Xóa mềm) và được lưu giữ trong <b>90 ngày</b>. Trong thời gian này, bạn có thể đăng nhập hoặc đăng ký lại để khôi phục toàn bộ dữ liệu bất kỳ lúc nào.
                 </p>
               </div>
               <button type="button" class="btn-delete-acc" (click)="openDeleteDialog()">
                 <mat-icon>delete_forever</mat-icon>
                 Xoá tài khoản
               </button>
+            </div>
+
+            <!-- Root Admin Protection Notice -->
+            <div class="root-admin-notice" *ngIf="isRootAdmin()">
+              <div class="notice-icon-box">
+                <mat-icon>verified_user</mat-icon>
+              </div>
+              <div>
+                <h4 class="notice-title">Tài khoản Quản trị viên Gốc (Hệ thống)</h4>
+                <p class="notice-desc">
+                  Tài khoản này là Quản trị viên gốc của hệ thống Starbucks Recipe, được bảo vệ an toàn vĩnh viễn và không thể xoá bỏ.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -246,9 +259,9 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       <!-- DELETE ACCOUNT CONFIRM DIALOG [FE-13] -->
       <app-confirm-dialog
         [isOpen]="deleteDialogOpen()"
-        title="Xác nhận xoá vĩnh viễn tài khoản?"
-        message="Hành động này không thể hoàn tác! Toàn bộ hồ sơ của bạn sẽ bị xoá khỏi hệ thống Starbucks Recipe."
-        confirmText="Xác nhận xoá ngay"
+        title="Xác nhận tạm ngưng / xoá tài khoản?"
+        message="Tài khoản của bạn sẽ chuyển sang trạng thái tạm ngưng và có 90 ngày ân hạn để khôi phục dữ liệu trước khi bị xóa vĩnh viễn khỏi hệ thống. Bạn có chắc chắn muốn tiếp tục?"
+        confirmText="Xác nhận xoá"
         cancelText="Giữ lại tài khoản"
         type="danger"
         (confirmed)="confirmDeleteAccount()"
@@ -631,6 +644,43 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       cursor: pointer;
       white-space: nowrap;
     }
+    .root-admin-notice {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: linear-gradient(135deg, #fdf8e6 0%, #faecd0 100%);
+      border: 1px solid rgba(203, 162, 88, 0.45);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .notice-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(203, 162, 88, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #8c6819;
+    }
+    .notice-icon-box mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    .notice-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #8c6819;
+      margin: 0 0 4px;
+    }
+    .notice-desc {
+      font-size: 12.5px;
+      color: #594211;
+      margin: 0;
+      line-height: 1.4;
+    }
   `],
 })
 export class ProfileComponent implements OnInit {
@@ -779,11 +829,25 @@ export class ProfileComponent implements OnInit {
       });
   }
 
+  isRootAdmin(): boolean {
+    const email = this.authService.currentUser()?.email || '';
+    return email.toLowerCase() === 'admin@starbucks.vn';
+  }
+
   openDeleteDialog() {
+    if (this.isRootAdmin()) {
+      this.toast.error('Không thể xoá tài khoản Quản trị viên gốc của hệ thống (admin@starbucks.vn)');
+      return;
+    }
     this.deleteDialogOpen.set(true);
   }
 
   confirmDeleteAccount() {
+    if (this.isRootAdmin()) {
+      this.toast.error('Không thể xoá tài khoản Quản trị viên gốc của hệ thống (admin@starbucks.vn)');
+      this.deleteDialogOpen.set(false);
+      return;
+    }
     this.authService.deleteAccount().subscribe();
   }
 

@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { UploadService } from '../../../core/services/upload.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -18,26 +19,51 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       <!-- Header [AD-08, AD-09] -->
       <div class="mgr-header">
         <div>
-          <h1 class="mgr-title">Quản Trị Thực Đơn & Công Thức</h1>
-          <p class="mgr-desc">Tạo mới, chỉnh sửa, tải ảnh và quản lý nguyên liệu công thức riêng biệt của Admin</p>
+          <h1 class="mgr-title">Quản Trị Thực Đơn Thức Uống & Công Thức</h1>
+          <p class="mgr-desc">Tạo mới, chỉnh sửa, tải ảnh và quản lý công thức nước uống riêng biệt của Admin</p>
         </div>
 
         <button class="btn-create-recipe" (click)="openCreateModal()">
           <mat-icon>add_circle</mat-icon>
-          Thêm Món Mới
+          Thêm Nước Uống Mới
         </button>
       </div>
 
-      <!-- Search & Category Filters [FE-07] -->
+      <!-- Search & Category Dock [FE-07] -->
       <div class="filter-row">
-        <div class="search-input-box">
-          <mat-icon>search</mat-icon>
+        <div class="search-input-box" [class.has-text]="!!searchControl.value">
+          <mat-icon class="search-icon">search</mat-icon>
           <input
             type="text"
             [formControl]="searchControl"
-            placeholder="Tìm kiếm món ăn trong kho quản trị..."
-            (keyup.enter)="fetchRecipes()"
+            placeholder="Tìm kiếm nước uống theo tên, nguyên liệu, hương vị..."
           />
+          <button
+            type="button"
+            class="btn-clear-search"
+            *ngIf="searchControl.value"
+            (click)="clearSearch()"
+            title="Xóa tìm kiếm"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Admin Executive Category Segmented Dock -->
+        <div class="category-executive-dock">
+          <button
+            type="button"
+            *ngFor="let cat of categories"
+            class="dock-pill"
+            [class.active]="selectedCategory() === cat.id"
+            (click)="selectCategory(cat.id)"
+          >
+            <mat-icon class="dock-icon">{{ cat.icon }}</mat-icon>
+            <span class="dock-name">{{ cat.label }}</span>
+            <span class="dock-count" [class.active-count]="selectedCategory() === cat.id">
+              {{ getCategoryCount(cat.id) }}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -47,7 +73,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
           <thead>
             <tr>
               <th>ẢNH</th>
-              <th>TÊN CÔNG THỨC</th>
+              <th>TÊN THỨC UỐNG & CÔNG THỨC</th>
               <th>DANH MỤC</th>
               <th>GIÁ CƠ BẢN</th>
               <th>TOPPINGS</th>
@@ -67,7 +93,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
                 </div>
               </td>
               <td>
-                <span class="cat-tag">{{ r.category || 'Món' }}</span>
+                <span class="cat-tag">{{ r.category || 'Cà phê' }}</span>
               </td>
               <td>
                 <span class="price-tag">{{ r.giaCoBan | vndCurrency }}</span>
@@ -76,16 +102,26 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
                 <span class="topping-badge">{{ r.toppings ? r.toppings.length : 0 }} nguyên liệu</span>
               </td>
               <td>
-                <span class="popular-indicator" [class.is-pop]="r.isPopular">
-                  {{ r.isPopular ? '★ Bán chạy' : 'Bình thường' }}
-                </span>
+                <div class="trait-badges">
+                  <span class="popular-indicator is-pop" *ngIf="r.isPopular" title="Thức uống bán chạy">
+                    <mat-icon class="flame-icon">local_fire_department</mat-icon>
+                    <span>Bán chạy</span>
+                  </span>
+                  <span class="special-indicator is-special" *ngIf="r.isSpecial" title="Thức uống đặc biệt / Signature">
+                    <mat-icon class="sparkle-icon">auto_awesome</mat-icon>
+                    <span>Đặc biệt</span>
+                  </span>
+                  <span class="standard-badge" *ngIf="!r.isPopular && !r.isSpecial">
+                    <span>Tiêu chuẩn</span>
+                  </span>
+                </div>
               </td>
               <td>
                 <div class="action-btns">
                   <button class="btn-icon-edit" (click)="openEditModal(r)" title="Chỉnh sửa">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button class="btn-icon-del" (click)="openDeleteConfirm(r)" title="Xoá món">
+                  <button class="btn-icon-del" (click)="openDeleteConfirm(r)" title="Xoá thức uống">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -94,10 +130,10 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
           </tbody>
         </table>
 
-        <div *ngIf="loading()" class="table-loading">Đang tải danh sách công thức...</div>
+        <div *ngIf="loading()" class="table-loading">Đang tải danh sách công thức nước uống...</div>
         <div *ngIf="!loading() && recipes().length === 0" class="table-empty">
-          <mat-icon>menu_book</mat-icon>
-          <p>Chưa có món ăn nào trong kho thực đơn.</p>
+          <mat-icon>local_cafe</mat-icon>
+          <p>Chưa có thức uống nào trong kho thực đơn.</p>
         </div>
       </div>
 
@@ -105,7 +141,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       <div class="modal-backdrop" *ngIf="modalOpen()">
         <div class="modal-panel">
           <div class="modal-header">
-            <h3>{{ isEditMode() ? 'Chỉnh sửa món ăn' : 'Thêm công thức món mới' }}</h3>
+            <h3>{{ isEditMode() ? 'Chỉnh sửa công thức nước uống' : 'Thêm công thức nước uống mới' }}</h3>
             <button class="btn-close" (click)="modalOpen.set(false)">
               <mat-icon>close</mat-icon>
             </button>
@@ -113,7 +149,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
 
           <form [formGroup]="recipeForm" (ngSubmit)="onSaveRecipe()" class="recipe-form">
             <div class="form-row">
-              <label>Tên món / công thức:</label>
+              <label>Tên nước uống / công thức:</label>
               <input type="text" formControlName="name" class="input-ctrl" placeholder="Ví dụ: Caramel Macchiato" />
             </div>
 
@@ -123,24 +159,23 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
                 <input type="number" formControlName="giaCoBan" class="input-ctrl" />
               </div>
               <div class="form-row">
-                <label>Danh mục:</label>
+                <label>Thể loại nước uống:</label>
                 <select formControlName="category" class="input-ctrl">
                   <option value="Cà phê">Cà phê</option>
                   <option value="Trà sữa">Trà sữa</option>
                   <option value="Trà trái cây">Trà trái cây</option>
-                  <option value="Đặc biệt">Đặc biệt</option>
                 </select>
               </div>
             </div>
 
             <div class="form-row">
-              <label>Mô tả chi tiết:</label>
+              <label>Mô tả hương vị & pha chế:</label>
               <textarea formControlName="description" rows="2" class="input-ctrl"></textarea>
             </div>
 
             <!-- Image Upload & Preview [FE-12] -->
             <div class="form-row">
-              <label>Ảnh món ăn (URL hoặc Tải lên):</label>
+              <label>Ảnh nước uống (URL hoặc Tải lên):</label>
               <div class="upload-row">
                 <input type="text" formControlName="imgUrl" class="input-ctrl flex-1" placeholder="https://..." />
                 <label class="btn-file-upload">
@@ -154,10 +189,22 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
               </div>
             </div>
 
-            <div class="form-checkbox">
-              <label>
+            <!-- Global Beverage Traits (Admin Configuration) -->
+            <div class="form-checkboxes-group">
+              <label class="trait-check-item">
                 <input type="checkbox" formControlName="isPopular" />
-                Đánh dấu là món Bán chạy / Nổi bật
+                <span class="trait-check-text">
+                  <mat-icon class="trait-icon-flame">local_fire_department</mat-icon>
+                  Đánh dấu là thức uống <strong>Bán chạy 🔥</strong> (Hot / Best-Seller)
+                </span>
+              </label>
+
+              <label class="trait-check-item">
+                <input type="checkbox" formControlName="isSpecial" />
+                <span class="trait-check-text">
+                  <mat-icon class="trait-icon-sparkle">auto_awesome</mat-icon>
+                  Đánh dấu là thức uống <strong>Đặc biệt ✨</strong> (Signature / Đặc sản quán)
+                </span>
               </label>
             </div>
 
@@ -189,7 +236,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
             <div class="modal-foot">
               <button type="button" class="btn-modal-cancel" (click)="modalOpen.set(false)">Bỏ qua</button>
               <button type="submit" class="btn-modal-submit" [disabled]="recipeForm.invalid || saving()">
-                {{ isEditMode() ? 'Lưu cập nhật' : 'Tạo món mới' }}
+                {{ isEditMode() ? 'Lưu cập nhật' : 'Tạo nước uống mới' }}
               </button>
             </div>
           </form>
@@ -199,9 +246,9 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       <!-- DELETE CONFIRM MODAL [FE-13] -->
       <app-confirm-dialog
         [isOpen]="deleteDialogOpen()"
-        title="Xác nhận xoá món ăn"
-        [message]="'Bạn có chắc chắn muốn xoá món ' + (targetRecipe()?.name || '') + ' khỏi thực đơn không?'"
-        confirmText="Xoá món ngay"
+        title="Xác nhận xoá nước uống"
+        [message]="'Bạn có chắc chắn muốn xoá nước uống ' + (targetRecipe()?.name || '') + ' khỏi thực đơn không?'"
+        confirmText="Xoá nước uống"
         cancelText="Bỏ qua"
         type="danger"
         (confirmed)="confirmDeleteRecipe()"
@@ -250,17 +297,31 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
     .filter-row {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     .search-input-box {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 16px;
+      padding: 8px 16px;
       background: #ffffff;
       border-radius: 50px;
-      border: 1px solid #edebe9;
-      max-width: 440px;
-      width: 100%;
+      border: 1.5px solid #edebe9;
+      width: 320px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+    .search-input-box:focus-within, .search-input-box.has-text {
+      border-color: #00754a;
+      box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.12);
+    }
+    .search-input-box .search-icon {
+      color: #00754a;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
     .search-input-box input {
       flex: 1;
@@ -268,6 +329,99 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       outline: none;
       font-size: 13px;
       font-family: inherit;
+      color: #1e3932;
+    }
+    .btn-clear-search {
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      cursor: pointer;
+      border-radius: 50%;
+      color: rgba(0, 0, 0, 0.4);
+      transition: all 0.15s;
+    }
+    .btn-clear-search:hover {
+      background: #edebe9;
+      color: #1e3932;
+    }
+    .btn-clear-search mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Admin Category Executive Dock */
+    .category-executive-dock {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f6f3ed;
+      border: 1.5px solid #e7e1d4;
+      border-radius: 50px;
+      padding: 4px 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    .dock-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border-radius: 40px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #4a443e;
+      white-space: nowrap;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dock-pill:hover {
+      background: #ffffff;
+      color: #1e3932;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      transform: translateY(-1px);
+    }
+    .dock-pill.active {
+      background: linear-gradient(135deg, #00754a 0%, #1e3932 100%);
+      color: #ffffff;
+      border-color: #00754a;
+      box-shadow: 0 4px 14px rgba(0, 117, 74, 0.3);
+      transform: translateY(-1px);
+    }
+    .dock-icon {
+      font-size: 17px;
+      width: 17px;
+      height: 17px;
+      color: #00754a;
+      transition: color 0.2s;
+    }
+    .dock-pill.active .dock-icon {
+      color: #dfc49d;
+    }
+    .dock-name {
+      font-family: inherit;
+    }
+    .dock-count {
+      background: #e9e3d5;
+      color: #3c3630;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 12px;
+      min-width: 18px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .dock-count.active-count {
+      background: rgba(203, 162, 88, 0.3);
+      color: #dfc49d;
+      border: 1px solid rgba(203, 162, 88, 0.45);
     }
     .table-card {
       background: #ffffff;
@@ -334,13 +488,58 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       font-size: 12px;
       color: rgba(0, 0, 0, 0.6);
     }
+    .trait-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
     .popular-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       font-size: 11px;
-      color: rgba(0, 0, 0, 0.4);
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 50px;
     }
     .popular-indicator.is-pop {
-      color: #cba258;
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      color: #e65100;
+      border: 1px solid rgba(230, 81, 0, 0.25);
+      box-shadow: 0 2px 6px rgba(230, 81, 0, 0.12);
+    }
+    .popular-indicator .flame-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: #ff5722;
+    }
+    .special-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
       font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #fdf8e6 0%, #faecd0 100%);
+      color: #8c6819;
+      border: 1px solid rgba(203, 162, 88, 0.4);
+      box-shadow: 0 2px 6px rgba(203, 162, 88, 0.15);
+    }
+    .special-indicator .sparkle-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: #cba258;
+    }
+    .standard-badge {
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.4);
+      background: #f4f2ee;
+      padding: 3px 9px;
+      border-radius: 50px;
     }
     .action-btns {
       display: flex;
@@ -483,12 +682,45 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       height: 100%;
       object-fit: cover;
     }
-    .form-checkbox {
+    .form-checkboxes-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #faf8f5;
+      border: 1px solid #ede8dc;
+      padding: 12px 16px;
+      border-radius: 12px;
+    }
+    .trait-check-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      cursor: pointer;
       font-size: 13px;
-      font-weight: 600;
+      color: #1e3932;
+    }
+    .trait-check-item input {
+      width: 17px;
+      height: 17px;
+      accent-color: #00754a;
+      cursor: pointer;
+    }
+    .trait-check-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .trait-icon-flame {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #ff5722;
+    }
+    .trait-icon-sparkle {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #cba258;
     }
     .toppings-block {
       background: #f2f0eb;
@@ -551,15 +783,26 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
     }
   `],
 })
-export class AdminRecipeManagerComponent implements OnInit {
+export class AdminRecipeManagerComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private recipeService = inject(RecipeService);
   private uploadService = inject(UploadService);
   private toast = inject(ToastService);
+  private sub = new Subscription();
 
   recipes = signal<Recipe[]>([]);
+  allRecipesForCount = signal<Recipe[]>([]);
   loading = signal<boolean>(true);
   searchControl = new FormControl('');
+
+  readonly categories = [
+    { id: 'all', label: 'Tất cả', icon: 'dashboard_customize' },
+    { id: 'Cà phê', label: 'Cà phê', icon: 'local_cafe' },
+    { id: 'Trà sữa', label: 'Trà sữa', icon: 'bubble_chart' },
+    { id: 'Trà trái cây', label: 'Trà trái cây', icon: 'nature' },
+    { id: 'Đặc biệt', label: 'Đặc biệt', icon: 'auto_awesome' },
+  ];
+  selectedCategory = signal<string>('all');
 
   modalOpen = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
@@ -576,6 +819,7 @@ export class AdminRecipeManagerComponent implements OnInit {
     category: ['Cà phê', [Validators.required]],
     imgUrl: ['', [Validators.required]],
     isPopular: [false],
+    isSpecial: [false],
     toppings: this.fb.array([]),
   });
 
@@ -585,18 +829,55 @@ export class AdminRecipeManagerComponent implements OnInit {
 
   ngOnInit() {
     this.fetchRecipes();
+
+    // Debounced real-time live search (300ms buffer)
+    const searchSub = this.searchControl.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe(() => {
+        this.fetchRecipes(true);
+      });
+    this.sub.add(searchSub);
   }
 
-  fetchRecipes() {
-    this.loading.set(true);
-    const keyword = this.searchControl.value || '';
-    this.recipeService.getRecipes(keyword).subscribe({
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+
+  clearSearch() {
+    this.searchControl.setValue('');
+  }
+
+  selectCategory(catId: string) {
+    this.selectedCategory.set(catId);
+    this.fetchRecipes(true);
+  }
+
+  getCategoryCount(catId: string): number {
+    const all = this.allRecipesForCount();
+    if (catId === 'all') return all.length;
+    if (catId === 'Đặc biệt') return all.filter((r) => r.isSpecial).length;
+    return all.filter((r) => r.category === catId).length;
+  }
+
+  fetchRecipes(showLoading: boolean = true) {
+    if (showLoading) this.loading.set(true);
+    const keyword = this.searchControl.value?.trim() || '';
+    const category = this.selectedCategory();
+
+    this.recipeService.getRecipes(keyword, category).subscribe({
       next: (data) => {
         this.recipes.set(data);
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
+      },
+    });
+
+    // Keep counts accurate across all categories
+    this.recipeService.getRecipes('').subscribe({
+      next: (all) => {
+        this.allRecipesForCount.set(all);
       },
     });
   }
@@ -625,6 +906,7 @@ export class AdminRecipeManagerComponent implements OnInit {
       category: 'Cà phê',
       imgUrl: '',
       isPopular: false,
+      isSpecial: false,
     });
     this.toppingsFormArray.clear();
     this.modalOpen.set(true);
@@ -639,7 +921,8 @@ export class AdminRecipeManagerComponent implements OnInit {
       giaCoBan: recipe.giaCoBan,
       category: recipe.category,
       imgUrl: recipe.imgUrl,
-      isPopular: recipe.isPopular,
+      isPopular: recipe.isPopular || false,
+      isSpecial: recipe.isSpecial || false,
     });
     this.toppingsFormArray.clear();
     if (recipe.toppings && recipe.toppings.length > 0) {
@@ -669,7 +952,7 @@ export class AdminRecipeManagerComponent implements OnInit {
       this.recipeService.updateRecipe(this.editingId()!, formValue).subscribe({
         next: () => {
           this.saving.set(false);
-          this.toast.success('Cập nhật món thành công');
+          this.toast.success('Cập nhật nước uống thành công');
           this.modalOpen.set(false);
           this.fetchRecipes();
         },
@@ -679,7 +962,7 @@ export class AdminRecipeManagerComponent implements OnInit {
       this.recipeService.createRecipe(formValue).subscribe({
         next: () => {
           this.saving.set(false);
-          this.toast.success('Tạo món mới thành công');
+          this.toast.success('Tạo nước uống mới thành công');
           this.modalOpen.set(false);
           this.fetchRecipes();
         },
@@ -697,7 +980,7 @@ export class AdminRecipeManagerComponent implements OnInit {
     if (!this.targetRecipe()) return;
     this.recipeService.deleteRecipe(this.targetRecipe()!.id).subscribe({
       next: () => {
-        this.toast.success('Đã xoá món ăn khỏi thực đơn');
+        this.toast.success('Đã xoá nước uống khỏi thực đơn');
         this.deleteDialogOpen.set(false);
         this.targetRecipe.set(null);
         this.fetchRecipes();

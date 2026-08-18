@@ -12,6 +12,7 @@ export interface Recipe {
   giaCoBan: number;
   imgUrl: string;
   isPopular: boolean;
+  isSpecial?: boolean;
   category: string;
   authorEmail?: string;
   toppings: RecipeTopping[];
@@ -25,6 +26,7 @@ export interface CreateRecipeDto {
   giaCoBan: number;
   imgUrl: string;
   isPopular?: boolean;
+  isSpecial?: boolean;
   category?: string;
   toppings?: RecipeTopping[];
 }

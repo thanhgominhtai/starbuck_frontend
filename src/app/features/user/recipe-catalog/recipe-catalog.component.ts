@@ -30,12 +30,15 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
         (mousemove)="onHeroMouseMove($event)"
         (mouseleave)="onHeroMouseLeave()"
       >
-        <!-- Luxury Symmetrical Gold Ambient Glow Layers -->
-        <div class="hero-ambient-glow glow-top-left"></div>
-        <div class="hero-ambient-glow glow-top-right"></div>
+        <!-- Background Layer with contained overflow -->
+        <div class="hero-backdrop">
+          <!-- Luxury Symmetrical Gold Ambient Glow Layers -->
+          <div class="hero-ambient-glow glow-top-left"></div>
+          <div class="hero-ambient-glow glow-top-right"></div>
 
-        <!-- Interactive Canvas Dot-Grid & Floating Aroma Particles -->
-        <canvas #heroCanvas class="hero-dot-canvas"></canvas>
+          <!-- Interactive Canvas Dot-Grid & Floating Aroma Particles -->
+          <canvas #heroCanvas class="hero-dot-canvas"></canvas>
+        </div>
 
         <div class="hero-content">
           <div class="hero-eyebrow">
@@ -92,44 +95,50 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
 
               <!-- 4 Action Buttons (Hidden by default, emerges like liquid droplets when hovered/focused) -->
               <div class="action-buttons-group" [class.is-visible]="showMorphActions()">
-                <!-- 1. All Menu Items -->
+                <!-- 1. Sort by Price Toggle (Thấp -> Cao, Cao -> Thấp, Mặc định) -->
                 <button
                   type="button"
-                  class="spotlight-action-btn btn-step-1"
-                  (click)="selectCategory('Tất cả')"
-                  title="Toàn bộ thực đơn"
+                  class="spotlight-action-btn price-btn btn-step-1"
+                  [class.is-active]="priceSort() !== 'none'"
+                  (click)="togglePriceSort()"
+                  [title]="getPriceSortTitle()"
                 >
-                  <mat-icon>widgets</mat-icon>
+                  <mat-icon>
+                    {{ priceSort() === 'asc' ? 'arrow_upward' : (priceSort() === 'desc' ? 'arrow_downward' : 'swap_vert') }}
+                  </mat-icon>
                 </button>
 
-                <!-- 2. Categories -->
+                <!-- 2. Món Mới Ra Mắt (New Arrivals) -->
                 <button
                   type="button"
-                  class="spotlight-action-btn btn-step-2"
-                  (click)="scrollToDock()"
-                  title="Danh mục món ăn"
+                  class="spotlight-action-btn new-btn btn-step-2"
+                  [class.is-active]="isNewOnly()"
+                  (click)="toggleNewOnly()"
+                  [title]="isNewOnly() ? 'Hiển thị tất cả món' : 'Lọc món mới ra mắt ✨'"
                 >
-                  <mat-icon>category</mat-icon>
+                  <mat-icon [class.fill-icon]="isNewOnly()">auto_awesome</mat-icon>
                 </button>
 
-                <!-- 3. Trending / Bán chạy -->
+                <!-- 3. Món Bán Chạy (Trending / Hot) - Fill color when active -->
                 <button
                   type="button"
-                  class="spotlight-action-btn btn-step-3"
-                  (click)="filterPopularOnly()"
-                  title="Món bán chạy"
+                  class="spotlight-action-btn fire-btn btn-step-3"
+                  [class.is-active]="isPopularOnly()"
+                  (click)="togglePopularOnly()"
+                  [title]="isPopularOnly() ? 'Hiển thị tất cả món' : 'Lọc món bán chạy nhất 🔥'"
                 >
-                  <mat-icon>local_fire_department</mat-icon>
+                  <mat-icon [class.fill-icon]="isPopularOnly()">local_fire_department</mat-icon>
                 </button>
 
-                <!-- 4. Favorites -->
+                <!-- 4. Tôi Cảm Thấy May Mắn (Random 3-4 món) -->
                 <button
                   type="button"
-                  class="spotlight-action-btn fav-btn btn-step-4"
-                  (click)="selectCategory('❤️ Yêu thích')"
-                  title="Món yêu thích của bạn"
+                  class="spotlight-action-btn lucky-btn btn-step-4"
+                  [class.is-active]="isLuckyActive()"
+                  (click)="feelLucky()"
+                  title="Tôi cảm thấy may mắn 🎲 (Gợi ý 3-4 món ngẫu nhiên)"
                 >
-                  <mat-icon>favorite</mat-icon>
+                  <mat-icon [class.dice-rolling]="isLuckyRolling()">casino</mat-icon>
                 </button>
               </div>
             </div>
@@ -171,7 +180,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
               *ngFor="let item of categoryItems; let i = index"
               type="button"
               class="dock-item"
-              [class.active]="selectedCategory() === item.id"
+              [class.active]="selectedCategory() === item.id && !isLuckyActive()"
               [style.transform]="getDockItemTransform(i)"
               (click)="selectCategory(item.id)"
               (mouseenter)="hoveredIndex.set(i)"
@@ -193,6 +202,29 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
           </div>
         </div>
 
+        <!-- Lucky Random Suggestion Banner [US-Lucky] -->
+        <div *ngIf="isLuckyActive()" class="lucky-banner">
+          <div class="lucky-banner-left">
+            <div class="lucky-tag">
+              <mat-icon class="dice-icon">casino</mat-icon>
+              <span>TÔI CẢM THẤY MAY MẮN</span>
+            </div>
+            <p class="lucky-desc">
+              Hệ thống đã chọn ngẫu nhiên <strong>{{ recipes().length }} món đặc sắc</strong> dành riêng cho bạn hôm nay! ✨
+            </p>
+          </div>
+          <div class="lucky-banner-right">
+            <button type="button" class="btn-lucky-reroll" (click)="feelLucky()">
+              <mat-icon [class.dice-rolling]="isLuckyRolling()">refresh</mat-icon>
+              Bốc lại
+            </button>
+            <button type="button" class="btn-lucky-exit" (click)="resetLuckyMode()">
+              <mat-icon>close</mat-icon>
+              Xem tất cả thực đơn
+            </button>
+          </div>
+        </div>
+
         <!-- Loading State Skeleton [FE-09] -->
         <div *ngIf="loading()" class="skeleton-section">
           <app-loading-skeleton [count]="6"></app-loading-skeleton>
@@ -205,7 +237,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
           </div>
           <h3 class="empty-title">Không tìm thấy món ăn nào</h3>
           <p class="empty-desc">
-            Không có công thức nào khớp với từ khóa tìm kiếm của bạn. Hãy thử từ khóa khác!
+            Không có công thức nào khớp với từ khóa tìm kiếm hoặc bộ lọc của bạn. Hãy thử lại!
           </p>
           <button class="btn-reset" (click)="clearSearch()">Xem tất cả thực đơn</button>
         </div>
@@ -220,7 +252,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
               <!-- Top Left: Highlight Badges ("Bán chạy" / "Đặc biệt") - Luôn ở trên đầu hình -->
               <div class="card-top-badges">
                 <span class="popular-badge" *ngIf="recipe.isPopular">
-                  <mat-icon>star</mat-icon>
+                  <mat-icon>local_fire_department</mat-icon>
                   Bán chạy
                 </span>
                 <span class="special-badge" *ngIf="recipe.category === 'Đặc biệt'">
@@ -290,7 +322,14 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       text-align: center;
       position: relative;
       border-bottom: 1px solid rgba(203, 162, 88, 0.25);
+      z-index: 110;
+    }
+    .hero-backdrop {
+      position: absolute;
+      inset: 0;
       overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
     }
     .hero-ambient-glow {
       position: absolute;
@@ -528,7 +567,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       opacity: 0;
       transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275),
                   opacity 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
-                  background 0.2s, box-shadow 0.2s;
+                  background 0.2s, box-shadow 0.2s, border-color 0.2s;
       flex-shrink: 0;
     }
     .action-buttons-group.is-visible .spotlight-action-btn {
@@ -552,7 +591,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       width: 20px;
       height: 20px;
       color: #00754a;
-      transition: transform 0.2s;
+      transition: transform 0.2s, color 0.2s;
     }
     .spotlight-action-btn:hover {
       background: #ffffff;
@@ -563,23 +602,184 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
     .spotlight-action-btn:hover mat-icon {
       transform: scale(1.15);
     }
-    .spotlight-action-btn.fav-btn mat-icon {
-      color: #e53935;
+
+    /* Active Highlight States */
+    .spotlight-action-btn.is-active {
+      background: #00754a;
+      border-color: #cba258;
+      box-shadow: 0 12px 28px rgba(0, 117, 74, 0.45);
+    }
+    .spotlight-action-btn.is-active mat-icon {
+      color: #ffffff;
+    }
+
+    /* Button 1: Price Sort */
+    .spotlight-action-btn.price-btn.is-active {
+      background: #00754a;
+      border-color: #dfc49d;
+    }
+
+    /* Button 2: New Arrivals */
+    .spotlight-action-btn.new-btn mat-icon {
+      color: #cba258;
+    }
+    .spotlight-action-btn.new-btn.is-active {
+      background: linear-gradient(135deg, #1e3932 0%, #00754a 100%);
+      border-color: #dfc49d;
+      box-shadow: 0 12px 28px rgba(0, 117, 74, 0.45);
+    }
+    .spotlight-action-btn.new-btn.is-active mat-icon {
+      color: #dfc49d;
+      font-variation-settings: 'FILL' 1;
+      animation: flamePop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Button 3: Hot / Popular - Full Flame Fill */
+    .spotlight-action-btn.fire-btn mat-icon {
+      color: #ff6d00;
+    }
+    .spotlight-action-btn.fire-btn.is-active {
+      background: linear-gradient(135deg, #ff6d00 0%, #e65100 100%);
+      border-color: #ffe082;
+      box-shadow: 0 12px 30px rgba(230, 81, 0, 0.45);
+    }
+    .spotlight-action-btn.fire-btn.is-active mat-icon {
+      color: #ffffff;
+      font-variation-settings: 'FILL' 1;
+      animation: flamePop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Button 4: Lucky Dice */
+    .spotlight-action-btn.lucky-btn mat-icon {
+      color: #8e24aa;
+    }
+    .spotlight-action-btn.lucky-btn.is-active {
+      background: linear-gradient(135deg, #8e24aa 0%, #512da8 100%);
+      border-color: #e1bee7;
+      box-shadow: 0 12px 30px rgba(142, 36, 170, 0.45);
+    }
+    .spotlight-action-btn.lucky-btn.is-active mat-icon {
+      color: #ffffff;
+    }
+
+    .dice-rolling {
+      animation: diceSpin 0.55s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    @keyframes diceSpin {
+      0% { transform: rotate(0deg) scale(0.8); }
+      50% { transform: rotate(180deg) scale(1.25); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    @keyframes flamePop {
+      0% { transform: scale(0.65); }
+      50% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+    .fill-icon {
+      font-variation-settings: 'FILL' 1 !important;
+    }
+
+    /* Lucky Banner */
+    .lucky-banner {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, #faf6ee 100%);
+      border: 1.5px solid rgba(203, 162, 88, 0.55);
+      border-radius: 20px;
+      padding: 18px 24px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 12px 32px rgba(203, 162, 88, 0.2), 0 4px 12px rgba(0, 0, 0, 0.04);
+      animation: luckySlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes luckySlideDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .lucky-banner-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .lucky-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #8e24aa;
+      letter-spacing: 0.12em;
+    }
+    .lucky-tag .dice-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #8e24aa;
+    }
+    .lucky-desc {
+      font-size: 14.5px;
+      color: #1e3932;
+      margin: 0;
+      line-height: 1.5;
+    }
+    .lucky-banner-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .btn-lucky-reroll {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 20px;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #00754a 0%, #1e3932 100%);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid rgba(203, 162, 88, 0.4);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 117, 74, 0.3);
+      transition: all 0.2s;
+    }
+    .btn-lucky-reroll:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 117, 74, 0.45);
+    }
+    .btn-lucky-exit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 50px;
+      background: #ffffff;
+      color: #555555;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid #d5d3d0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-lucky-exit:hover {
+      background: #f0eee9;
+      color: #111111;
     }
 
     /* Floating Suggestions Box */
     .spotlight-suggestions {
       position: absolute;
-      top: calc(100% + 10px);
+      top: calc(100% + 12px);
       left: 0;
       width: 100%;
       background: #ffffff;
-      border-radius: 16px;
-      padding: 14px 18px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(203, 162, 88, 0.35);
+      border-radius: 18px;
+      padding: 16px 20px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.12);
+      border: 1.5px solid rgba(203, 162, 88, 0.45);
       animation: suggestionFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 200;
+      z-index: 500;
     }
     .suggestions-head {
       display: flex;
@@ -794,16 +994,24 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       z-index: 2;
     }
     .popular-badge {
-      background: #cba258;
+      background: linear-gradient(135deg, #ff6d00 0%, #e65100 100%);
       color: #ffffff;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       padding: 4px 10px;
       border-radius: 50px;
       display: flex;
       align-items: center;
       gap: 4px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 12px rgba(230, 81, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .popular-badge mat-icon {
+      font-size: 13px;
+      width: 13px;
+      height: 13px;
+      color: #ffffff;
+      font-variation-settings: 'FILL' 1;
     }
     .special-badge {
       background: linear-gradient(135deg, #00754a 0%, #1e3932 100%);
@@ -818,7 +1026,7 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       gap: 4px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
     }
-    .popular-badge mat-icon, .special-badge mat-icon {
+    .special-badge mat-icon {
       font-size: 13px;
       width: 13px;
       height: 13px;
@@ -1053,9 +1261,58 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
   private heroMouseY = -1000;
 
   searchControl = new FormControl('');
-  recipes = signal<Recipe[]>([]);
+  rawRecipes = signal<Recipe[]>([]);
   loading = signal<boolean>(true);
   selectedCategory = signal<string>('Tất cả');
+
+  // Filter & Action States
+  priceSort = signal<'none' | 'asc' | 'desc'>('none');
+  isPopularOnly = signal<boolean>(false);
+  isNewOnly = signal<boolean>(false);
+  isLuckyActive = signal<boolean>(false);
+  isLuckyRolling = signal<boolean>(false);
+  luckyDrinkIds = signal<string[]>([]);
+
+  // Computed dynamic recipe list pipeline
+  recipes = computed<Recipe[]>(() => {
+    let list = [...this.rawRecipes()];
+
+    // 1. Lucky Random Suggestion Mode
+    if (this.isLuckyActive()) {
+      const luckySet = new Set(this.luckyDrinkIds());
+      return list.filter((r) => luckySet.has(r.id));
+    }
+
+    // 2. Filter by Category
+    const cat = this.selectedCategory();
+    if (cat === '❤️ Yêu thích') {
+      list = list.filter((r) => this.favoriteService.isFavorite(r.id));
+    }
+
+    // 3. Filter by Hot / Popular (Button 3)
+    if (this.isPopularOnly()) {
+      list = list.filter((r) => r.isPopular);
+    }
+
+    // 4. Filter by New Arrivals (Button 2)
+    if (this.isNewOnly()) {
+      list = list.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeB - timeA;
+      });
+    }
+
+    // 5. Sort by Price (Button 1)
+    const sort = this.priceSort();
+    if (sort === 'asc') {
+      list = list.sort((a, b) => a.giaCoBan - b.giaCoBan);
+    } else if (sort === 'desc') {
+      list = list.sort((a, b) => b.giaCoBan - a.giaCoBan);
+    }
+
+    return list;
+  });
 
   // Spotlight Morphing Search States
   isSearchFocused = signal<boolean>(false);
@@ -1108,18 +1365,77 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     this.dockRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  filterPopularOnly() {
-    this.searchControl.setValue('');
-    this.selectedCategory.set('Tất cả');
-    this.loading.set(true);
-    this.recipeService.getRecipes('', 'Tất cả').subscribe({
-      next: (data) => {
-        this.recipes.set(data.filter((r) => r.isPopular));
-        this.loading.set(false);
-        this.toast.info('Đang hiển thị danh sách món Bán chạy nhất ⭐');
-      },
-      error: () => this.loading.set(false),
-    });
+  // Button 1: Toggle Sort by Price
+  togglePriceSort() {
+    this.isLuckyActive.set(false);
+    const current = this.priceSort();
+    if (current === 'none') {
+      this.priceSort.set('asc');
+      this.toast.info('Sắp xếp giá: Thấp đến Cao ⬆️');
+    } else if (current === 'asc') {
+      this.priceSort.set('desc');
+      this.toast.info('Sắp xếp giá: Cao xuống Thấp ⬇️');
+    } else {
+      this.priceSort.set('none');
+      this.toast.info('Đã tắt sắp xếp theo giá');
+    }
+  }
+
+  getPriceSortTitle(): string {
+    const sort = this.priceSort();
+    if (sort === 'asc') return 'Giá: Thấp đến Cao (Nhấn để chuyển sang Cao xuống Thấp)';
+    if (sort === 'desc') return 'Giá: Cao xuống Thấp (Nhấn để tắt sắp xếp)';
+    return 'Sắp xếp theo giá (Thấp đến Cao / Cao xuống Thấp)';
+  }
+
+  // Button 2: Toggle New Arrivals
+  toggleNewOnly() {
+    this.isLuckyActive.set(false);
+    const next = !this.isNewOnly();
+    this.isNewOnly.set(next);
+    if (next) {
+      this.toast.info('Đang hiển thị các Món Mới Ra Mắt ✨');
+    } else {
+      this.toast.info('Hiển thị tất cả món');
+    }
+  }
+
+  // Button 3: Toggle Hot / Popular
+  togglePopularOnly() {
+    this.isLuckyActive.set(false);
+    const next = !this.isPopularOnly();
+    this.isPopularOnly.set(next);
+    if (next) {
+      this.toast.success('Đang lọc danh sách Món Bán Chạy Nhất 🔥');
+    } else {
+      this.toast.info('Hiển thị tất cả món');
+    }
+  }
+
+  // Button 4: Lucky Random Drink Picker
+  feelLucky() {
+    const all = this.rawRecipes();
+    if (all.length === 0) {
+      this.toast.info('Không có món nào trong thực đơn để gợi ý.');
+      return;
+    }
+
+    this.isLuckyRolling.set(true);
+    setTimeout(() => {
+      // Pick random 3 to 4 unique items
+      const shuffled = [...all].sort(() => 0.5 - Math.random());
+      const count = Math.min(Math.floor(Math.random() * 2) + 3, shuffled.length); // 3 or 4
+      const picked = shuffled.slice(0, count);
+      this.luckyDrinkIds.set(picked.map((r) => r.id));
+      this.isLuckyActive.set(true);
+      this.isLuckyRolling.set(false);
+      this.toast.success(`🎲 Tôi cảm thấy may mắn: Đã gợi ý ${picked.length} món ngon dành cho bạn!`);
+    }, 300);
+  }
+
+  resetLuckyMode() {
+    this.isLuckyActive.set(false);
+    this.luckyDrinkIds.set([]);
   }
 
   onDockMouseMove(event: MouseEvent) {
@@ -1176,11 +1492,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
       )
       .subscribe({
         next: (data) => {
-          if (this.selectedCategory() === '❤️ Yêu thích') {
-            this.recipes.set(data.filter((r) => this.favoriteService.isFavorite(r.id)));
-          } else {
-            this.recipes.set(data);
-          }
+          this.rawRecipes.set(data);
           this.loading.set(false);
         },
         error: () => {
@@ -1350,11 +1662,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
       .getRecipes(keyword, queryCategory)
       .subscribe({
         next: (data) => {
-          if (cat === '❤️ Yêu thích') {
-            this.recipes.set(data.filter((r) => this.favoriteService.isFavorite(r.id)));
-          } else {
-            this.recipes.set(data);
-          }
+          this.rawRecipes.set(data);
           this.loading.set(false);
         },
         error: () => {
@@ -1364,6 +1672,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   selectCategory(category: string) {
+    this.isLuckyActive.set(false);
     this.selectedCategory.set(category);
     this.fetchRecipes();
   }
@@ -1375,6 +1684,10 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     }
     this.searchControl.setValue('');
     this.selectedCategory.set('Tất cả');
+    this.priceSort.set('none');
+    this.isPopularOnly.set(false);
+    this.isNewOnly.set(false);
+    this.isLuckyActive.set(false);
     this.fetchRecipes();
   }
 
@@ -1387,7 +1700,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     } else {
       this.toast.info(`Đã bỏ "${recipe.name}" khỏi danh sách Yêu thích`);
       if (this.selectedCategory() === '❤️ Yêu thích') {
-        this.recipes.set(this.recipes().filter((r) => r.id !== recipe.id));
+        this.rawRecipes.set(this.rawRecipes().filter((r) => r.id !== recipe.id));
       }
     }
   }
