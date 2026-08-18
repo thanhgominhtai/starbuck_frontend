@@ -116,29 +116,12 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
                     class="status-action-pill"
                     [ngClass]="'status-pill-' + getStatusSlug(order.status)"
                     [class.is-open]="activeDropdownOrderId() === order.id"
-                    (click)="toggleStatusDropdown(order.id, $event)"
+                    (click)="toggleStatusDropdown(order, $event)"
                   >
                     <mat-icon class="pill-icon">{{ getStatusIcon(order.status) }}</mat-icon>
                     <span class="pill-text">{{ getStatusLabel(order.status) }}</span>
                     <mat-icon class="pill-chevron" [class.rotated]="activeDropdownOrderId() === order.id">expand_more</mat-icon>
                   </button>
-
-                  <!-- CUSTOM FLOATING DROPDOWN MENU -->
-                  <div class="custom-status-menu" *ngIf="activeDropdownOrderId() === order.id">
-                    <div class="menu-header-label">Cập nhật tiến trình</div>
-                    <button
-                      type="button"
-                      *ngFor="let opt of statusOptions"
-                      class="status-menu-item"
-                      [class.active-item]="order.status === opt.value"
-                      [ngClass]="'item-' + opt.slug"
-                      (click)="selectStatus(order, opt.value, $event)"
-                    >
-                      <mat-icon class="item-icon">{{ opt.icon }}</mat-icon>
-                      <span class="item-label">{{ opt.label }}</span>
-                      <mat-icon class="item-check" *ngIf="order.status === opt.value">done</mat-icon>
-                    </button>
-                  </div>
                 </div>
               </td>
             </tr>
@@ -149,6 +132,29 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
           <mat-icon>inbox</mat-icon>
           <p>Không có đơn hàng nào khớp với bộ lọc.</p>
         </div>
+      </div>
+
+      <!-- FIXED FLOATING STATUS DROPDOWN MENU (Never clipped by table overflow) -->
+      <div
+        class="custom-status-menu-fixed"
+        *ngIf="activeDropdownOrderId() && activeDropdownOrder()"
+        [style.top]="dropdownStyle().top"
+        [style.left]="dropdownStyle().left"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="menu-header-label">Cập nhật tiến trình</div>
+        <button
+          type="button"
+          *ngFor="let opt of statusOptions"
+          class="status-menu-item"
+          [class.active-item]="activeDropdownOrder()!.status === opt.value"
+          [ngClass]="'item-' + opt.slug"
+          (click)="selectStatus(activeDropdownOrder()!, opt.value, $event)"
+        >
+          <mat-icon class="item-icon">{{ opt.icon }}</mat-icon>
+          <span class="item-label">{{ opt.label }}</span>
+          <mat-icon class="item-check" *ngIf="activeDropdownOrder()!.status === opt.value">done</mat-icon>
+        </button>
       </div>
 
       <!-- CANCEL REASON MODAL -->
@@ -477,31 +483,29 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       pointer-events: none;
     }
 
-    /* Floating custom dropdown menu */
-    .custom-status-menu {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      min-width: 185px;
+    /* Fixed Floating custom dropdown menu (Never clipped by table overflow) */
+    .custom-status-menu-fixed {
+      position: fixed;
+      min-width: 195px;
       background: #ffffff;
       border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 16px;
       padding: 6px;
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.04);
-      z-index: 100;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.06);
+      z-index: 99999;
       display: flex;
       flex-direction: column;
       gap: 3px;
-      animation: menuPop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: menuPopFixed 0.16s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    @keyframes menuPop {
+    @keyframes menuPopFixed {
       from {
         opacity: 0;
-        transform: translateY(-6px) scale(0.95);
+        transform: scale(0.96);
       }
       to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: scale(1);
       }
     }
     .menu-header-label {
@@ -783,6 +787,8 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
 
   // Custom dropdown status menu state
   activeDropdownOrderId = signal<string | null>(null);
+  activeDropdownOrder = signal<Order | null>(null);
+  dropdownStyle = signal<{ top: string; left: string }>({ top: '0px', left: '0px' });
 
   statusOptions: { label: string; value: OrderStatus; icon: string; slug: string }[] = [
     { label: 'Chờ tiếp nhận', value: 'Pending', icon: 'hourglass_top', slug: 'pending' },
@@ -793,21 +799,58 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click')
   onDocumentClick() {
-    this.activeDropdownOrderId.set(null);
+    this.closeDropdown();
   }
 
-  toggleStatusDropdown(orderId: string, event: MouseEvent) {
-    event.stopPropagation();
-    if (this.activeDropdownOrderId() === orderId) {
-      this.activeDropdownOrderId.set(null);
-    } else {
-      this.activeDropdownOrderId.set(orderId);
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    if (this.activeDropdownOrderId()) {
+      this.closeDropdown();
     }
+  }
+
+  closeDropdown() {
+    this.activeDropdownOrderId.set(null);
+    this.activeDropdownOrder.set(null);
+  }
+
+  toggleStatusDropdown(order: Order, event: MouseEvent) {
+    event.stopPropagation();
+    if (this.activeDropdownOrderId() === order.id) {
+      this.closeDropdown();
+      return;
+    }
+
+    const button = event.currentTarget as HTMLElement;
+    const rect = button.getBoundingClientRect();
+    const menuHeight = 195;
+    const menuWidth = 195;
+
+    // Check if space below is enough, else open upward
+    const spaceBelow = window.innerHeight - rect.bottom;
+    let top = rect.bottom + 6;
+    if (spaceBelow < menuHeight && rect.top > menuHeight) {
+      top = rect.top - menuHeight - 6;
+    }
+
+    // Ensure left does not overflow viewport width
+    let left = rect.left;
+    if (left + menuWidth > window.innerWidth - 16) {
+      left = window.innerWidth - menuWidth - 16;
+    }
+    if (left < 16) left = 16;
+
+    this.dropdownStyle.set({
+      top: `${top}px`,
+      left: `${left}px`,
+    });
+    this.activeDropdownOrderId.set(order.id);
+    this.activeDropdownOrder.set(order);
   }
 
   selectStatus(order: Order, newStatus: OrderStatus, event: MouseEvent) {
     event.stopPropagation();
-    this.activeDropdownOrderId.set(null);
+    this.closeDropdown();
 
     if (order.status === newStatus) return;
 
