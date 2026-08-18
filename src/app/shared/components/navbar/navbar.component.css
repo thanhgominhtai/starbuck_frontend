@@ -1,0 +1,177 @@
+.sb-navbar {
+      background: #ffffff;
+      border-bottom: 1px solid #edebe9;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .sb-nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .sb-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #006241;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+    .logo-circle mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    .sb-logo:hover .logo-circle {
+      transform: scale(1.05);
+    }
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .brand-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #006241;
+      letter-spacing: 0.05em;
+    }
+    .brand-sub {
+      font-size: 10px;
+      font-weight: 600;
+      color: #cba258;
+      letter-spacing: 0.1em;
+    }
+    .sb-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 50px;
+      color: rgba(0, 0, 0, 0.7);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .nav-link mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    .nav-link:hover {
+      background: #f2f0eb;
+      color: #006241;
+    }
+    .nav-link.active {
+      background: #d4e9e2;
+      color: #006241;
+    }
+    .admin-nav-link {
+      color: #1e3932;
+      border: 1px solid rgba(203, 162, 88, 0.5);
+      background: #faf6ee;
+    }
+    .admin-nav-link.active {
+      background: #cba258;
+      color: #ffffff;
+    }
+    .sb-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 6px 4px 12px;
+      background: #f2f0eb;
+      border-radius: 50px;
+    }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #00754a;
+    }
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .user-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e3932;
+      max-width: 110px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .role-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: #006241;
+    }
+    .admin-badge {
+      color: #b4852e;
+    }
+    .btn-logout {
+      background: none;
+      border: none;
+      color: rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover {
+      background: #edebe9;
+      color: #c82014;
+    }
+    .btn-logout mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    .btn-pill {
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn-signin {
+      background: #00754a;
+      color: #ffffff;
+    }
+    .btn-signin:hover {
+      background: #005c3b;
+    }
+    .btn-signin:active {
+      transform: scale(0.95);
+    }

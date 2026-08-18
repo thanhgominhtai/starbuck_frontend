@@ -1,0 +1,195 @@
+<div class="order-mgr-view">
+      <!-- Top Title & Search Filter [FE-07] -->
+      <div class="mgr-header">
+        <div>
+          <h1 class="mgr-title">Quản Lý Toàn Bộ Đơn Hàng</h1>
+          <p class="mgr-subtitle">Xem, tìm kiếm và cập nhật trạng thái đơn đặt món thời gian thực</p>
+        </div>
+
+        <div class="mgr-filters">
+          <div class="search-box" [class.has-text]="!!searchControl.value">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input
+              type="text"
+              [formControl]="searchControl"
+              placeholder="Tìm theo khách hàng, email, món ăn, mã đơn..."
+            />
+            <button
+              type="button"
+              class="btn-clear-search"
+              *ngIf="searchControl.value"
+              (click)="clearSearch()"
+              title="Xóa tìm kiếm"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <div class="filter-dropdown-wrap" (click)="$event.stopPropagation()">
+            <button
+              type="button"
+              class="filter-select-btn"
+              [class.is-open]="filterDropdownOpen()"
+              (click)="toggleFilterDropdown($event)"
+            >
+              <mat-icon class="filter-icon">tune</mat-icon>
+              <span class="filter-label">{{ getFilterLabel() }}</span>
+              <mat-icon class="filter-arrow" [class.rotated]="filterDropdownOpen()">expand_more</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders Data Table [AD-01] -->
+      <div class="table-card">
+        <div *ngIf="loading()" class="table-loading">Đang tải danh sách đơn hàng...</div>
+
+        <table class="sb-table" *ngIf="!loading() && orders().length > 0">
+          <thead>
+            <tr>
+              <th>MÃ ĐƠN</th>
+              <th>KHÁCH HÀNG</th>
+              <th>MÓN ĐẶT</th>
+              <th>SỐ LƯỢNG</th>
+              <th>TỔNG TIỀN</th>
+              <th>TRẠNG THÁI</th>
+              <th>THAO TÁC CẬP NHẬT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of orders()">
+              <td>
+                <span class="order-tag">#{{ order.id.slice(-6).toUpperCase() }}</span>
+                <span class="order-time">{{ order.createdAt | date: 'dd/MM HH:mm' }}</span>
+              </td>
+              <td>
+                <div class="user-cell">
+                  <span class="user-name-txt">{{ order.userName }}</span>
+                  <span class="user-email-txt">{{ order.userEmail }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="recipe-cell">
+                  <img [src]="order.recipeSnapshot.imgUrl" [alt]="order.recipeSnapshot.name" class="table-thumb" />
+                  <div>
+                    <span class="r-name">{{ order.recipeSnapshot.name }}</span>
+                    <span class="r-note" *ngIf="order.note">Note: {{ order.note }}</span>
+                  </div>
+                </div>
+              </td>
+              <td><strong>{{ order.portions }}</strong> phần</td>
+              <td>
+                <span class="price-txt">{{ order.totalPrice | vndCurrency }}</span>
+              </td>
+              <td>
+                <app-status-badge [status]="order.status"></app-status-badge>
+                <span class="cancel-preview" *ngIf="order.status === 'Bị huỷ' && order.cancelReason">
+                  Lý do: {{ order.cancelReason }}
+                </span>
+              </td>
+              <td>
+                <div class="action-dropdown-wrap" (click)="$event.stopPropagation()">
+                  <button
+                    type="button"
+                    class="status-action-pill"
+                    [ngClass]="'status-pill-' + getStatusSlug(order.status)"
+                    [class.is-open]="activeDropdownOrderId() === order.id"
+                    (click)="toggleStatusDropdown(order, $event)"
+                  >
+                    <mat-icon class="pill-icon">{{ getStatusIcon(order.status) }}</mat-icon>
+                    <span class="pill-text">{{ getStatusLabel(order.status) }}</span>
+                    <mat-icon class="pill-chevron" [class.rotated]="activeDropdownOrderId() === order.id">expand_more</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="!loading() && orders().length === 0" class="table-empty">
+          <mat-icon>inbox</mat-icon>
+          <p>Không có đơn hàng nào khớp với bộ lọc.</p>
+        </div>
+      </div>
+
+      <!-- FIXED FLOATING STATUS DROPDOWN MENU (Never clipped by table overflow) -->
+      <div
+        class="custom-status-menu-fixed"
+        *ngIf="activeDropdownOrderId() && activeDropdownOrder()"
+        [style.top]="dropdownStyle().top"
+        [style.left]="dropdownStyle().left"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="menu-header-label">Cập nhật tiến trình</div>
+        <button
+          type="button"
+          *ngFor="let opt of statusOptions"
+          class="status-menu-item"
+          [class.active-item]="activeDropdownOrder()!.status === opt.value"
+          [ngClass]="'item-' + opt.slug"
+          (click)="selectStatus(activeDropdownOrder()!, opt.value, $event)"
+        >
+          <mat-icon class="item-icon">{{ opt.icon }}</mat-icon>
+          <span class="item-label">{{ opt.label }}</span>
+          <mat-icon class="item-check" *ngIf="activeDropdownOrder()!.status === opt.value">done</mat-icon>
+        </button>
+      </div>
+
+      <!-- FIXED FLOATING STATUS FILTER MENU (Never clipped by table overflow) -->
+      <div
+        class="custom-filter-menu-fixed"
+        *ngIf="filterDropdownOpen()"
+        [style.top]="filterDropdownStyle().top"
+        [style.left]="filterDropdownStyle().left"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="menu-header-label">Lọc theo trạng thái</div>
+        <button
+          type="button"
+          *ngFor="let opt of filterOptions"
+          class="status-menu-item"
+          [class.active-item]="statusFilter.value === opt.value"
+          [ngClass]="'item-' + opt.slug"
+          (click)="selectFilter(opt.value, $event)"
+        >
+          <mat-icon class="item-icon">{{ opt.icon }}</mat-icon>
+          <span class="item-label">{{ opt.label }}</span>
+          <mat-icon class="item-check" *ngIf="statusFilter.value === opt.value">done</mat-icon>
+        </button>
+      </div>
+
+      <!-- CANCEL REASON MODAL -->
+      <div class="modal-backdrop" *ngIf="cancelModalOpen()">
+        <div class="modal-card">
+          <div class="modal-head">
+            <mat-icon class="cancel-icon">warning</mat-icon>
+            <h3>Bắt buộc nhập lý do huỷ đơn hàng</h3>
+          </div>
+          <p class="modal-sub">
+            Lý do này sẽ hiển thị trực tiếp cho khách hàng tại màn hình theo dõi đơn hàng của họ.
+          </p>
+
+          <form [formGroup]="cancelForm" (ngSubmit)="confirmCancelWithReason()" class="modal-form">
+            <div class="form-group">
+              <label>Lý do huỷ đơn:</label>
+              <textarea
+                formControlName="cancelReason"
+                rows="3"
+                placeholder="Ví dụ: Món ăn tạm hết nguyên liệu, quán quá tải đơn..."
+                class="modal-textarea"
+              ></textarea>
+              <span class="err-msg" *ngIf="cancelForm.get('cancelReason')?.touched && cancelForm.get('cancelReason')?.invalid">
+                Vui lòng nhập lý do huỷ đơn trước khi tiếp tục
+              </span>
+            </div>
+
+            <div class="modal-btns">
+              <button type="button" class="btn-cancel-modal" (click)="closeCancelModal()">Huỷ thao tác</button>
+              <button type="submit" class="btn-confirm-cancel" [disabled]="cancelForm.invalid">
+                Xác nhận Huỷ Đơn
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>

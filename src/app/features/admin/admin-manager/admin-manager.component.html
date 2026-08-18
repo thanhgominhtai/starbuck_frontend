@@ -1,0 +1,149 @@
+<div class="admin-mgr-view">
+      <!-- Header -->
+      <div class="mgr-head">
+        <div>
+          <h1 class="mgr-title">Quản Trị Danh Sách Quản Trị Viên</h1>
+          <p class="mgr-sub">Quản lý quyền hạn hệ thống, cấp quyền hoặc thu hồi quyền Admin</p>
+        </div>
+
+        <button class="btn-add-admin" (click)="openAddModal()">
+          <mat-icon>person_add</mat-icon>
+          Cấp quyền Admin cho User
+        </button>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-bar">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          [formControl]="searchControl"
+          placeholder="Tìm kiếm quản trị viên theo tên hoặc email..."
+          (keyup.enter)="fetchAdmins()"
+        />
+      </div>
+
+      <!-- Admin List Table -->
+      <div class="table-container">
+        <table class="sb-table">
+          <thead>
+            <tr>
+              <th>AVATAR</th>
+              <th>HỌ VÀ TÊN</th>
+              <th>EMAIL</th>
+              <th>VAI TRÒ</th>
+              <th>NGÀY TẠO</th>
+              <th>THAO TÁC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let admin of admins()">
+              <td>
+                <img
+                  [src]="admin.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + admin.email"
+                  class="admin-thumb"
+                  alt="Avatar"
+                />
+              </td>
+              <td><strong>{{ admin.name }}</strong></td>
+              <td>{{ admin.email }}</td>
+              <td>
+                <span class="badge-role">ADMIN</span>
+              </td>
+              <td>{{ admin.createdAt | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <div class="action-cell">
+                  <button
+                    *ngIf="canRevoke(admin)"
+                    class="btn-revoke"
+                    (click)="openRevokeConfirm(admin)"
+                    title="Thu hồi quyền Quản trị viên"
+                  >
+                    <mat-icon>person_remove</mat-icon>
+                    Thu hồi Admin
+                  </button>
+
+                  <!-- Protected Root Admin Pill -->
+                  <span
+                    class="badge-protected root-admin-badge"
+                    *ngIf="isRootAdmin(admin)"
+                    title="Quản trị viên gốc hệ thống - Không thể bị thu hồi quyền"
+                  >
+                    <mat-icon class="prot-icon">verified_user</mat-icon>
+                    Admin Gốc (Bảo vệ)
+                  </span>
+
+                  <!-- Current User Self-Protection Pill -->
+                  <span
+                    class="badge-protected self-admin-badge"
+                    *ngIf="!isRootAdmin(admin) && isCurrentUser(admin)"
+                    title="Tài khoản Quản trị viên của bạn - Không thể tự thu hồi chính mình"
+                  >
+                    <mat-icon class="prot-icon">account_circle</mat-icon>
+                    Tài khoản của bạn
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- GRANT ADMIN ROLE MODAL [AD-06] -->
+      <div class="modal-backdrop" *ngIf="addModalOpen()">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Cấp quyền Quản trị viên (Admin)</h3>
+            <button class="btn-close" (click)="addModalOpen.set(false)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <p class="modal-desc">
+            Tìm kiếm người dùng thông thường trong hệ thống và nâng cấp tài khoản thành Quản trị viên:
+          </p>
+
+          <div class="user-search-input">
+            <mat-icon>search</mat-icon>
+            <input
+              type="text"
+              [formControl]="userSearchControl"
+              placeholder="Nhập tên hoặc email user..."
+              (input)="searchUsers()"
+            />
+          </div>
+
+          <div class="user-results-list">
+            <div *ngFor="let u of candidateUsers()" class="user-item">
+              <img [src]="u.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.email" class="cand-thumb" />
+              <div class="cand-info">
+                <span class="cand-name">{{ u.name }}</span>
+                <span class="cand-email">{{ u.email }} ({{ u.role }})</span>
+              </div>
+              <button
+                class="btn-grant"
+                *ngIf="u.role !== 'ADMIN'"
+                (click)="grantAdmin(u)"
+              >
+                Cấp Admin
+              </button>
+              <span class="already-admin" *ngIf="u.role === 'ADMIN'">Đã là Admin</span>
+            </div>
+            <div *ngIf="candidateUsers().length === 0" class="no-cand">
+              Nhập từ khóa để tìm kiếm người dùng.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIRM REVOKE DIALOG [FE-13, AD-07] -->
+      <app-confirm-dialog
+        [isOpen]="revokeDialogOpen()"
+        title="Xác nhận thu hồi quyền Admin"
+        [message]="'Bạn có chắc chắn muốn hạ quyền Quản trị viên của ' + (targetAdmin()?.name || '') + ' xuống tài khoản User thông thường không?'"
+        confirmText="Xác nhận thu hồi"
+        cancelText="Bỏ qua"
+        type="warning"
+        (confirmed)="confirmRevokeAdmin()"
+        (cancelled)="revokeDialogOpen.set(false)"
+      ></app-confirm-dialog>
+    </div>

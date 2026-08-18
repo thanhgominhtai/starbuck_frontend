@@ -1,0 +1,147 @@
+<div class="detail-page" *ngIf="recipe()">
+      <div class="detail-container">
+        <!-- Back Navigation -->
+        <a routerLink="/menu" class="back-link">
+          <mat-icon>arrow_back</mat-icon>
+          Quay lại thực đơn
+        </a>
+
+        <div class="detail-layout">
+          <!-- Left Column: Media & Highlights -->
+          <div class="media-col">
+            <div class="image-frame">
+              <img [src]="recipe()!.imgUrl" [alt]="recipe()!.name" />
+              
+              <!-- Badges on top left -->
+              <div class="detail-top-badges">
+                <span class="badge-pop" *ngIf="recipe()!.isPopular">
+                  <mat-icon>local_fire_department</mat-icon>
+                  Bán chạy
+                </span>
+                <span class="badge-special" *ngIf="recipe()!.isSpecial || recipe()!.category === 'Đặc biệt'">
+                  <mat-icon>auto_awesome</mat-icon>
+                  Đặc biệt
+                </span>
+              </div>
+
+              <!-- Top Right: Favorite Button -->
+              <button
+                type="button"
+                class="btn-fav-detail"
+                [class.is-fav]="favoriteService.isFavorite(recipe()!.id)"
+                (click)="toggleFavorite()"
+                [title]="favoriteService.isFavorite(recipe()!.id) ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
+              >
+                <mat-icon>{{ favoriteService.isFavorite(recipe()!.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
+              </button>
+            </div>
+
+            <!-- Recipe Metadata Card -->
+            <div class="meta-card">
+              <h4 class="meta-title">Thành phần & Topping chính</h4>
+              <div class="topping-list" *ngIf="recipe()!.toppings && recipe()!.toppings.length > 0; else noToppings">
+                <div *ngFor="let t of recipe()!.toppings" class="topping-item">
+                  <div class="topping-info">
+                    <span class="topping-dot"></span>
+                    <span class="topping-name">{{ t.name }}</span>
+                  </div>
+                  <span class="topping-qty">{{ t.quantity }} {{ t.unit }}</span>
+                </div>
+              </div>
+              <ng-template #noToppings>
+                <p class="no-toppings-txt">Món này phục vụ theo định lượng nguyên bản.</p>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Right Column: Info & Order Box -->
+          <div class="info-col">
+            <div class="category-pill">{{ recipe()!.category || 'Thức uống' }}</div>
+            <h1 class="recipe-title">{{ recipe()!.name }}</h1>
+            <p class="recipe-description">{{ recipe()!.description }}</p>
+
+            <div class="price-band">
+              <span class="price-caption">Giá cơ bản / 1 phần</span>
+              <span class="price-amount">{{ recipe()!.giaCoBan | vndCurrency }}</span>
+            </div>
+
+            <!-- ORDER FORM [US-07] -->
+            <div class="order-box">
+              <h3 class="order-box-title">
+                <mat-icon>shopping_bag</mat-icon>
+                Đặt Khẩu Phần Món Ăn
+              </h3>
+
+              <!-- Admin Notice [AD-00] -->
+              <div class="admin-notice" *ngIf="authService.isAdmin()">
+                <mat-icon>info</mat-icon>
+                <div>
+                  <strong>Lưu ý quyền hạn (AD-00):</strong>
+                  <p>Tài khoản Quản trị viên (Admin) chỉ xem công thức và không có quyền tự đặt món.</p>
+                </div>
+              </div>
+
+              <form [formGroup]="orderForm" (ngSubmit)="onPlaceOrder()" *ngIf="!authService.isAdmin()">
+                <!-- Portion Selector -->
+                <div class="form-row">
+                  <label>Số lượng khẩu phần (1 - 20 phần):</label>
+                  <div class="quantity-picker">
+                    <button
+                      type="button"
+                      class="qty-btn"
+                      (click)="decreasePortions()"
+                      [disabled]="(orderForm.get('portions')?.value ?? 1) <= 1"
+                    >
+                      <mat-icon>remove</mat-icon>
+                    </button>
+                    <input type="number" formControlName="portions" min="1" max="20" />
+                    <button
+                      type="button"
+                      class="qty-btn"
+                      (click)="increasePortions()"
+                      [disabled]="(orderForm.get('portions')?.value ?? 1) >= 20"
+                    >
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Note -->
+                <div class="form-row">
+                  <label>Ghi chú đặc biệt (tùy chọn):</label>
+                  <input
+                    type="text"
+                    formControlName="note"
+                    placeholder="Ví dụ: Ít ngọt, 30% đá, không lấy thìa nhựa..."
+                    class="txt-input"
+                  />
+                </div>
+
+                <!-- Desired Time -->
+                <div class="form-row">
+                  <label>Thời gian nhận món:</label>
+                  <select formControlName="desiredTime" class="txt-input select-input">
+                    <option value="Nhận ngay">Nhận ngay (Trong vòng 15-20 phút)</option>
+                    <option value="Sau 30 phút">Sau 30 phút</option>
+                    <option value="Sau 1 tiếng">Sau 1 tiếng</option>
+                    <option value="Hẹn giờ theo yêu cầu">Hẹn giờ theo yêu cầu</option>
+                  </select>
+                </div>
+
+                <!-- Total Computation -->
+                <div class="total-summary">
+                  <span class="total-label">Tổng thanh toán dự kiến:</span>
+                  <span class="total-price">{{ calculatedTotal() | vndCurrency }}</span>
+                </div>
+
+                <button type="submit" class="btn-order-now" [disabled]="submitting()">
+                  <mat-icon>shopping_cart_checkout</mat-icon>
+                  <span *ngIf="!submitting()">Xác nhận đặt món ngay</span>
+                  <span *ngIf="submitting()">Đang xử lý đơn...</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

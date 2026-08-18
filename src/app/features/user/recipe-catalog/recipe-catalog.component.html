@@ -1,0 +1,285 @@
+<div class="catalog-page">
+      <!-- Hero Banner with Interactive Canvas & Symmetrical Gold Ambient Glow -->
+      <section
+        class="hero-band"
+        (mousemove)="onHeroMouseMove($event)"
+        (mouseleave)="onHeroMouseLeave()"
+      >
+        <!-- Background Layer with contained overflow -->
+        <div class="hero-backdrop">
+          <!-- Luxury Symmetrical Gold Ambient Glow Layers -->
+          <div class="hero-ambient-glow glow-top-left"></div>
+          <div class="hero-ambient-glow glow-top-right"></div>
+
+          <!-- Interactive Canvas Dot-Grid & Floating Aroma Particles -->
+          <canvas #heroCanvas class="hero-dot-canvas"></canvas>
+        </div>
+
+        <div class="hero-content">
+          <div class="hero-eyebrow">
+            <mat-icon class="star-mini">star</mat-icon>
+            <span>STARBUCKS ATELIER MENU</span>
+            <mat-icon class="star-mini">star</mat-icon>
+          </div>
+          <h1 class="hero-title">
+            Khám Phá <span class="highlight-gold">Hương Vị Tinh Hoa</span> <span class="highlight-green">Starbucks</span>
+          </h1>
+          <p class="hero-desc">
+            Từ cà phê hạt rang mộc, trà ủ lạnh thơm mát đến công thức độc quyền — trải nghiệm trọn vẹn nghệ thuật pha chế thủ công thượng hạng.
+          </p>
+
+          <!-- Apple Spotlight & Dynamic Island Liquid Morphing Search Component -->
+          <div
+            class="spotlight-wrapper"
+            [class.morph-active]="showMorphActions()"
+            (mouseenter)="isSearchHovered.set(true)"
+            (mouseleave)="isSearchHovered.set(false)"
+          >
+            <div class="spotlight-morph-track">
+              <!-- Search Capsule (Full length by default, contracts/morphs to the left when hovered/focused) -->
+              <div
+                class="search-capsule"
+                [class.has-focus]="isSearchFocused()"
+                (click)="focusSearchInput()"
+              >
+                <div class="search-icon-box">
+                  <mat-icon class="search-icon">search</mat-icon>
+                </div>
+
+                <input
+                  #searchInputRef
+                  type="text"
+                  [formControl]="searchControl"
+                  [placeholder]="showMorphActions() ? 'Tìm theo tên, topping, hương vị...' : 'Tìm kiếm theo tên món hoặc thành phần (tối thiểu 2 ký tự)...'"
+                  (focus)="isSearchFocused.set(true)"
+                  (blur)="onSearchBlur()"
+                  class="search-text-input"
+                />
+
+                <!-- Clear Button when text entered -->
+                <button
+                  type="button"
+                  class="clear-btn"
+                  *ngIf="searchControl.value"
+                  (click)="clearSearch($event)"
+                  title="Xoá tìm kiếm"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <!-- 4 Action Buttons (Hidden by default, emerges like liquid droplets when hovered/focused) -->
+              <div class="action-buttons-group" [class.is-visible]="showMorphActions()">
+                <!-- 1. Sort by Price Toggle (Thấp -> Cao, Cao -> Thấp, Mặc định) -->
+                <button
+                  type="button"
+                  class="spotlight-action-btn price-btn btn-step-1"
+                  [class.is-active]="priceSort() !== 'none'"
+                  (click)="togglePriceSort()"
+                  [title]="getPriceSortTitle()"
+                >
+                  <mat-icon>
+                    {{ priceSort() === 'asc' ? 'arrow_upward' : (priceSort() === 'desc' ? 'arrow_downward' : 'swap_vert') }}
+                  </mat-icon>
+                </button>
+
+                <!-- 2. Món Mới Ra Mắt (New Arrivals) -->
+                <button
+                  type="button"
+                  class="spotlight-action-btn new-btn btn-step-2"
+                  [class.is-active]="isNewOnly()"
+                  (click)="toggleNewOnly()"
+                  [title]="isNewOnly() ? 'Hiển thị tất cả món' : 'Lọc món mới ra mắt ✨'"
+                >
+                  <mat-icon [class.fill-icon]="isNewOnly()">auto_awesome</mat-icon>
+                </button>
+
+                <!-- 3. Món Bán Chạy (Trending / Hot) - Fill color when active -->
+                <button
+                  type="button"
+                  class="spotlight-action-btn fire-btn btn-step-3"
+                  [class.is-active]="isPopularOnly()"
+                  (click)="togglePopularOnly()"
+                  [title]="isPopularOnly() ? 'Hiển thị tất cả món' : 'Lọc món bán chạy nhất 🔥'"
+                >
+                  <mat-icon [class.fill-icon]="isPopularOnly()">local_fire_department</mat-icon>
+                </button>
+
+                <!-- 4. Tôi Cảm Thấy May Mắn (Random 3-4 món) -->
+                <button
+                  type="button"
+                  class="spotlight-action-btn lucky-btn btn-step-4"
+                  [class.is-active]="isLuckyActive()"
+                  (click)="feelLucky()"
+                  title="Tôi cảm thấy may mắn 🎲 (Gợi ý 3-4 món ngẫu nhiên)"
+                >
+                  <mat-icon [class.dice-rolling]="isLuckyRolling()">casino</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Spotlight Quick Suggestion Dropdown (Floats smoothly on Focus) -->
+            <div class="spotlight-suggestions" *ngIf="isSearchFocused()">
+              <div class="suggestions-head">
+                <mat-icon>auto_awesome</mat-icon>
+                <span>Gợi ý tìm nhanh:</span>
+              </div>
+              <div class="suggestion-chips">
+                <button
+                  type="button"
+                  *ngFor="let sug of quickSuggestions"
+                  class="sug-chip"
+                  (mousedown)="applySuggestion(sug)"
+                >
+                  {{ sug }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Content Area -->
+      <div class="catalog-container">
+        <!-- Apple-Style Interactive Magnification Category Dock -->
+        <div class="dock-container-wrap">
+          <div
+            #dockRef
+            class="apple-dock"
+            (mousemove)="onDockMouseMove($event)"
+            (mouseleave)="onDockMouseLeave()"
+            role="toolbar"
+            aria-label="Thanh tùy chọn danh mục món ăn"
+          >
+            <button
+              *ngFor="let item of categoryItems; let i = index"
+              type="button"
+              class="dock-item"
+              [class.active]="selectedCategory() === item.id && !isLuckyActive()"
+              [style.transform]="getDockItemTransform(i)"
+              (click)="selectCategory(item.id)"
+              (mouseenter)="hoveredIndex.set(i)"
+              (mouseleave)="hoveredIndex.set(-1)"
+            >
+              <!-- Floating Tooltip Label (DockLabel) -->
+              <div class="dock-label" *ngIf="hoveredIndex() === i">
+                <span class="dock-label-title">{{ item.label }}</span>
+                <span class="dock-label-sub">{{ item.tag }}</span>
+              </div>
+
+              <!-- Dock Item Icon -->
+              <div class="dock-icon-box" [class.is-fav]="item.id === '❤️ Yêu thích'">
+                <mat-icon>{{ item.icon }}</mat-icon>
+              </div>
+
+              <span class="dock-text">{{ item.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Lucky Random Suggestion Banner [US-Lucky] -->
+        <div *ngIf="isLuckyActive()" class="lucky-banner">
+          <div class="lucky-banner-left">
+            <div class="lucky-tag">
+              <mat-icon class="dice-icon">casino</mat-icon>
+              <span>TÔI CẢM THẤY MAY MẮN</span>
+            </div>
+            <p class="lucky-desc">
+              Hệ thống đã chọn ngẫu nhiên <strong>{{ recipes().length }} món đặc sắc</strong> dành riêng cho bạn hôm nay! ✨
+            </p>
+          </div>
+          <div class="lucky-banner-right">
+            <button type="button" class="btn-lucky-reroll" (click)="feelLucky()">
+              <mat-icon [class.dice-rolling]="isLuckyRolling()">refresh</mat-icon>
+              Bốc lại
+            </button>
+            <button type="button" class="btn-lucky-exit" (click)="resetLuckyMode()">
+              <mat-icon>close</mat-icon>
+              Xem tất cả thực đơn
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading State Skeleton [FE-09] -->
+        <div *ngIf="loading()" class="skeleton-section">
+          <app-loading-skeleton [count]="6"></app-loading-skeleton>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading() && recipes().length === 0" class="empty-state">
+          <div class="empty-icon">
+            <mat-icon>search_off</mat-icon>
+          </div>
+          <h3 class="empty-title">Không tìm thấy món ăn nào</h3>
+          <p class="empty-desc">
+            Không có công thức nào khớp với từ khóa tìm kiếm hoặc bộ lọc của bạn. Hãy thử lại!
+          </p>
+          <button class="btn-reset" (click)="clearSearch()">Xem tất cả thực đơn</button>
+        </div>
+
+        <!-- Recipe Grid List [US-04] -->
+        <div *ngIf="!loading() && recipes().length > 0" class="recipe-grid">
+          <div *ngFor="let recipe of recipes()" class="recipe-card">
+            <!-- Card Image -->
+            <div class="card-media">
+              <img [src]="recipe.imgUrl" [alt]="recipe.name" loading="lazy" />
+
+              <!-- Top Left: Highlight Badges ("Bán chạy" / "Đặc biệt") - Luôn ở trên đầu hình -->
+              <div class="card-top-badges">
+                <span class="popular-badge" *ngIf="recipe.isPopular">
+                  <mat-icon>local_fire_department</mat-icon>
+                  Bán chạy
+                </span>
+                <span class="special-badge" *ngIf="recipe.isSpecial || recipe.category === 'Đặc biệt'">
+                  <mat-icon>auto_awesome</mat-icon>
+                  Đặc biệt
+                </span>
+              </div>
+
+              <!-- Top Right: Nút Trái Tim Yêu Thích -->
+              <button
+                type="button"
+                class="btn-fav-card"
+                [class.is-fav]="favoriteService.isFavorite(recipe.id)"
+                (click)="toggleFav(recipe, $event)"
+                [title]="favoriteService.isFavorite(recipe.id) ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'"
+              >
+                <mat-icon>{{ favoriteService.isFavorite(recipe.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
+              </button>
+
+              <!-- Bottom Right: Loại nước (Category) của các món -->
+              <span class="cat-badge">{{ recipe.category || 'Món nước' }}</span>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+              <h3 class="recipe-name">{{ recipe.name }}</h3>
+              <p class="recipe-desc">{{ recipe.description }}</p>
+
+              <!-- Toppings count summary -->
+              <div class="topping-tags" *ngIf="recipe.toppings && recipe.toppings.length > 0">
+                <span class="tag-label">Topping ({{ recipe.toppings.length }}):</span>
+                <span *ngFor="let t of recipe.toppings.slice(0, 2)" class="topping-tag">
+                  {{ t.name }}
+                </span>
+                <span *ngIf="recipe.toppings.length > 2" class="topping-more">
+                  +{{ recipe.toppings.length - 2 }}
+                </span>
+              </div>
+
+              <!-- Card Footer -->
+              <div class="card-footer">
+                <div class="price-box">
+                  <span class="price-label">Giá từ</span>
+                  <span class="price-val">{{ recipe.giaCoBan | vndCurrency }}</span>
+                </div>
+                <a [routerLink]="['/recipe', recipe.id]" class="btn-detail">
+                  <span>Chi tiết & Đặt món</span>
+                  <mat-icon>arrow_forward</mat-icon>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

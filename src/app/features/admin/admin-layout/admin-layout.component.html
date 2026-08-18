@@ -1,0 +1,23 @@
+<div class="admin-wrapper">
+      <!-- Main Admin Content Area -->
+      <main class="admin-main">
+        <header class="admin-topbar">
+          <div class="topbar-left">
+            <span class="portal-badge">TRANG QUẢN TRỊ VIÊN STARBUCKS</span>
+          </div>
+          <div class="topbar-right">
+            <div class="admin-profile-pill">
+              <img
+                [src]="authService.currentUser()?.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=admin'"
+                alt="Avatar"
+              />
+              <span class="admin-name">{{ authService.currentUser()?.name }}</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="admin-content-view">
+          <router-outlet></router-outlet>
+        </div>
+      </main>
+    </div>

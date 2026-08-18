@@ -1,0 +1,22 @@
+<div class="toast-wrapper" *ngIf="toastService.toasts().length > 0">
+      <div
+        *ngFor="let t of toastService.toasts()"
+        class="toast-card"
+        [ngClass]="'toast-' + t.type"
+        (click)="toastService.remove(t.id)"
+      >
+        <div class="toast-icon">
+          <mat-icon *ngIf="t.type === 'success'">check_circle</mat-icon>
+          <mat-icon *ngIf="t.type === 'error'">error</mat-icon>
+          <mat-icon *ngIf="t.type === 'warning'">warning</mat-icon>
+          <mat-icon *ngIf="t.type === 'info'">info</mat-icon>
+        </div>
+        <div class="toast-body">
+          <div class="toast-title" *ngIf="t.title">{{ t.title }}</div>
+          <div class="toast-msg">{{ t.message }}</div>
+        </div>
+        <button class="toast-close" (click)="toastService.remove(t.id); $event.stopPropagation()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>

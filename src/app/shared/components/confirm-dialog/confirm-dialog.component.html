@@ -1,0 +1,26 @@
+<div class="dialog-backdrop" *ngIf="isOpen" (click)="onCancel()">
+      <div class="dialog-panel" (click)="$event.stopPropagation()">
+        <div class="dialog-icon" [ngClass]="'icon-' + type">
+          <mat-icon *ngIf="type === 'danger'">warning</mat-icon>
+          <mat-icon *ngIf="type === 'warning'">help_outline</mat-icon>
+          <mat-icon *ngIf="type === 'info'">info</mat-icon>
+        </div>
+
+        <h3 class="dialog-title">{{ title }}</h3>
+        <p class="dialog-message">{{ message }}</p>
+
+        <div class="dialog-actions">
+          <button type="button" class="btn-cancel" (click)="onCancel()">
+            {{ cancelText }}
+          </button>
+          <button
+            type="button"
+            class="btn-confirm"
+            [ngClass]="'btn-' + type"
+            (click)="onConfirm()"
+          >
+            {{ confirmText }}
+          </button>
+        </div>
+      </div>
+    </div>

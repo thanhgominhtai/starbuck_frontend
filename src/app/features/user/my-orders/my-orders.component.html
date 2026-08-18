@@ -1,0 +1,377 @@
+<div class="orders-page">
+      <div class="orders-container">
+        <!-- Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Đơn Đặt Của Tôi</h1>
+            <p class="page-subtitle">Theo dõi quy trình pha chế, xem chi tiết công thức và quản lý trạng thái đơn hàng</p>
+          </div>
+          <button class="btn-refresh" (click)="fetchOrders()" [disabled]="loading()">
+            <mat-icon>refresh</mat-icon>
+            Làm mới
+          </button>
+        </div>
+
+        <!-- Filter Status Tabs -->
+        <div class="status-tabs" *ngIf="orders().length > 0">
+          <button
+            *ngFor="let tab of filterTabs"
+            class="tab-btn"
+            [class.active]="selectedTab() === tab"
+            (click)="selectTab(tab)"
+          >
+            {{ tab }}
+            <span class="tab-count" *ngIf="getTabCount(tab) > 0">({{ getTabCount(tab) }})</span>
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading()" class="loading-state">
+          <mat-icon class="spin-icon">sync</mat-icon>
+          <p>Đang tải danh sách đơn hàng...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading() && filteredOrders().length === 0" class="empty-orders">
+          <div class="empty-icon">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <h3>Không có đơn hàng nào</h3>
+          <p>Không có đơn đặt món nào trong mục này. Hãy khám phá thực đơn Starbucks ngay nhé!</p>
+          <a routerLink="/menu" class="btn-explore">Khám phá thực đơn ngay</a>
+        </div>
+
+        <!-- Order List -->
+        <div *ngIf="!loading() && filteredOrders().length > 0" class="orders-list">
+          <div *ngFor="let order of filteredOrders()" class="order-card" (click)="openDetailModal(order)">
+            <div class="order-header">
+              <div class="order-id-group">
+                <span class="order-id">Mã đơn: #{{ order.id.slice(-6).toUpperCase() }}</span>
+                <span class="order-date">{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <div class="header-right">
+                <app-status-badge [status]="order.status"></app-status-badge>
+              </div>
+            </div>
+
+            <!-- Order Item Details -->
+            <div class="order-body">
+              <img [src]="order.recipeSnapshot.imgUrl" [alt]="order.recipeSnapshot.name" class="recipe-thumb" />
+              <div class="item-info">
+                <div class="item-head">
+                  <h4 class="item-name">{{ order.recipeSnapshot.name }}</h4>
+                  <span class="item-category">{{ order.recipeSnapshot.category || 'Món nước' }}</span>
+                </div>
+
+                <div class="item-meta">
+                  <span>Số lượng: <strong>{{ order.portions }} phần</strong></span>
+                  <span>Đơn giá: {{ order.recipeSnapshot.giaCoBan | vndCurrency }}</span>
+                  <span>Nhận món: <strong>{{ order.desiredTime }}</strong></span>
+                </div>
+
+                <p class="item-note" *ngIf="order.note">
+                  <mat-icon>sticky_note_2</mat-icon>
+                  <em>Ghi chú: "{{ order.note }}"</em>
+                </p>
+              </div>
+
+              <!-- Total price -->
+              <div class="order-price-col">
+                <span class="price-lbl">Tổng thanh toán</span>
+                <span class="price-val">{{ order.totalPrice | vndCurrency }}</span>
+              </div>
+            </div>
+
+            <!-- Cancellation Reason Alert if Cancelled -->
+            <div *ngIf="order.status === 'Bị huỷ'" class="cancel-reason-box">
+              <mat-icon>error_outline</mat-icon>
+              <div>
+                <strong>Lý do huỷ đơn:</strong>
+                <p>{{ order.cancelReason || 'Đơn hàng bị huỷ bởi hệ thống hoặc người dùng' }}</p>
+              </div>
+            </div>
+
+            <!-- Order Actions Bar -->
+            <div class="order-actions" (click)="$event.stopPropagation()">
+              <div class="status-tip-wrap">
+                <span class="status-hint pending-hint" *ngIf="order.status === 'Pending'">
+                  <mat-icon>schedule</mat-icon>
+                  Đơn đang chờ tiếp nhận. Bạn có thể chỉnh sửa hoặc huỷ đơn.
+                </span>
+                <span class="status-hint in-progress-hint" *ngIf="order.status === 'Đang làm'">
+                  <mat-icon>local_fire_department</mat-icon>
+                  Barista đang thực hiện pha chế theo công thức chuẩn.
+                </span>
+                <span class="status-hint completed-hint" *ngIf="order.status === 'Hoàn thành'">
+                  <mat-icon>check_circle</mat-icon>
+                  Đơn hàng đã hoàn thành. Sẵn sàng phục vụ!
+                </span>
+                <span class="status-hint cancelled-hint" *ngIf="order.status === 'Bị huỷ'">
+                  <mat-icon>highlight_off</mat-icon>
+                  Đơn hàng đã kết thúc (Đã huỷ).
+                </span>
+              </div>
+
+              <div class="btn-actions-wrap">
+                <!-- Nút Xem chi tiết (Mọi trạng thái đều có) -->
+                <button type="button" class="btn-view-detail" (click)="openDetailModal(order)">
+                  <mat-icon>visibility</mat-icon>
+                  Chi tiết đơn
+                </button>
+
+                <!-- Thao tác Pending: Sửa & Huỷ -->
+                <ng-container *ngIf="order.status === 'Pending'">
+                  <button type="button" class="btn-edit" (click)="openEditModal(order)">
+                    <mat-icon>edit</mat-icon>
+                    Sửa
+                  </button>
+                  <button type="button" class="btn-cancel-order" (click)="openCancelConfirm(order)">
+                    <mat-icon>cancel</mat-icon>
+                    Huỷ
+                  </button>
+                </ng-container>
+
+                <!-- Thao tác Hoàn thành hoặc Bị huỷ: Đặt lại món -->
+                <button
+                  type="button"
+                  class="btn-reorder"
+                  *ngIf="order.status === 'Hoàn thành' || order.status === 'Bị huỷ'"
+                  (click)="reorder(order)"
+                >
+                  <mat-icon>replay</mat-icon>
+                  Đặt lại
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================= -->
+      <!-- COMPREHENSIVE ORDER DETAIL MODAL (MỌI TRẠNG THÁI ĐỀU XEM ĐƯỢC) -->
+      <!-- ============================================================= -->
+      <div class="modal-backdrop" *ngIf="viewingOrder()" (click)="closeDetailModal()">
+        <div class="modal-card detail-modal-card" (click)="$event.stopPropagation()">
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <div class="modal-title-group">
+              <h3>Chi tiết Đơn hàng #{{ viewingOrder()!.id.slice(-6).toUpperCase() }}</h3>
+              <span class="modal-date">Đặt lúc: {{ viewingOrder()!.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+            </div>
+            <button class="btn-close" (click)="closeDetailModal()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <div class="modal-scroll-body">
+            <!-- 1. Progress Tracker / Timeline -->
+            <div class="order-timeline-box">
+              <div class="timeline-track">
+                <!-- Step 1: Tiếp nhận -->
+                <div
+                  class="timeline-step"
+                  [class.active]="viewingOrder()!.status === 'Pending' || viewingOrder()!.status === 'Đang làm' || viewingOrder()!.status === 'Hoàn thành'"
+                  [class.current]="viewingOrder()!.status === 'Pending'"
+                >
+                  <div class="step-circle">
+                    <mat-icon>assignment_turned_in</mat-icon>
+                  </div>
+                  <span class="step-label">Đã tiếp nhận</span>
+                </div>
+
+                <div
+                  class="step-line"
+                  [class.filled]="viewingOrder()!.status === 'Đang làm' || viewingOrder()!.status === 'Hoàn thành'"
+                  *ngIf="viewingOrder()!.status !== 'Bị huỷ'"
+                ></div>
+
+                <!-- Step 2: Pha chế -->
+                <div
+                  class="timeline-step"
+                  *ngIf="viewingOrder()!.status !== 'Bị huỷ'"
+                  [class.active]="viewingOrder()!.status === 'Đang làm' || viewingOrder()!.status === 'Hoàn thành'"
+                  [class.current]="viewingOrder()!.status === 'Đang làm'"
+                >
+                  <div class="step-circle">
+                    <mat-icon>coffee_maker</mat-icon>
+                  </div>
+                  <span class="step-label">Đang pha chế</span>
+                </div>
+
+                <div
+                  class="step-line"
+                  [class.filled]="viewingOrder()!.status === 'Hoàn thành'"
+                  *ngIf="viewingOrder()!.status !== 'Bị huỷ'"
+                ></div>
+
+                <!-- Step 3: Hoàn thành -->
+                <div
+                  class="timeline-step"
+                  *ngIf="viewingOrder()!.status !== 'Bị huỷ'"
+                  [class.active]="viewingOrder()!.status === 'Hoàn thành'"
+                  [class.current]="viewingOrder()!.status === 'Hoàn thành'"
+                >
+                  <div class="step-circle">
+                    <mat-icon>task_alt</mat-icon>
+                  </div>
+                  <span class="step-label">Hoàn thành</span>
+                </div>
+
+                <!-- Cancelled Step -->
+                <div class="timeline-step step-cancelled" *ngIf="viewingOrder()!.status === 'Bị huỷ'">
+                  <div class="step-circle cancel-circle">
+                    <mat-icon>cancel</mat-icon>
+                  </div>
+                  <span class="step-label cancel-lbl">Đã huỷ đơn</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cancel alert in detail if cancelled -->
+            <div class="detail-cancel-alert" *ngIf="viewingOrder()!.status === 'Bị huỷ'">
+              <mat-icon>warning</mat-icon>
+              <div>
+                <strong>Đơn hàng đã bị huỷ</strong>
+                <p>Lý do: {{ viewingOrder()!.cancelReason || 'Huỷ bởi hệ thống / khách hàng' }}</p>
+              </div>
+            </div>
+
+            <!-- 2. Recipe & Item Details Card -->
+            <div class="detail-item-card">
+              <img [src]="viewingOrder()!.recipeSnapshot.imgUrl" [alt]="viewingOrder()!.recipeSnapshot.name" class="detail-img" />
+              <div class="detail-info">
+                <div class="detail-tag-row">
+                  <span class="detail-cat">{{ viewingOrder()!.recipeSnapshot.category || 'Món đặc biệt' }}</span>
+                  <app-status-badge [status]="viewingOrder()!.status"></app-status-badge>
+                </div>
+                <h2 class="detail-recipe-name">{{ viewingOrder()!.recipeSnapshot.name }}</h2>
+                <p class="detail-recipe-desc" *ngIf="viewingOrder()!.recipeSnapshot.description">
+                  {{ viewingOrder()!.recipeSnapshot.description }}
+                </p>
+              </div>
+            </div>
+
+            <!-- 3. Formula & Ingredients Breakdown (Scaled by portions) -->
+            <div
+              class="recipe-formula-box"
+              *ngIf="viewingOrder()!.recipeSnapshot.toppings && (viewingOrder()!.recipeSnapshot.toppings)!.length > 0"
+            >
+              <h4 class="box-subtitle">
+                <mat-icon>format_list_bulleted</mat-icon>
+                Định lượng thành phần & Topping (Tính theo {{ viewingOrder()!.portions }} phần)
+              </h4>
+              <div class="formula-list">
+                <div *ngFor="let t of viewingOrder()!.recipeSnapshot.toppings!" class="formula-item">
+                  <span class="t-name">• {{ t.name }}</span>
+                  <span class="t-qty">{{ t.quantity * viewingOrder()!.portions }} {{ t.unit }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Order Specifics (Portions, Note, Delivery Time) -->
+            <div class="order-specs-grid">
+              <div class="spec-item">
+                <span class="spec-lbl">Khẩu phần đặt:</span>
+                <strong class="spec-val">{{ viewingOrder()!.portions }} phần</strong>
+              </div>
+              <div class="spec-item">
+                <span class="spec-lbl">Đơn giá cơ bản:</span>
+                <strong class="spec-val">{{ viewingOrder()!.recipeSnapshot.giaCoBan | vndCurrency }}</strong>
+              </div>
+              <div class="spec-item">
+                <span class="spec-lbl">Thời gian nhận:</span>
+                <strong class="spec-val">{{ viewingOrder()!.desiredTime }}</strong>
+              </div>
+              <div class="spec-item">
+                <span class="spec-lbl">Tổng thanh toán:</span>
+                <strong class="spec-val price-highlight">{{ viewingOrder()!.totalPrice | vndCurrency }}</strong>
+              </div>
+            </div>
+
+            <div class="detail-note-box">
+              <span class="spec-lbl">Ghi chú yêu cầu:</span>
+              <p class="note-content">{{ viewingOrder()!.note || 'Không có ghi chú thêm cho món này.' }}</p>
+            </div>
+          </div>
+
+          <!-- Modal Footer Actions -->
+          <div class="modal-footer">
+            <!-- Pending Actions -->
+            <div class="footer-btn-group" *ngIf="viewingOrder()!.status === 'Pending'">
+              <button type="button" class="btn-danger-outline" (click)="openCancelConfirmFromDetail()">
+                <mat-icon>cancel</mat-icon>
+                Huỷ đơn này
+              </button>
+              <button type="button" class="btn-primary-m" (click)="openEditModalFromDetail()">
+                <mat-icon>edit</mat-icon>
+                Chỉnh sửa số phần & ghi chú
+              </button>
+            </div>
+
+            <!-- In-progress notice -->
+            <div class="footer-notice" *ngIf="viewingOrder()!.status === 'Đang làm'">
+              <mat-icon>info</mat-icon>
+              <span>Đơn hàng đang trong quá trình pha chế. Nếu bạn cần điều chỉnh, vui lòng liên hệ trực tiếp quầy phục vụ.</span>
+            </div>
+
+            <!-- Completed & Cancelled Actions -->
+            <div class="footer-btn-group" *ngIf="viewingOrder()!.status === 'Hoàn thành' || viewingOrder()!.status === 'Bị huỷ'">
+              <button type="button" class="btn-close-secondary" (click)="closeDetailModal()">Đóng</button>
+              <button type="button" class="btn-primary-m" (click)="reorder(viewingOrder()!)">
+                <mat-icon>shopping_bag</mat-icon>
+                Đặt lại món này
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================= -->
+      <!-- EDIT ORDER MODAL -->
+      <!-- ============================================================= -->
+      <div class="modal-backdrop" *ngIf="editingOrder()">
+        <div class="modal-card edit-modal-card" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Chỉnh sửa đơn hàng #{{ editingOrder()!.id.slice(-6).toUpperCase() }}</h3>
+            <button class="btn-close" (click)="editingOrder.set(null)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <form [formGroup]="editForm" (ngSubmit)="onSaveEdit()" class="modal-scroll-body edit-form">
+            <div class="form-row">
+              <label>Khẩu phần (1 - 20 phần): <span class="req-star">*</span></label>
+              <input type="number" formControlName="portions" min="1" max="20" class="input-ctrl" />
+              <span class="field-hint">Giá mới dự kiến: {{ calculatedEditTotal() | vndCurrency }}</span>
+            </div>
+
+            <div class="form-row">
+              <label>Thời gian nhận món:</label>
+              <input type="text" formControlName="desiredTime" placeholder="Ví dụ: Nhận ngay, 15 phút nữa..." class="input-ctrl" />
+            </div>
+
+            <div class="form-row">
+              <label>Ghi chú món ăn:</label>
+              <textarea formControlName="note" rows="3" placeholder="Ví dụ: Ít ngọt, nhiều đá..." class="input-ctrl textarea-ctrl"></textarea>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn-cancel-m" (click)="editingOrder.set(null)">Hủy bỏ</button>
+              <button type="submit" class="btn-save-m" [disabled]="editForm.invalid">Lưu thay đổi</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- CANCEL CONFIRM DIALOG -->
+      <app-confirm-dialog
+        [isOpen]="cancelDialogOpen()"
+        title="Xác nhận huỷ đơn hàng?"
+        [message]="'Bạn có chắc chắn muốn huỷ đơn hàng #' + (orderToCancel()?.id?.slice(-6)?.toUpperCase() || '') + '? Hành động này không thể hoàn tác.'"
+        confirmText="Xác nhận huỷ đơn"
+        cancelText="Giữ lại đơn"
+        type="danger"
+        (confirmed)="confirmCancelOrder()"
+        (cancelled)="cancelDialogOpen.set(false)"
+      ></app-confirm-dialog>
+    </div>

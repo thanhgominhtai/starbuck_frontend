@@ -1,0 +1,471 @@
+<div class="auth-page">
+      <div class="auth-card">
+        <!-- Logo & Header -->
+        <div class="auth-header">
+          <div class="brand-badge">
+            <mat-icon>local_cafe</mat-icon>
+          </div>
+          <h2 class="auth-title">{{ getHeaderTitle() }}</h2>
+          <p class="auth-subtitle">{{ getHeaderSubtitle() }}</p>
+        </div>
+
+        <!-- Global Error Alert Box -->
+        <div class="server-error-banner" *ngIf="errorMessage()">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ errorMessage() }}</span>
+        </div>
+
+        <!-- Tab Mode Switcher (Sign In vs Sign Up) -->
+        <div class="tab-switcher" *ngIf="mode() === 'signin' || mode() === 'signup'">
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="mode() === 'signin'"
+            (click)="setMode('signin')"
+          >
+            Đăng nhập
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="mode() === 'signup'"
+            (click)="setMode('signup')"
+          >
+            Đăng ký
+          </button>
+        </div>
+
+        <!-- 1. SIGN IN FORM -->
+        <form
+          *ngIf="mode() === 'signin'"
+          [formGroup]="signInForm"
+          (ngSubmit)="onSignIn()"
+          class="auth-form"
+          novalidate
+        >
+          <div class="form-group" [class.has-error]="isFieldInvalid(signInForm, 'email')">
+            <label>Địa chỉ Email <span class="req-star">*</span></label>
+            <div class="input-wrap">
+              <mat-icon>email</mat-icon>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="name@example.com"
+                autocomplete="email"
+              />
+            </div>
+            <div class="error-text" *ngIf="isFieldInvalid(signInForm, 'email')">
+              <span *ngIf="signInForm.get('email')?.errors?.['required']"
+                >Vui lòng nhập địa chỉ email</span
+              >
+              <span *ngIf="signInForm.get('email')?.errors?.['pattern']"
+                >Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span
+              >
+            </div>
+          </div>
+
+          <div class="form-group" [class.has-error]="isFieldInvalid(signInForm, 'password')">
+            <div class="label-row">
+              <label>Mật khẩu <span class="req-star">*</span></label>
+              <button type="button" class="link-btn" (click)="setMode('forgot_step1')">
+                Quên mật khẩu?
+              </button>
+            </div>
+            <div class="input-wrap">
+              <mat-icon>lock</mat-icon>
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Nhập mật khẩu của bạn"
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="toggleShowPassword()"
+                title="Ẩn/Hiện mật khẩu"
+              >
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <div class="error-text" *ngIf="isFieldInvalid(signInForm, 'password')">
+              <span *ngIf="signInForm.get('password')?.errors?.['required']"
+                >Vui lòng nhập mật khẩu</span
+              >
+              <span *ngIf="signInForm.get('password')?.errors?.['minlength']"
+                >Mật khẩu phải có ít nhất 6 ký tự</span
+              >
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" [disabled]="loading()">
+            <span *ngIf="!loading()">Đăng nhập</span>
+            <span *ngIf="loading()">Đang xác thực...</span>
+          </button>
+        </form>
+
+        <!-- 2. SIGN UP FORM -->
+        <form
+          *ngIf="mode() === 'signup'"
+          [formGroup]="signUpForm"
+          (ngSubmit)="onSignUp()"
+          class="auth-form"
+          novalidate
+        >
+          <div class="form-group" [class.has-error]="isFieldInvalid(signUpForm, 'name')">
+            <label>Họ và tên <span class="req-star">*</span></label>
+            <div class="input-wrap">
+              <mat-icon>person</mat-icon>
+              <input
+                type="text"
+                formControlName="name"
+                placeholder="Ví dụ: Nguyễn Văn A"
+                autocomplete="name"
+              />
+            </div>
+            <div class="error-text" *ngIf="isFieldInvalid(signUpForm, 'name')">
+              <span *ngIf="signUpForm.get('name')?.errors?.['required']"
+                >Vui lòng nhập họ và tên</span
+              >
+              <span *ngIf="signUpForm.get('name')?.errors?.['minlength']"
+                >Họ và tên phải có ít nhất 2 ký tự</span
+              >
+            </div>
+          </div>
+
+          <div class="form-group" [class.has-error]="isFieldInvalid(signUpForm, 'email')">
+            <label>Địa chỉ Email <span class="req-star">*</span></label>
+            <div class="input-wrap">
+              <mat-icon>email</mat-icon>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="name@example.com"
+                autocomplete="email"
+              />
+            </div>
+            <div class="error-text" *ngIf="isFieldInvalid(signUpForm, 'email')">
+              <span *ngIf="signUpForm.get('email')?.errors?.['required']"
+                >Vui lòng nhập địa chỉ email</span
+              >
+              <span *ngIf="signUpForm.get('email')?.errors?.['pattern']"
+                >Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span
+              >
+            </div>
+          </div>
+
+          <div class="form-group" [class.has-error]="isFieldInvalid(signUpForm, 'password')">
+            <label>Mật khẩu <span class="req-star">*</span></label>
+            <div class="input-wrap">
+              <mat-icon>lock</mat-icon>
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Tạo mật khẩu (tối thiểu 6 ký tự)"
+                autocomplete="new-password"
+              />
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="toggleShowPassword()"
+                title="Ẩn/Hiện mật khẩu"
+              >
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <div class="error-text" *ngIf="isFieldInvalid(signUpForm, 'password')">
+              <span *ngIf="signUpForm.get('password')?.errors?.['required']"
+                >Vui lòng nhập mật khẩu</span
+              >
+              <span *ngIf="signUpForm.get('password')?.errors?.['minlength']"
+                >Mật khẩu phải có ít nhất 6 ký tự</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="form-group"
+            [class.has-error]="
+              isFieldInvalid(signUpForm, 'confirmPassword') ||
+              (signUpForm.get('confirmPassword')?.touched &&
+                signUpForm.errors?.['passwordMismatch'])
+            "
+          >
+            <label>Xác nhận lại mật khẩu <span class="req-star">*</span></label>
+            <div class="input-wrap">
+              <mat-icon>lock_clock</mat-icon>
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="Nhập lại mật khẩu vừa tạo"
+                autocomplete="new-password"
+              />
+            </div>
+            <div class="error-text" *ngIf="signUpForm.get('confirmPassword')?.touched">
+              <span *ngIf="signUpForm.get('confirmPassword')?.errors?.['required']"
+                >Vui lòng nhập lại mật khẩu xác nhận</span
+              >
+              <span
+                *ngIf="
+                  !signUpForm.get('confirmPassword')?.errors?.['required'] &&
+                  signUpForm.errors?.['passwordMismatch']
+                "
+              >
+                Mật khẩu xác nhận không trùng khớp
+              </span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" [disabled]="loading()">
+            <span *ngIf="!loading()">Đăng ký tài khoản</span>
+            <span *ngIf="loading()">Đang tạo tài khoản...</span>
+          </button>
+        </form>
+
+        <!-- 3. FORGOT PASSWORD - STEP 1 (Input Email) -->
+        <form
+          *ngIf="mode() === 'forgot_step1'"
+          [formGroup]="forgotStep1Form"
+          (ngSubmit)="onForgotStep1()"
+          class="auth-form"
+          novalidate
+        >
+          <p class="guide-text">
+            Nhập email tài khoản của bạn để hệ thống gửi mã OTP 6 số xác thực khôi phục mật khẩu.
+          </p>
+
+          <div class="form-group" [class.has-error]="isFieldInvalid(forgotStep1Form, 'email')">
+            <label>Email tài khoản <span class="req-star">*</span></label>
+            <div class="input-wrap">
+              <mat-icon>email</mat-icon>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="name@example.com"
+                autocomplete="email"
+              />
+            </div>
+            <div class="error-text" *ngIf="isFieldInvalid(forgotStep1Form, 'email')">
+              <span *ngIf="forgotStep1Form.get('email')?.errors?.['required']"
+                >Vui lòng nhập email</span
+              >
+              <span *ngIf="forgotStep1Form.get('email')?.errors?.['pattern']"
+                >Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span
+              >
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="button" class="btn-back" (click)="setMode('signin')">Quay lại</button>
+            <button type="submit" class="btn-submit" [disabled]="loading()">Gửi mã OTP</button>
+          </div>
+        </form>
+
+        <!-- 4. FORGOT PASSWORD - STEP 2 (Verify OTP) -->
+        <form
+          *ngIf="mode() === 'forgot_step2'"
+          [formGroup]="forgotStep2Form"
+          (ngSubmit)="onForgotStep2()"
+          class="auth-form"
+          novalidate
+        >
+          <div class="mail-sent-banner">
+            <mat-icon>mark_email_read</mat-icon>
+            <div>
+              <strong>Mã xác thực đã được gửi!</strong>
+              <p>
+                Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam) của <b>{{ resetEmail() }}</b> để
+                lấy mã OTP 6 chữ số (hiệu lực 10 phút).
+              </p>
+            </div>
+          </div>
+
+          <div class="form-group" [class.has-error]="isFieldInvalid(forgotStep2Form, 'otp')">
+            <label>Nhập mã OTP (6 chữ số) <span class="req-star">*</span></label>
+            <div class="input-wrap">
+              <mat-icon>pin</mat-icon>
+              <input
+                type="text"
+                maxlength="6"
+                formControlName="otp"
+                placeholder="Nhập 6 số trong email"
+                autocomplete="one-time-code"
+              />
+            </div>
+            <div class="error-text" *ngIf="isFieldInvalid(forgotStep2Form, 'otp')">
+              <span *ngIf="forgotStep2Form.get('otp')?.errors?.['required']"
+                >Vui lòng nhập mã OTP</span
+              >
+              <span *ngIf="forgotStep2Form.get('otp')?.errors?.['pattern']"
+                >Mã OTP phải gồm đúng 6 chữ số</span
+              >
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="button" class="btn-back" (click)="setMode('forgot_step1')">
+              Nhập lại email
+            </button>
+            <button type="submit" class="btn-submit" [disabled]="loading()">Xác thực OTP</button>
+          </div>
+        </form>
+
+        <!-- 5. FORGOT PASSWORD - STEP 3 (New Password with Eye Icon) -->
+        <form
+          *ngIf="mode() === 'forgot_step3'"
+          [formGroup]="forgotStep3Form"
+          (ngSubmit)="onForgotStep3()"
+          class="auth-form"
+          novalidate
+        >
+          <p class="guide-text">
+            Xác thực thành công! Vui lòng thiết lập mật khẩu mới cho tài khoản của bạn.
+          </p>
+
+          <div
+            class="form-group"
+            [class.has-error]="isFieldInvalid(forgotStep3Form, 'newPassword')"
+          >
+            <label>Mật khẩu mới (tối thiểu 6 ký tự) <span class="req-star">*</span></label>
+            <div class="input-wrap">
+              <mat-icon>lock_reset</mat-icon>
+              <input
+                [type]="showNewPassword() ? 'text' : 'password'"
+                formControlName="newPassword"
+                placeholder="Nhập mật khẩu mới"
+                autocomplete="new-password"
+              />
+              <!-- Nút con mắt hiển thị mật khẩu mới theo yêu cầu -->
+              <button
+                type="button"
+                class="eye-btn"
+                (click)="toggleShowNewPassword()"
+                title="Ẩn/Hiện mật khẩu mới"
+              >
+                <mat-icon>{{ showNewPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <div class="error-text" *ngIf="isFieldInvalid(forgotStep3Form, 'newPassword')">
+              <span *ngIf="forgotStep3Form.get('newPassword')?.errors?.['required']"
+                >Vui lòng nhập mật khẩu mới</span
+              >
+              <span *ngIf="forgotStep3Form.get('newPassword')?.errors?.['minlength']"
+                >Mật khẩu mới phải có ít nhất 6 ký tự</span
+              >
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" [disabled]="loading()">
+            Cập nhật mật khẩu mới
+          </button>
+        </form>
+
+        <!-- MODAL 1: KÍCH HOẠT LẠI TÀI KHOẢN (KHI SIGN IN) -->
+        <div class="recovery-overlay" *ngIf="showReactivateModal()">
+          <div class="recovery-modal">
+            <div class="modal-icon-circle accent-gold">
+              <mat-icon>hourglass_top</mat-icon>
+            </div>
+            <h3 class="modal-title">Tài khoản đang tạm ngưng</h3>
+            <p class="modal-desc">
+              Tài khoản <b>{{ reactivateEmail() }}</b> của bạn đang trong thời gian ân hạn 90 ngày sau khi xóa mềm.
+              Toàn bộ danh sách Yêu thích ❤️ và Lịch sử đơn hàng vẫn được lưu giữ an toàn.
+            </p>
+            <div class="modal-box-info">
+              <mat-icon>verified</mat-icon>
+              <span>Bạn có muốn kích hoạt lại tài khoản ngay bây giờ để tiếp tục sử dụng?</span>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-modal-cancel" (click)="showReactivateModal.set(false)">
+                Để sau
+              </button>
+              <button type="button" class="btn-modal-confirm" (click)="onConfirmReactivate()" [disabled]="loading()">
+                {{ loading() ? 'Đang kích hoạt...' : 'Kích hoạt lại ngay' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL 2: PHÁT HIỆN TÀI KHOẢN CŨ (KHI SIGN UP) -->
+        <div class="recovery-overlay" *ngIf="showSignUpRecoveryModal()">
+          <div class="recovery-modal wide-modal">
+            <div class="modal-icon-circle accent-green">
+              <mat-icon>account_circle</mat-icon>
+            </div>
+            <h3 class="modal-title">Phát hiện tài khoản từng tồn tại!</h3>
+            <p class="modal-desc">
+              Email <b>{{ pendingSignUpData()?.email }}</b> từng có tài khoản trước đây và đang trong thời gian ân hạn 90 ngày. Vui lòng chọn cách bạn muốn tiếp tục:
+            </p>
+
+            <!-- Choice step -->
+            <div class="recovery-options" *ngIf="signUpRecoveryStep() === 'choose'">
+              <div class="option-card featured-option" (click)="onSelectRestoreWithOtp()">
+                <div class="opt-badge">Khuyên dùng</div>
+                <div class="opt-icon">
+                  <mat-icon>history</mat-icon>
+                </div>
+                <div class="opt-content">
+                  <h4>Khôi phục tài khoản cũ</h4>
+                  <p>Giữ lại toàn bộ danh sách Món yêu thích ❤️ và Lịch sử đơn hàng cũ. Xác thực an toàn qua mã OTP gửi về email.</p>
+                </div>
+                <mat-icon class="arrow-icon">chevron_right</mat-icon>
+              </div>
+
+              <div class="option-card" (click)="onSelectOverwriteFresh()">
+                <div class="opt-icon reset-icon">
+                  <mat-icon>refresh</mat-icon>
+                </div>
+                <div class="opt-content">
+                  <h4>Bắt đầu mới hoàn toàn 100%</h4>
+                  <p>Làm sạch toàn bộ dữ liệu cũ và khởi tạo một hồ sơ mới tinh với thông tin bạn vừa đăng ký.</p>
+                </div>
+                <mat-icon class="arrow-icon">chevron_right</mat-icon>
+              </div>
+            </div>
+
+            <!-- OTP step -->
+            <div class="otp-restore-box" *ngIf="signUpRecoveryStep() === 'otp'">
+              <div class="mail-sent-banner">
+                <mat-icon>mark_email_read</mat-icon>
+                <div>
+                  <strong>Mã xác thực đã được gửi!</strong>
+                  <p>
+                    Vui lòng kiểm tra email <b>{{ pendingSignUpData()?.email }}</b> để lấy mã OTP 6 chữ số khôi phục tài khoản (hiệu lực 10 phút).
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 16px;">
+                <label>Nhập mã OTP 6 số <span class="req-star">*</span></label>
+                <div class="input-wrap">
+                  <mat-icon>pin</mat-icon>
+                  <input
+                    type="text"
+                    [value]="restoreOtpInput()"
+                    (input)="restoreOtpInput.set($any($event.target).value)"
+                    placeholder="123456"
+                    maxlength="6"
+                    style="letter-spacing: 4px; font-weight: 700;"
+                  />
+                </div>
+              </div>
+
+              <div class="modal-actions" style="margin-top: 20px;">
+                <button type="button" class="btn-modal-cancel" (click)="signUpRecoveryStep.set('choose')">
+                  Quay lại
+                </button>
+                <button type="button" class="btn-modal-confirm" (click)="onConfirmRestoreOtp()" [disabled]="loading() || restoreOtpInput().length !== 6">
+                  {{ loading() ? 'Đang khôi phục...' : 'Xác thực & Mở lại tài khoản' }}
+                </button>
+              </div>
+            </div>
+
+            <div class="modal-footer-close" *ngIf="signUpRecoveryStep() === 'choose'">
+              <button type="button" class="btn-modal-cancel" (click)="showSignUpRecoveryModal.set(false)">
+                Đóng lại
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,254 @@
+<div class="profile-page">
+      <div class="profile-container">
+        <h1 class="page-title">Hồ Sơ & Thiết Lập Tài Khoản</h1>
+        <p class="page-subtitle">Quản lý toàn bộ thông tin cá nhân, bảo mật danh tính và quản trị tài khoản</p>
+
+        <div class="profile-grid">
+          <!-- Left Column: Avatar & Summary -->
+          <div class="avatar-card">
+            <div class="avatar-wrapper">
+              <img
+                [src]="avatarPreview() || authService.currentUser()?.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=profile'"
+                alt="Avatar"
+                class="avatar-img"
+              />
+              <label class="avatar-upload-btn" title="Tải ảnh đại diện mới">
+                <mat-icon>photo_camera</mat-icon>
+                <input type="file" (change)="onAvatarFileChange($event)" accept="image/*" />
+              </label>
+            </div>
+
+            <h3 class="user-display-name">{{ authService.currentUser()?.name }}</h3>
+            <p class="user-display-email">{{ authService.currentUser()?.email }}</p>
+            <span class="role-pill" [class.admin-pill]="authService.isAdmin()">
+              {{ authService.isAdmin() ? 'Quản trị viên (Admin)' : 'Khách hàng thân thiết (User)' }}
+            </span>
+          </div>
+
+          <!-- Right Column: Edit Profile & Password Form -->
+          <div class="forms-card">
+            <!-- 1. Profile Info Section -->
+            <div class="section-block">
+              <div class="section-header">
+                <h3 class="section-title">
+                  <mat-icon>badge</mat-icon>
+                  Thông tin cá nhân & Email
+                </h3>
+                <button
+                  type="button"
+                  class="btn-toggle-edit"
+                  *ngIf="!isEditingProfile()"
+                  (click)="startEditingProfile()"
+                >
+                  <mat-icon>edit</mat-icon>
+                  Thay đổi thông tin
+                </button>
+              </div>
+
+              <!-- VIEW MODE -->
+              <div class="info-view-mode" *ngIf="!isEditingProfile()">
+                <div class="view-item">
+                  <span class="item-label">Họ và tên:</span>
+                  <span class="item-value">{{ authService.currentUser()?.name }}</span>
+                </div>
+                <div class="view-item">
+                  <span class="item-label">Email đăng nhập:</span>
+                  <span class="item-value">{{ authService.currentUser()?.email }}</span>
+                </div>
+              </div>
+
+              <!-- EDIT MODE (Khi bấm nút Thay đổi thông tin) -->
+              <form
+                *ngIf="isEditingProfile()"
+                [formGroup]="profileForm"
+                (ngSubmit)="onUpdateProfile()"
+                class="form-layout"
+                novalidate
+              >
+                <div class="form-group" [class.has-error]="isFieldInvalid(profileForm, 'name')">
+                  <label>Họ và tên <span class="req-star">*</span></label>
+                  <input type="text" formControlName="name" class="input-field" placeholder="Nhập họ và tên" />
+                  <div class="error-text" *ngIf="isFieldInvalid(profileForm, 'name')">
+                    <span *ngIf="profileForm.get('name')?.errors?.['required']">Họ và tên không được để trống</span>
+                    <span *ngIf="profileForm.get('name')?.errors?.['minlength']">Họ và tên phải có ít nhất 2 ký tự</span>
+                  </div>
+                </div>
+
+                <div class="form-group" [class.has-error]="isFieldInvalid(profileForm, 'email')">
+                  <label>Email đăng nhập <span class="req-star">*</span></label>
+                  <input type="email" formControlName="email" class="input-field" placeholder="name@example.com" />
+                  <div class="error-text" *ngIf="isFieldInvalid(profileForm, 'email')">
+                    <span *ngIf="profileForm.get('email')?.errors?.['required']">Email không được để trống</span>
+                    <span *ngIf="profileForm.get('email')?.errors?.['pattern']">Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span>
+                  </div>
+                </div>
+
+                <!-- Security Verification for Email Change -->
+                <div class="email-security-box" *ngIf="isEmailChanged()">
+                  <div class="security-head">
+                    <mat-icon class="shield-icon">security</mat-icon>
+                    <div>
+                      <strong>Xác minh bảo mật thay đổi Email</strong>
+                      <p class="sec-desc">
+                        Bạn đang thay đổi Email đăng nhập của tài khoản. Để đảm bảo an toàn, vui lòng nhập Mật khẩu hiện tại để xác minh chính chủ.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="form-group" [class.has-error]="profileForm.get('currentPasswordForEmail')?.touched && !profileForm.get('currentPasswordForEmail')?.value">
+                    <label>Mật khẩu hiện tại <span class="req-star">*</span></label>
+                    <div class="input-pwd-wrap">
+                      <input
+                        [type]="showVerifyPassword() ? 'text' : 'password'"
+                        formControlName="currentPasswordForEmail"
+                        class="input-field pwd-input"
+                        placeholder="Nhập mật khẩu hiện tại để xác nhận đổi Email"
+                      />
+                      <button type="button" class="eye-btn" (click)="showVerifyPassword.set(!showVerifyPassword())">
+                        <mat-icon>{{ showVerifyPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                      </button>
+                    </div>
+                    <div class="error-text" *ngIf="profileForm.get('currentPasswordForEmail')?.touched && !profileForm.get('currentPasswordForEmail')?.value">
+                      Vui lòng nhập mật khẩu hiện tại để xác thực đổi Email
+                    </div>
+                  </div>
+                </div>
+
+                <div class="btn-action-group">
+                  <button type="button" class="btn-cancel" (click)="cancelEditingProfile()">
+                    Hủy bỏ
+                  </button>
+                  <button type="submit" class="btn-save" [disabled]="savingProfile()">
+                    {{ savingProfile() ? 'Đang lưu...' : 'Lưu thay đổi' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <hr class="divider" />
+
+            <!-- 2. Change Password Form -->
+            <div class="section-block">
+              <div class="section-header">
+                <h3 class="section-title">
+                  <mat-icon>lock</mat-icon>
+                  Đổi mật khẩu
+                </h3>
+                <button
+                  type="button"
+                  class="btn-toggle-edit"
+                  *ngIf="!isChangingPassword()"
+                  (click)="startChangingPassword()"
+                >
+                  <mat-icon>key</mat-icon>
+                  Thay đổi mật khẩu
+                </button>
+              </div>
+
+              <!-- VIEW MODE (Khi chưa bấm Đổi mật khẩu) -->
+              <div class="info-view-mode" *ngIf="!isChangingPassword()">
+                <p class="pwd-status-text">
+                  Mật khẩu tài khoản đang được bảo mật bằng mã hóa Bcrypt tiêu chuẩn.
+                </p>
+              </div>
+
+              <!-- FORM ĐỔI MẬT KHẨU -->
+              <form
+                *ngIf="isChangingPassword()"
+                [formGroup]="passwordForm"
+                (ngSubmit)="onChangePassword()"
+                class="form-layout"
+                novalidate
+              >
+                <div class="form-group" [class.has-error]="isFieldInvalid(passwordForm, 'currentPassword')">
+                  <label>Mật khẩu hiện tại <span class="req-star">*</span></label>
+                  <div class="input-pwd-wrap">
+                    <input
+                      [type]="showCurrentPassword() ? 'text' : 'password'"
+                      formControlName="currentPassword"
+                      class="input-field pwd-input"
+                      placeholder="Nhập mật khẩu đang sử dụng"
+                    />
+                    <button type="button" class="eye-btn" (click)="showCurrentPassword.set(!showCurrentPassword())">
+                      <mat-icon>{{ showCurrentPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                  </div>
+                  <div class="error-text" *ngIf="isFieldInvalid(passwordForm, 'currentPassword')">
+                    Vui lòng nhập mật khẩu hiện tại
+                  </div>
+                </div>
+
+                <div class="form-group" [class.has-error]="isFieldInvalid(passwordForm, 'newPassword')">
+                  <label>Mật khẩu mới (tối thiểu 6 ký tự) <span class="req-star">*</span></label>
+                  <div class="input-pwd-wrap">
+                    <input
+                      [type]="showNewPassword() ? 'text' : 'password'"
+                      formControlName="newPassword"
+                      class="input-field pwd-input"
+                      placeholder="Nhập mật khẩu mới"
+                    />
+                    <button type="button" class="eye-btn" (click)="showNewPassword.set(!showNewPassword())">
+                      <mat-icon>{{ showNewPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                  </div>
+                  <div class="error-text" *ngIf="isFieldInvalid(passwordForm, 'newPassword')">
+                    <span *ngIf="passwordForm.get('newPassword')?.errors?.['required']">Vui lòng nhập mật khẩu mới</span>
+                    <span *ngIf="passwordForm.get('newPassword')?.errors?.['minlength']">Mật khẩu mới phải có ít nhất 6 ký tự</span>
+                  </div>
+                </div>
+
+                <div class="btn-action-group">
+                  <button type="button" class="btn-cancel" (click)="cancelChangingPassword()">
+                    Hủy bỏ
+                  </button>
+                  <button type="submit" class="btn-save btn-pwd" [disabled]="savingPassword()">
+                    {{ savingPassword() ? 'Đang đổi mật khẩu...' : 'Cập nhật mật khẩu' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <hr class="divider" />
+
+            <!-- 3. Danger Zone: Delete Account [US-13, US-14] -->
+            <div class="danger-zone" *ngIf="!isRootAdmin()">
+              <div>
+                <h4 class="danger-title">Xoá / Tạm ngưng tài khoản</h4>
+                <p class="danger-desc">
+                  Tài khoản sẽ chuyển sang trạng thái tạm ngưng (Xóa mềm) và được lưu giữ trong <b>90 ngày</b>. Trong thời gian này, bạn có thể đăng nhập hoặc đăng ký lại để khôi phục toàn bộ dữ liệu bất kỳ lúc nào.
+                </p>
+              </div>
+              <button type="button" class="btn-delete-acc" (click)="openDeleteDialog()">
+                <mat-icon>delete_forever</mat-icon>
+                Xoá tài khoản
+              </button>
+            </div>
+
+            <!-- Root Admin Protection Notice -->
+            <div class="root-admin-notice" *ngIf="isRootAdmin()">
+              <div class="notice-icon-box">
+                <mat-icon>verified_user</mat-icon>
+              </div>
+              <div>
+                <h4 class="notice-title">Tài khoản Quản trị viên Gốc (Hệ thống)</h4>
+                <p class="notice-desc">
+                  Tài khoản này là Quản trị viên gốc của hệ thống Starbucks Recipe, được bảo vệ an toàn vĩnh viễn và không thể xoá bỏ.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DELETE ACCOUNT CONFIRM DIALOG [FE-13] -->
+      <app-confirm-dialog
+        [isOpen]="deleteDialogOpen()"
+        title="Xác nhận tạm ngưng / xoá tài khoản?"
+        message="Tài khoản của bạn sẽ chuyển sang trạng thái tạm ngưng và có 90 ngày ân hạn để khôi phục dữ liệu trước khi bị xóa vĩnh viễn khỏi hệ thống. Bạn có chắc chắn muốn tiếp tục?"
+        confirmText="Xác nhận xoá"
+        cancelText="Giữ lại tài khoản"
+        type="danger"
+        (confirmed)="confirmDeleteAccount()"
+        (cancelled)="deleteDialogOpen.set(false)"
+      ></app-confirm-dialog>
+    </div>

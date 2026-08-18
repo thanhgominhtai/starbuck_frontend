@@ -1,0 +1,721 @@
+<div class="dashboard-view">
+      <!-- 1. Header & Quick Sync -->
+      <div class="dash-header">
+        <div class="header-left">
+          <div class="header-badge">
+            <mat-icon class="pulse-dot">analytics</mat-icon>
+            <span>STARBUCKS ATELIER EXECUTIVE KPI</span>
+          </div>
+          <h1 class="dash-title">Báo Cáo & Phân Tích Hiệu Suất</h1>
+          <p class="dash-desc">
+            Thống kê doanh thu, lưu lượng đơn hàng và hành vi khách hàng theo thời gian thực
+          </p>
+        </div>
+
+        <div class="header-right">
+          <div class="sync-info">
+            <span class="sync-label">Cập nhật lần cuối:</span>
+            <strong class="sync-time">{{ lastSyncTime() }}</strong>
+          </div>
+          <button
+            class="btn-sync"
+            [class.is-loading]="loading()"
+            (click)="fetchStats()"
+            title="Làm mới số liệu"
+          >
+            <mat-icon [class.spin-anim]="loading()">sync</mat-icon>
+            <span>Đồng bộ dữ liệu</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Time Filter & Custom Calendar Popover Control Bar -->
+      <div class="time-filter-bar">
+        <div class="presets-group">
+          <button
+            type="button"
+            class="preset-chip"
+            [class.active]="selectedPeriod() === 'today'"
+            (click)="selectPeriod('today')"
+          >
+            Hôm nay
+          </button>
+          <button
+            type="button"
+            class="preset-chip"
+            [class.active]="selectedPeriod() === 'yesterday'"
+            (click)="selectPeriod('yesterday')"
+          >
+            Hôm qua
+          </button>
+          <button
+            type="button"
+            class="preset-chip"
+            [class.active]="selectedPeriod() === '7days'"
+            (click)="selectPeriod('7days')"
+          >
+            7 ngày qua
+          </button>
+          <button
+            type="button"
+            class="preset-chip"
+            [class.active]="selectedPeriod() === 'thisMonth'"
+            (click)="selectPeriod('thisMonth')"
+          >
+            Tháng này
+          </button>
+          <button
+            type="button"
+            class="preset-chip"
+            [class.active]="selectedPeriod() === 'all'"
+            (click)="selectPeriod('all')"
+          >
+            Toàn thời gian
+          </button>
+        </div>
+
+        <!-- Custom Luxury Date Range Popover Trigger -->
+        <div class="calendar-picker-container" (click)="$event.stopPropagation()">
+          <button
+            type="button"
+            class="custom-calendar-trigger"
+            [class.is-open]="showCalendar()"
+            [class.is-active]="selectedPeriod() === 'custom'"
+            (click)="toggleCalendar()"
+          >
+            <mat-icon class="cal-icon">date_range</mat-icon>
+            <span class="cal-text">
+              <ng-container
+                *ngIf="
+                  selectedPeriod() === 'custom' && customStartDate && customEndDate;
+                  else pickText
+                "
+              >
+                {{ formatDisplayDate(customStartDate) }} ➔ {{ formatDisplayDate(customEndDate) }}
+              </ng-container>
+              <ng-template #pickText>
+                <span>Chọn Lịch / Khoảng ngày</span>
+              </ng-template>
+            </span>
+            <mat-icon class="arrow-icon">{{
+              showCalendar() ? 'expand_less' : 'expand_more'
+            }}</mat-icon>
+          </button>
+
+          <!-- Custom Popover Calendar Dialog -->
+          <div class="calendar-popover" *ngIf="showCalendar()" (click)="$event.stopPropagation()">
+            <!-- Popover Top Navigation -->
+            <div class="cal-popover-header">
+              <button type="button" class="nav-month-btn" (click)="prevMonth()" title="Tháng trước">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <div class="month-title-wrap">
+                <span class="month-name">Tháng {{ calendarViewMonth() + 1 }}</span>
+                <span class="year-name">, {{ calendarViewYear() }}</span>
+              </div>
+              <button
+                type="button"
+                class="nav-month-btn"
+                (click)="nextMonth()"
+                [disabled]="isNextMonthDisabled()"
+                title="Tháng sau"
+              >
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+
+            <!-- Popover Quick Shortcuts -->
+            <div class="cal-shortcuts">
+              <button type="button" class="shortcut-chip" (click)="selectShortcut('today')">
+                Hôm nay
+              </button>
+              <button type="button" class="shortcut-chip" (click)="selectShortcut('yesterday')">
+                Hôm qua
+              </button>
+              <button type="button" class="shortcut-chip" (click)="selectShortcut('7days')">
+                7 ngày qua
+              </button>
+              <button type="button" class="shortcut-chip" (click)="selectShortcut('thisMonth')">
+                Tháng này
+              </button>
+            </div>
+
+            <!-- Days of Week Header -->
+            <div class="weekdays-grid">
+              <span class="weekday">T2</span>
+              <span class="weekday">T3</span>
+              <span class="weekday">T4</span>
+              <span class="weekday">T5</span>
+              <span class="weekday">T6</span>
+              <span class="weekday">T7</span>
+              <span class="weekday weekend">CN</span>
+            </div>
+
+            <!-- Days Grid Matrix (35 or 42 cells) -->
+            <div class="days-matrix">
+              <button
+                type="button"
+                *ngFor="let cell of calendarCells()"
+                class="day-cell"
+                [class.not-current-month]="!cell.isCurrentMonth"
+                [class.is-today]="cell.isToday"
+                [class.is-future]="cell.isFuture"
+                [class.is-start]="cell.isStart"
+                [class.is-end]="cell.isEnd"
+                [class.in-range]="cell.isInRange"
+                [class.hover-range]="cell.isHoverInRange"
+                [disabled]="cell.isFuture"
+                (click)="onDateCellClick(cell.date)"
+                (mouseenter)="onDateCellHover(cell.date)"
+                (mouseleave)="onDateCellHover(null)"
+              >
+                <span class="day-number">{{ cell.dayNumber }}</span>
+                <span class="today-dot" *ngIf="cell.isToday && !cell.isStart && !cell.isEnd"></span>
+              </button>
+            </div>
+
+            <!-- Popover Footer -->
+            <div class="cal-popover-footer">
+              <div class="range-preview">
+                <span class="preview-label">Đang chọn:</span>
+                <strong class="preview-dates" *ngIf="tempStartDate(); else noDate">
+                  {{ formatDisplayDate(formatDate(tempStartDate()!)) }}
+                  <span *ngIf="tempEndDate()">
+                    ➔ {{ formatDisplayDate(formatDate(tempEndDate()!)) }}</span
+                  >
+                  <span *ngIf="!tempEndDate()" class="hint-click-end"> (Chọn ngày kết thúc)</span>
+                </strong>
+                <ng-template #noDate>
+                  <span class="hint-pick">Nhấp chọn ngày trên lịch</span>
+                </ng-template>
+              </div>
+
+              <div class="cal-actions-group">
+                <button type="button" class="btn-cal-cancel" (click)="closeCalendar()">Hủy</button>
+                <button
+                  type="button"
+                  class="btn-cal-apply"
+                  (click)="applyCalendarSelection()"
+                  [disabled]="!tempStartDate()"
+                >
+                  <mat-icon>check</mat-icon>
+                  Áp dụng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Period Notice Banner -->
+      <div class="period-notice-pill">
+        <mat-icon>calendar_today</mat-icon>
+        <span>
+          Đang xem thống kê: <strong>{{ getPeriodLabel() }}</strong>
+          <em *ngIf="activeDateRangeLabel()">({{ activeDateRangeLabel() }})</em>
+        </span>
+      </div>
+
+      <!-- Loading State Overlay -->
+      <div *ngIf="loading()" class="loading-state-banner">
+        <mat-icon class="spin-anim">sync</mat-icon>
+        <span>Đang tính toán số liệu và biểu đồ phân tích...</span>
+      </div>
+
+      <!-- Main Content when data ready -->
+      <ng-container *ngIf="stats()">
+        <!-- 3. Four Interactive KPI Metrics Cards -->
+        <div class="kpi-interactive-grid">
+          <!-- Card 1: Doanh Thu -->
+          <div
+            class="kpi-card revenue-card"
+            [class.is-active]="activeTab() === 'revenue'"
+            (click)="activeTab.set('revenue')"
+          >
+            <div class="kpi-top">
+              <div class="kpi-icon-wrap revenue-icon">
+                <mat-icon>payments</mat-icon>
+              </div>
+              <span class="view-detail-badge" *ngIf="activeTab() === 'revenue'">
+                <mat-icon>insights</mat-icon> Đang xem chi tiết
+              </span>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-title">Doanh Thu Thuần</span>
+              <span class="kpi-number">{{ stats()!.kpi.totalRevenue | vndCurrency }}</span>
+              <p class="kpi-sub">Đã trừ đơn hủy & hoàn lại</p>
+            </div>
+            <div class="kpi-footer">
+              <span class="click-hint">Bấm xem biểu đồ dòng tiền ➔</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Đơn Hàng -->
+          <div
+            class="kpi-card orders-card"
+            [class.is-active]="activeTab() === 'orders'"
+            (click)="activeTab.set('orders')"
+          >
+            <div class="kpi-top">
+              <div class="kpi-icon-wrap orders-icon">
+                <mat-icon>receipt_long</mat-icon>
+              </div>
+              <span class="view-detail-badge" *ngIf="activeTab() === 'orders'">
+                <mat-icon>insights</mat-icon> Đang xem chi tiết
+              </span>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-title">Tổng Đơn Hàng</span>
+              <span class="kpi-number">{{ stats()!.kpi.totalOrders }} <small>đơn</small></span>
+              <p class="kpi-sub">Tỷ lệ thành công: {{ getFulfillmentRate() }}%</p>
+            </div>
+            <div class="kpi-footer">
+              <span class="click-hint">Bấm xem tỷ lệ trạng thái ➔</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Thực Đơn & Món Ăn -->
+          <div
+            class="kpi-card recipes-card"
+            [class.is-active]="activeTab() === 'recipes'"
+            (click)="activeTab.set('recipes')"
+          >
+            <div class="kpi-top">
+              <div class="kpi-icon-wrap recipes-icon">
+                <mat-icon>local_cafe</mat-icon>
+              </div>
+              <span class="view-detail-badge" *ngIf="activeTab() === 'recipes'">
+                <mat-icon>insights</mat-icon> Đang xem chi tiết
+              </span>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-title">Thực Đơn & Thức Uống</span>
+              <span class="kpi-number"
+                >{{ stats()!.kpi.totalRecipes }} <small>thức uống</small></span
+              >
+              <p class="kpi-sub" *ngIf="stats()!.topRecipes.length > 0">
+                Top 1: {{ stats()!.topRecipes[0].name }}
+              </p>
+            </div>
+            <div class="kpi-footer">
+              <span class="click-hint">Bấm xem xếp hạng bán chạy ➔</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Khách Hàng & Thành Viên -->
+          <div
+            class="kpi-card users-card"
+            [class.is-active]="activeTab() === 'users'"
+            (click)="activeTab.set('users')"
+          >
+            <div class="kpi-top">
+              <div class="kpi-icon-wrap users-icon">
+                <mat-icon>group</mat-icon>
+              </div>
+              <span class="view-detail-badge" *ngIf="activeTab() === 'users'">
+                <mat-icon>insights</mat-icon> Đang xem chi tiết
+              </span>
+            </div>
+            <div class="kpi-content">
+              <span class="kpi-title">Thành Viên Hệ Thống</span>
+              <span class="kpi-number">{{ stats()!.kpi.totalUsers }} <small>user</small></span>
+              <p class="kpi-sub" *ngIf="stats()!.kpi.newUsersCount !== undefined">
+                +{{ stats()!.kpi.newUsersCount }} thành viên mới trong kỳ
+              </p>
+            </div>
+            <div class="kpi-footer">
+              <span class="click-hint">Bấm xem khách hàng VIP ➔</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Deep-Dive Analytics View Section based on Active Tab -->
+        <div class="deep-dive-panel">
+          <!-- TAB 1: DOANH THU DRILL-DOWN -->
+          <div *ngIf="activeTab() === 'revenue'" class="drill-section tab-fade-in">
+            <div class="section-banner revenue-theme">
+              <div class="banner-title-box">
+                <mat-icon>payments</mat-icon>
+                <div>
+                  <h2 class="section-title">Phân Tích Chi Tiết Dòng Tiền & Doanh Số</h2>
+                  <p class="section-subtitle">
+                    Biến thiên doanh thu theo mốc thời gian và giá trị trung bình trên từng đơn hàng
+                  </p>
+                </div>
+              </div>
+
+              <!-- Top Metrics Highlights -->
+              <div class="quick-stats-row">
+                <div class="stat-pill">
+                  <span class="p-lbl">Giá trị đơn TB (AOV):</span>
+                  <strong class="p-val">{{ getAverageOrderValue() | vndCurrency }}</strong>
+                </div>
+                <div class="stat-pill" *ngIf="getPeakDay()">
+                  <span class="p-lbl">Ngày đạt đỉnh:</span>
+                  <strong class="p-val"
+                    >{{ getPeakDay()!.date }} ({{ getPeakDay()!.revenue | vndCurrency }})</strong
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Revenue Visual Grid -->
+            <div class="drill-grid">
+              <!-- Timeline Revenue Chart -->
+              <div class="analytics-card chart-large">
+                <div class="card-head">
+                  <h3 class="card-title">Biểu Đồ Xu Hướng Doanh Thu Theo Ngày</h3>
+                  <span class="head-sub">Doanh số thực tế ghi nhận</span>
+                </div>
+
+                <div
+                  class="timeline-bars-wrap"
+                  *ngIf="stats()!.timeline && stats()!.timeline.length > 0; else noTimeline"
+                >
+                  <div class="bar-col" *ngFor="let item of stats()!.timeline">
+                    <div class="bar-tooltip">
+                      <strong>{{ item.date }}</strong>
+                      <span>Doanh thu: {{ item.revenue | vndCurrency }}</span>
+                      <span>Đơn hàng: {{ item.orders }} đơn</span>
+                    </div>
+                    <div class="bar-track">
+                      <div
+                        class="bar-fill gold-gradient-bar"
+                        [style.height.%]="getBarHeight(item.revenue)"
+                      ></div>
+                    </div>
+                    <span class="bar-label">{{ formatShortDate(item.date) }}</span>
+                  </div>
+                </div>
+                <ng-template #noTimeline>
+                  <div class="empty-box">
+                    <mat-icon>query_builder</mat-icon>
+                    <p>Chưa có dữ liệu đơn hàng hoàn tất trong khoảng thời gian này.</p>
+                  </div>
+                </ng-template>
+              </div>
+
+              <!-- Revenue by Category Breakdown -->
+              <div class="analytics-card">
+                <div class="card-head">
+                  <h3 class="card-title">Cơ Cấu Doanh Thu Theo Danh Mục</h3>
+                  <span class="head-sub">Mức độ đóng góp doanh số</span>
+                </div>
+
+                <div
+                  class="category-breakdown-list"
+                  *ngIf="stats()!.categories && stats()!.categories.length > 0; else noCats"
+                >
+                  <div class="cat-item-row" *ngFor="let cat of stats()!.categories">
+                    <div class="cat-head">
+                      <span class="cat-name">{{ cat.category }}</span>
+                      <strong class="cat-rev">{{ cat.revenue | vndCurrency }}</strong>
+                    </div>
+                    <div class="progress-track">
+                      <div
+                        class="progress-fill fill-green"
+                        [style.width.%]="getCategoryPercent(cat.revenue)"
+                      ></div>
+                    </div>
+                    <span class="cat-sub"
+                      >{{ cat.portions }} ly bán ra ({{ getCategoryPercent(cat.revenue) }}% tổng
+                      doanh thu)</span
+                    >
+                  </div>
+                </div>
+                <ng-template #noCats>
+                  <p class="empty-txt">Chưa có dữ liệu phân loại món trong kỳ này.</p>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: ĐƠN HÀNG DRILL-DOWN -->
+          <div *ngIf="activeTab() === 'orders'" class="drill-section tab-fade-in">
+            <div class="section-banner orders-theme">
+              <div class="banner-title-box">
+                <mat-icon>receipt_long</mat-icon>
+                <div>
+                  <h2 class="section-title">Hiệu Suất & Trạng Thái Xử Lý Đơn Hàng</h2>
+                  <p class="section-subtitle">
+                    Tỷ lệ hoàn thành, luồng xử lý và phân bổ khung giờ cao điểm
+                  </p>
+                </div>
+              </div>
+
+              <div class="quick-stats-row">
+                <div class="stat-pill">
+                  <span class="p-lbl">Tỷ lệ thành công:</span>
+                  <strong class="p-val text-green">{{ getFulfillmentRate() }}%</strong>
+                </div>
+                <div class="stat-pill">
+                  <span class="p-lbl">Đơn đã giao thành công:</span>
+                  <strong class="p-val">{{ stats()!.kpi.completedOrders }} đơn</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="drill-grid">
+              <!-- Order Status Breakdown Progress -->
+              <div class="analytics-card">
+                <div class="card-head">
+                  <h3 class="card-title">Phân Bổ Trạng Thái Đơn Hàng</h3>
+                  <span class="head-sub">Tỷ lệ % theo trạng thái</span>
+                </div>
+
+                <div class="status-bars">
+                  <div class="status-row">
+                    <div class="status-label-wrap">
+                      <span class="dot-indicator dot-pending"></span>
+                      <span>Chờ tiếp nhận (Pending)</span>
+                    </div>
+                    <span class="status-count-tag"
+                      >{{ stats()!.kpi.pendingOrders }} đơn ({{
+                        getPercent(stats()!.kpi.pendingOrders)
+                      }}%)</span
+                    >
+                  </div>
+                  <div class="progress-track">
+                    <div
+                      class="progress-fill fill-pending"
+                      [style.width.%]="getPercent(stats()!.kpi.pendingOrders)"
+                    ></div>
+                  </div>
+
+                  <div class="status-row">
+                    <div class="status-label-wrap">
+                      <span class="dot-indicator dot-progress"></span>
+                      <span>Đang pha chế (In Progress)</span>
+                    </div>
+                    <span class="status-count-tag"
+                      >{{ stats()!.kpi.inProgressOrders }} đơn ({{
+                        getPercent(stats()!.kpi.inProgressOrders)
+                      }}%)</span
+                    >
+                  </div>
+                  <div class="progress-track">
+                    <div
+                      class="progress-fill fill-progress"
+                      [style.width.%]="getPercent(stats()!.kpi.inProgressOrders)"
+                    ></div>
+                  </div>
+
+                  <div class="status-row">
+                    <div class="status-label-wrap">
+                      <span class="dot-indicator dot-completed"></span>
+                      <span>Hoàn thành (Completed)</span>
+                    </div>
+                    <span class="status-count-tag"
+                      >{{ stats()!.kpi.completedOrders }} đơn ({{
+                        getPercent(stats()!.kpi.completedOrders)
+                      }}%)</span
+                    >
+                  </div>
+                  <div class="progress-track">
+                    <div
+                      class="progress-fill fill-completed"
+                      [style.width.%]="getPercent(stats()!.kpi.completedOrders)"
+                    ></div>
+                  </div>
+
+                  <div class="status-row">
+                    <div class="status-label-wrap">
+                      <span class="dot-indicator dot-cancelled"></span>
+                      <span>Bị hủy (Cancelled)</span>
+                    </div>
+                    <span class="status-count-tag"
+                      >{{ stats()!.kpi.cancelledOrders }} đơn ({{
+                        getPercent(stats()!.kpi.cancelledOrders)
+                      }}%)</span
+                    >
+                  </div>
+                  <div class="progress-track">
+                    <div
+                      class="progress-fill fill-cancelled"
+                      [style.width.%]="getPercent(stats()!.kpi.cancelledOrders)"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Peak Ordering Hours Distribution -->
+              <div class="analytics-card">
+                <div class="card-head">
+                  <h3 class="card-title">Khung Giờ Đặt Hàng Cao Điểm</h3>
+                  <span class="head-sub">Số đơn hàng phát sinh theo giờ trong ngày</span>
+                </div>
+
+                <div
+                  class="peak-hours-grid"
+                  *ngIf="stats()!.peakHours && stats()!.peakHours.length > 0; else noHours"
+                >
+                  <div class="hour-col" *ngFor="let h of stats()!.peakHours">
+                    <span class="hour-val">{{ h.count }}</span>
+                    <div class="hour-track">
+                      <div class="hour-fill" [style.height.%]="getHourHeight(h.count)"></div>
+                    </div>
+                    <span class="hour-lbl">{{ h.hour }}h</span>
+                  </div>
+                </div>
+                <ng-template #noHours>
+                  <p class="empty-txt">Chưa có đủ dữ liệu đơn theo giờ trong kỳ này.</p>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: CÔNG THỨC & THỨC UỐNG DRILL-DOWN -->
+          <div *ngIf="activeTab() === 'recipes'" class="drill-section tab-fade-in">
+            <div class="section-banner recipes-theme">
+              <div class="banner-title-box">
+                <mat-icon>local_cafe</mat-icon>
+                <div>
+                  <h2 class="section-title">Hiệu Suất Thực Đơn & Xếp Hạng Nước Uống Bán Chạy</h2>
+                  <p class="section-subtitle">
+                    Top đồ uống được ưa chuộng nhất và thống kê mức độ tiêu thụ topping
+                  </p>
+                </div>
+              </div>
+
+              <div class="quick-stats-row">
+                <div class="stat-pill">
+                  <span class="p-lbl">Tổng thức uống trên Menu:</span>
+                  <strong class="p-val">{{ stats()!.kpi.totalRecipes }} thức uống</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="drill-grid">
+              <!-- Top 5 Best Sellers -->
+              <div class="analytics-card">
+                <div class="card-head">
+                  <h3 class="card-title">Top 5 Nước Uống Bán Chạy Nhất</h3>
+                  <span class="head-sub">Xếp hạng theo số phần bán ra</span>
+                </div>
+
+                <div class="top-recipes-list" *ngIf="stats()!.topRecipes.length > 0; else noTop">
+                  <div
+                    *ngFor="let item of stats()!.topRecipes; let idx = index"
+                    class="top-item-row"
+                  >
+                    <div
+                      class="rank-badge"
+                      [class.gold-rank]="idx === 0"
+                      [class.silver-rank]="idx === 1"
+                      [class.bronze-rank]="idx === 2"
+                    >
+                      <mat-icon *ngIf="idx === 0">local_fire_department</mat-icon>
+                      <span *ngIf="idx > 0">#{{ idx + 1 }}</span>
+                    </div>
+                    <div class="top-item-details">
+                      <span class="top-item-name">{{ item.name }}</span>
+                      <span class="top-item-cat">{{ item.category || 'Món nước' }}</span>
+                      <span class="top-item-sales"
+                        >Doanh thu: {{ item.totalSales | vndCurrency }}</span
+                      >
+                    </div>
+                    <div class="top-item-qty">
+                      <strong>{{ item.portionsSold }}</strong> ly
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noTop>
+                  <p class="empty-txt">Chưa có dữ liệu bán hàng để thống kê top món.</p>
+                </ng-template>
+              </div>
+
+              <!-- Popular Toppings -->
+              <div class="analytics-card">
+                <div class="card-head">
+                  <h3 class="card-title">Top Topping Đi Kèm Được Yêu Thích</h3>
+                  <span class="head-sub">Số lượt khách hàng chọn kèm</span>
+                </div>
+
+                <div
+                  class="toppings-list"
+                  *ngIf="stats()!.topToppings && stats()!.topToppings.length > 0; else noTops"
+                >
+                  <div class="topping-row" *ngFor="let t of stats()!.topToppings; let i = index">
+                    <div class="topping-info">
+                      <span class="topping-icon">🧋</span>
+                      <span class="topping-name">{{ t.name }}</span>
+                    </div>
+                    <span class="topping-count-badge">{{ t.count }} phần</span>
+                  </div>
+                </div>
+                <ng-template #noTops>
+                  <p class="empty-txt">Chưa có dữ liệu topping trong khoảng thời gian này.</p>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: THÀNH VIÊN & KHÁCH HÀNG DRILL-DOWN -->
+          <div *ngIf="activeTab() === 'users'" class="drill-section tab-fade-in">
+            <div class="section-banner users-theme">
+              <div class="banner-title-box">
+                <mat-icon>group</mat-icon>
+                <div>
+                  <h2 class="section-title">Khách Hàng Thân Thiết & Thành Viên Hệ Thống</h2>
+                  <p class="section-subtitle">
+                    Vinh danh khách hàng VIP chi tiêu nhiều nhất và tỷ lệ tăng trưởng người dùng
+                  </p>
+                </div>
+              </div>
+
+              <div class="quick-stats-row">
+                <div class="stat-pill">
+                  <span class="p-lbl">Tổng thành viên:</span>
+                  <strong class="p-val">{{ stats()!.kpi.totalUsers }} user</strong>
+                </div>
+                <div class="stat-pill" *ngIf="stats()!.kpi.newUsersCount !== undefined">
+                  <span class="p-lbl">Thành viên mới trong kỳ:</span>
+                  <strong class="p-val text-green">+{{ stats()!.kpi.newUsersCount }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="drill-grid single-col-drill">
+              <!-- VIP Customers Table -->
+              <div class="analytics-card">
+                <div class="card-head">
+                  <h3 class="card-title">Bảng Vinh Danh Khách Hàng VIP Chi Tiêu Nhiều Nhất</h3>
+                  <span class="head-sub"
+                    >Top 5 khách hàng trung thành theo tổng giá trị đơn hàng</span
+                  >
+                </div>
+
+                <div
+                  class="vip-customers-table"
+                  *ngIf="stats()!.topCustomers && stats()!.topCustomers.length > 0; else noVip"
+                >
+                  <div class="vip-row" *ngFor="let vip of stats()!.topCustomers; let i = index">
+                    <div class="vip-rank-pill" [class.rank-1]="i === 0">👑 V I P #{{ i + 1 }}</div>
+                    <div class="vip-user-info">
+                      <div class="vip-avatar">{{ vip.name.charAt(0).toUpperCase() }}</div>
+                      <div class="vip-text">
+                        <strong class="vip-name">{{ vip.name }}</strong>
+                        <span class="vip-email">{{ vip.email }}</span>
+                      </div>
+                    </div>
+                    <div class="vip-orders-count">
+                      <mat-icon>receipt</mat-icon>
+                      <span>{{ vip.orderCount }} đơn hàng</span>
+                    </div>
+                    <div class="vip-spent">
+                      <span class="spent-label">Tổng chi tiêu:</span>
+                      <strong class="spent-amount">{{ vip.totalSpent | vndCurrency }}</strong>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noVip>
+                  <p class="empty-txt">
+                    Chưa có đơn hàng hoàn thành từ khách hàng trong khoảng thời gian này.
+                  </p>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>

@@ -1,0 +1,10 @@
+<div class="skeleton-grid" [style.gridTemplateColumns]="'repeat(' + count + ', minmax(0, 1fr))'">
+      <div *ngFor="let item of items" class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line desc"></div>
+          <div class="skeleton-line price"></div>
+        </div>
+      </div>
+    </div>

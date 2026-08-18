@@ -1,0 +1,240 @@
+<div class="recipe-mgr-view">
+      <!-- Header [AD-08, AD-09] -->
+      <div class="mgr-header">
+        <div>
+          <h1 class="mgr-title">Quản Trị Thực Đơn Thức Uống & Công Thức</h1>
+          <p class="mgr-desc">Tạo mới, chỉnh sửa, tải ảnh và quản lý công thức nước uống riêng biệt của Admin</p>
+        </div>
+
+        <button class="btn-create-recipe" (click)="openCreateModal()">
+          <mat-icon>add_circle</mat-icon>
+          Thêm Nước Uống Mới
+        </button>
+      </div>
+
+      <!-- Search & Category Dock [FE-07] -->
+      <div class="filter-row">
+        <div class="search-input-box" [class.has-text]="!!searchControl.value">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            [formControl]="searchControl"
+            placeholder="Tìm kiếm nước uống theo tên, nguyên liệu, hương vị..."
+          />
+          <button
+            type="button"
+            class="btn-clear-search"
+            *ngIf="searchControl.value"
+            (click)="clearSearch()"
+            title="Xóa tìm kiếm"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Admin Executive Category Segmented Dock -->
+        <div class="category-executive-dock">
+          <button
+            type="button"
+            *ngFor="let cat of categories"
+            class="dock-pill"
+            [class.active]="selectedCategory() === cat.id"
+            (click)="selectCategory(cat.id)"
+          >
+            <mat-icon class="dock-icon">{{ cat.icon }}</mat-icon>
+            <span class="dock-name">{{ cat.label }}</span>
+            <span class="dock-count" [class.active-count]="selectedCategory() === cat.id">
+              {{ getCategoryCount(cat.id) }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recipe Data Table -->
+      <div class="table-card">
+        <table class="sb-table" *ngIf="!loading() && recipes().length > 0">
+          <thead>
+            <tr>
+              <th>ẢNH</th>
+              <th>TÊN THỨC UỐNG & CÔNG THỨC</th>
+              <th>DANH MỤC</th>
+              <th>GIÁ CƠ BẢN</th>
+              <th>TOPPINGS</th>
+              <th>NỔI BẬT</th>
+              <th>THAO TÁC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of recipes()">
+              <td>
+                <img [src]="r.imgUrl" [alt]="r.name" class="recipe-thumb" />
+              </td>
+              <td>
+                <div class="r-info-cell">
+                  <strong class="r-title">{{ r.name }}</strong>
+                  <span class="r-desc">{{ r.description }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="cat-tag">{{ r.category || 'Cà phê' }}</span>
+              </td>
+              <td>
+                <span class="price-tag">{{ r.giaCoBan | vndCurrency }}</span>
+              </td>
+              <td>
+                <span class="topping-badge">{{ r.toppings ? r.toppings.length : 0 }} nguyên liệu</span>
+              </td>
+              <td>
+                <div class="trait-badges">
+                  <span class="popular-indicator is-pop" *ngIf="r.isPopular" title="Thức uống bán chạy">
+                    <mat-icon class="flame-icon">local_fire_department</mat-icon>
+                    <span>Bán chạy</span>
+                  </span>
+                  <span class="special-indicator is-special" *ngIf="r.isSpecial" title="Thức uống đặc biệt / Signature">
+                    <mat-icon class="sparkle-icon">auto_awesome</mat-icon>
+                    <span>Đặc biệt</span>
+                  </span>
+                  <span class="standard-badge" *ngIf="!r.isPopular && !r.isSpecial">
+                    <span>Tiêu chuẩn</span>
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-icon-edit" (click)="openEditModal(r)" title="Chỉnh sửa">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button class="btn-icon-del" (click)="openDeleteConfirm(r)" title="Xoá thức uống">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="loading()" class="table-loading">Đang tải danh sách công thức nước uống...</div>
+        <div *ngIf="!loading() && recipes().length === 0" class="table-empty">
+          <mat-icon>local_cafe</mat-icon>
+          <p>Chưa có thức uống nào trong kho thực đơn.</p>
+        </div>
+      </div>
+
+      <!-- CREATE / EDIT MODAL [AD-08, FE-12] -->
+      <div class="modal-backdrop" *ngIf="modalOpen()">
+        <div class="modal-panel">
+          <div class="modal-header">
+            <h3>{{ isEditMode() ? 'Chỉnh sửa công thức nước uống' : 'Thêm công thức nước uống mới' }}</h3>
+            <button class="btn-close" (click)="modalOpen.set(false)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <form [formGroup]="recipeForm" (ngSubmit)="onSaveRecipe()" class="recipe-form">
+            <div class="form-row">
+              <label>Tên nước uống / công thức:</label>
+              <input type="text" formControlName="name" class="input-ctrl" placeholder="Ví dụ: Caramel Macchiato" />
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-row">
+                <label>Giá cơ bản (VNĐ):</label>
+                <input type="number" formControlName="giaCoBan" class="input-ctrl" />
+              </div>
+              <div class="form-row">
+                <label>Thể loại nước uống:</label>
+                <select formControlName="category" class="input-ctrl">
+                  <option value="Cà phê">Cà phê</option>
+                  <option value="Trà sữa">Trà sữa</option>
+                  <option value="Trà trái cây">Trà trái cây</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label>Mô tả hương vị & pha chế:</label>
+              <textarea formControlName="description" rows="2" class="input-ctrl"></textarea>
+            </div>
+
+            <!-- Image Upload & Preview [FE-12] -->
+            <div class="form-row">
+              <label>Ảnh nước uống (URL hoặc Tải lên):</label>
+              <div class="upload-row">
+                <input type="text" formControlName="imgUrl" class="input-ctrl flex-1" placeholder="https://..." />
+                <label class="btn-file-upload">
+                  <mat-icon>upload</mat-icon>
+                  Upload File
+                  <input type="file" (change)="onUploadImage($event)" accept="image/*" />
+                </label>
+              </div>
+              <div class="img-preview" *ngIf="recipeForm.get('imgUrl')?.value">
+                <img [src]="recipeForm.get('imgUrl')?.value" alt="Preview" />
+              </div>
+            </div>
+
+            <!-- Global Beverage Traits (Admin Configuration) -->
+            <div class="form-checkboxes-group">
+              <label class="trait-check-item">
+                <input type="checkbox" formControlName="isPopular" />
+                <span class="trait-check-text">
+                  <mat-icon class="trait-icon-flame">local_fire_department</mat-icon>
+                  Đánh dấu là thức uống <strong>Bán chạy 🔥</strong> (Hot / Best-Seller)
+                </span>
+              </label>
+
+              <label class="trait-check-item">
+                <input type="checkbox" formControlName="isSpecial" />
+                <span class="trait-check-text">
+                  <mat-icon class="trait-icon-sparkle">auto_awesome</mat-icon>
+                  Đánh dấu là thức uống <strong>Đặc biệt ✨</strong> (Signature / Đặc sản quán)
+                </span>
+              </label>
+            </div>
+
+            <!-- Toppings Section -->
+            <div class="toppings-block">
+              <div class="top-head">
+                <label>Thành phần & Topping:</label>
+                <button type="button" class="btn-add-topping" (click)="addTopping()">
+                  + Thêm thành phần
+                </button>
+              </div>
+
+              <div formArrayName="toppings" class="topping-inputs-list">
+                <div
+                  *ngFor="let t of toppingsFormArray.controls; let i = index"
+                  [formGroupName]="i"
+                  class="topping-row"
+                >
+                  <input type="text" formControlName="name" placeholder="Tên (ví dụ: Sốt Caramel)" class="input-ctrl" />
+                  <input type="number" formControlName="quantity" placeholder="SL" class="input-ctrl w-20" />
+                  <input type="text" formControlName="unit" placeholder="Đơn vị (ml/g)" class="input-ctrl w-24" />
+                  <button type="button" class="btn-del-t" (click)="removeTopping(i)">
+                    <mat-icon>remove_circle</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-foot">
+              <button type="button" class="btn-modal-cancel" (click)="modalOpen.set(false)">Bỏ qua</button>
+              <button type="submit" class="btn-modal-submit" [disabled]="recipeForm.invalid || saving()">
+                {{ isEditMode() ? 'Lưu cập nhật' : 'Tạo nước uống mới' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- DELETE CONFIRM MODAL [FE-13] -->
+      <app-confirm-dialog
+        [isOpen]="deleteDialogOpen()"
+        title="Xác nhận xoá nước uống"
+        [message]="'Bạn có chắc chắn muốn xoá nước uống ' + (targetRecipe()?.name || '') + ' khỏi thực đơn không?'"
+        confirmText="Xoá nước uống"
+        cancelText="Bỏ qua"
+        type="danger"
+        (confirmed)="confirmDeleteRecipe()"
+        (cancelled)="deleteDialogOpen.set(false)"
+      ></app-confirm-dialog>
+    </div>

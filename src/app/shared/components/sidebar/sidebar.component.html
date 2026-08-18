@@ -1,0 +1,178 @@
+<aside
+      *ngIf="!isAuthPage()"
+      class="sb-sidebar"
+      [class.expanded]="isExpanded()"
+      (mouseenter)="onMouseEnter()"
+      (mouseleave)="onMouseLeave()"
+    >
+      <!-- Top Brand / Logo -->
+      <div class="sidebar-header">
+        <a routerLink="/menu" class="brand-link">
+          <div class="logo-circle">
+            <img src="logo.png" alt="Starbucks" class="sidebar-logo-img" />
+          </div>
+          <div class="brand-info" *ngIf="isExpanded()">
+            <span class="brand-title">STARBUCKS</span>
+            <span class="brand-sub">RECIPE ATELIER</span>
+          </div>
+        </a>
+
+        <!-- Pin / Toggle button on expanded -->
+        <button
+          type="button"
+          class="btn-pin"
+          *ngIf="isExpanded()"
+          (click)="togglePin($event)"
+          [title]="isPinned() ? 'Bỏ ghim thanh menu' : 'Ghim mở rộng menu'"
+        >
+          <mat-icon>{{ isPinned() ? 'push_pin' : 'push_pin' }}</mat-icon>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="sidebar-nav">
+        <!-- USER SECTION -->
+        <div class="nav-section-label" *ngIf="isExpanded()">KHÁCH HÀNG</div>
+
+        <a
+          routerLink="/menu"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link"
+          [title]="!isExpanded() ? 'Thực đơn' : ''"
+        >
+          <div class="icon-wrap">
+            <mat-icon>restaurant_menu</mat-icon>
+          </div>
+          <span class="link-label" *ngIf="isExpanded()">Thực đơn</span>
+        </a>
+
+        <a
+          routerLink="/my-orders"
+          routerLinkActive="active"
+          class="nav-link"
+          *ngIf="authService.isLoggedIn()"
+          [title]="!isExpanded() ? 'Đơn của tôi' : ''"
+        >
+          <div class="icon-wrap">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <span class="link-label" *ngIf="isExpanded()">Đơn của tôi</span>
+        </a>
+
+        <a
+          routerLink="/profile"
+          routerLinkActive="active"
+          class="nav-link"
+          *ngIf="authService.isLoggedIn()"
+          [title]="!isExpanded() ? 'Tài khoản' : ''"
+        >
+          <div class="icon-wrap">
+            <mat-icon>account_circle</mat-icon>
+          </div>
+          <span class="link-label" *ngIf="isExpanded()">Tài khoản</span>
+        </a>
+
+        <!-- ADMIN SECTION (If User is Admin) -->
+        <ng-container *ngIf="authService.isAdmin()">
+          <div class="nav-divider"></div>
+          <div class="nav-section-label admin-label" *ngIf="isExpanded()">QUẢN TRỊ ADMIN</div>
+
+          <a
+            routerLink="/admin/dashboard"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link admin-nav-link"
+            [title]="!isExpanded() ? 'Dashboard KPI' : ''"
+          >
+            <div class="icon-wrap">
+              <mat-icon>dashboard</mat-icon>
+            </div>
+            <span class="link-label" *ngIf="isExpanded()">Dashboard KPI</span>
+          </a>
+
+          <a
+            routerLink="/admin/orders"
+            routerLinkActive="active"
+            class="nav-link admin-nav-link"
+            [title]="!isExpanded() ? 'Quản lý Đơn hàng' : ''"
+          >
+            <div class="icon-wrap">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+            <span class="link-label" *ngIf="isExpanded()">Quản lý Đơn hàng</span>
+          </a>
+
+          <a
+            routerLink="/admin/recipes"
+            routerLinkActive="active"
+            class="nav-link admin-nav-link"
+            [title]="!isExpanded() ? 'Quản lý Nước uống' : ''"
+          >
+            <div class="icon-wrap">
+              <mat-icon>local_cafe</mat-icon>
+            </div>
+            <span class="link-label" *ngIf="isExpanded()">Quản lý Nước uống</span>
+          </a>
+
+          <a
+            routerLink="/admin/admins"
+            routerLinkActive="active"
+            class="nav-link admin-nav-link"
+            [title]="!isExpanded() ? 'Quản trị Admin' : ''"
+          >
+            <div class="icon-wrap">
+              <mat-icon>manage_accounts</mat-icon>
+            </div>
+            <span class="link-label" *ngIf="isExpanded()">Quản trị Admin</span>
+          </a>
+        </ng-container>
+      </nav>
+
+      <!-- Bottom User / Auth Section -->
+      <div class="sidebar-footer">
+        <!-- If Logged In -->
+        <div class="user-card" *ngIf="authService.isLoggedIn(); else guestTpl">
+          <a routerLink="/profile" class="user-profile-link" [title]="!isExpanded() ? authService.currentUser()?.name : ''">
+            <div class="avatar-wrap">
+              <img
+                [src]="authService.currentUser()?.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + authService.currentUser()?.email"
+                alt="Avatar"
+                class="user-avatar"
+              />
+              <span class="status-dot"></span>
+            </div>
+            <div class="user-meta" *ngIf="isExpanded()">
+              <span class="user-name">{{ authService.currentUser()?.name }}</span>
+              <span class="user-role-badge" [class.is-admin]="authService.isAdmin()">
+                {{ authService.isAdmin() ? 'ADMIN' : 'USER' }}
+              </span>
+            </div>
+          </a>
+
+          <button
+            type="button"
+            class="btn-logout"
+            (click)="authService.logout()"
+            [title]="isExpanded() ? 'Đăng xuất tài khoản' : 'Đăng xuất'"
+          >
+            <mat-icon>logout</mat-icon>
+            <span class="logout-text" *ngIf="isExpanded()">Đăng xuất</span>
+          </button>
+        </div>
+
+        <!-- If Guest -->
+        <ng-template #guestTpl>
+          <a
+            routerLink="/auth"
+            class="btn-login-card"
+            [title]="!isExpanded() ? 'Đăng nhập / Đăng ký' : ''"
+          >
+            <div class="icon-wrap">
+              <mat-icon>login</mat-icon>
+            </div>
+            <span class="login-text" *ngIf="isExpanded()">Đăng nhập / Đăng ký</span>
+          </a>
+        </ng-template>
+      </div>
+    </aside>

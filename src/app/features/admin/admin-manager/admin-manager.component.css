@@ -1,0 +1,286 @@
+.admin-mgr-view {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .mgr-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .mgr-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1e3932;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+    .mgr-sub {
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.58);
+    }
+    .btn-add-admin {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 50px;
+      background: #00754a;
+      color: #ffffff;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 117, 74, 0.3);
+    }
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #ffffff;
+      border-radius: 50px;
+      border: 1px solid #edebe9;
+      max-width: 440px;
+    }
+    .search-bar input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .table-container {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      border: 1px solid #edebe9;
+      overflow-x: auto;
+    }
+    .sb-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    .sb-table th {
+      padding: 16px 20px;
+      background: #faf6ee;
+      color: #1e3932;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #edebe9;
+    }
+    .sb-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid #f2f0eb;
+      vertical-align: middle;
+    }
+    .admin-thumb {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid #cba258;
+    }
+    .badge-role {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 800;
+      background: #faf6ee;
+      color: #b4852e;
+      border: 1px solid #cba258;
+    }
+    .action-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-revoke {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 50px;
+      background: #fde8e7;
+      color: #c82014;
+      border: 1px solid rgba(200, 32, 20, 0.2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-revoke:hover {
+      background: #fbd5d3;
+      box-shadow: 0 2px 6px rgba(200, 32, 20, 0.15);
+    }
+    .badge-protected {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: default;
+      user-select: none;
+    }
+    .root-admin-badge {
+      background: linear-gradient(135deg, #fdf8e6 0%, #faecd0 100%);
+      color: #8c6819;
+      border: 1px solid rgba(203, 162, 88, 0.45);
+      box-shadow: 0 2px 6px rgba(203, 162, 88, 0.12);
+    }
+    .root-admin-badge .prot-icon {
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
+      color: #cba258;
+    }
+    .self-admin-badge {
+      background: #e6f4ea;
+      color: #137333;
+      border: 1px solid rgba(19, 115, 51, 0.25);
+    }
+    .self-admin-badge .prot-icon {
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
+      color: #137333;
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 16px;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e3932;
+    }
+    .btn-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f2f0eb;
+      border: 1px solid #e0dedc;
+      color: #1e3932;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-close mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.25s;
+    }
+    .btn-close:hover {
+      background: #edebe9;
+      color: #c82014;
+      border-color: #c82014;
+      transform: rotate(90deg) scale(1.08);
+      box-shadow: 0 2px 8px rgba(200, 32, 20, 0.2);
+    }
+    .modal-desc {
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: 16px;
+    }
+    .user-search-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px solid #d6dbde;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .user-search-input input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 13px;
+    }
+    .user-results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: #f2f0eb;
+    }
+    .cand-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+    .cand-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .cand-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #1e3932;
+    }
+    .cand-email {
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.5);
+    }
+    .btn-grant {
+      padding: 6px 14px;
+      border-radius: 50px;
+      background: #00754a;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+    .already-admin {
+      font-size: 11px;
+      font-weight: 700;
+      color: #b4852e;
+    }
+    .no-cand {
+      text-align: center;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.4);
+      padding: 20px;
+    }
