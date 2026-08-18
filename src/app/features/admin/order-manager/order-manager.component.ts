@@ -48,13 +48,17 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
             </button>
           </div>
 
-          <select [formControl]="statusFilter" class="status-select">
-            <option value="Tất cả">Tất cả trạng thái</option>
-            <option value="Pending">Chờ tiếp nhận (Pending)</option>
-            <option value="Đang làm">Đang làm</option>
-            <option value="Hoàn thành">Hoàn thành</option>
-            <option value="Bị huỷ">Bị huỷ</option>
-          </select>
+          <div class="filter-select-wrap">
+            <mat-icon class="filter-icon">tune</mat-icon>
+            <select [formControl]="statusFilter" class="status-select">
+              <option value="Tất cả">Tất cả trạng thái</option>
+              <option value="Pending">⏳ Chờ tiếp nhận (Pending)</option>
+              <option value="Đang làm">☕ Đang làm</option>
+              <option value="Hoàn thành">✅ Hoàn thành</option>
+              <option value="Bị huỷ">❌ Bị huỷ</option>
+            </select>
+            <mat-icon class="filter-arrow">expand_more</mat-icon>
+          </div>
         </div>
       </div>
 
@@ -107,16 +111,20 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
               </td>
               <td>
                 <div class="action-dropdown-wrap">
-                  <select
-                    class="action-select"
-                    [value]="order.status"
-                    (change)="onStatusSelectChange(order, $event)"
-                  >
-                    <option value="Pending">Chờ tiếp nhận</option>
-                    <option value="Đang làm">Đang làm</option>
-                    <option value="Hoàn thành">Hoàn thành</option>
-                    <option value="Bị huỷ">Bị huỷ</option>
-                  </select>
+                  <div class="status-action-pill" [ngClass]="'status-pill-' + getStatusSlug(order.status)">
+                    <mat-icon class="pill-icon">{{ getStatusIcon(order.status) }}</mat-icon>
+                    <select
+                      class="action-select-custom"
+                      [value]="order.status"
+                      (change)="onStatusSelectChange(order, $event)"
+                    >
+                      <option value="Pending">Chờ tiếp nhận</option>
+                      <option value="Đang làm">Đang làm</option>
+                      <option value="Hoàn thành">Hoàn thành</option>
+                      <option value="Bị huỷ">Bị huỷ</option>
+                    </select>
+                    <mat-icon class="pill-chevron">expand_more</mat-icon>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -244,20 +252,51 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       width: 16px;
       height: 16px;
     }
-    .status-select {
-      padding: 8px 16px;
+    .filter-select-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
       background: #ffffff;
       border: 1.5px solid #edebe9;
       border-radius: 50px;
+      padding: 0 12px 0 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+    .filter-select-wrap:hover, .filter-select-wrap:focus-within {
+      border-color: #00754a;
+      box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.12);
+    }
+    .filter-icon {
+      color: #00754a;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 4px;
+      pointer-events: none;
+    }
+    .status-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding: 9px 24px 9px 4px;
+      background: transparent;
+      border: none;
       font-size: 13px;
       font-weight: 600;
       color: #1e3932;
       outline: none;
       cursor: pointer;
-      transition: all 0.2s;
+      font-family: inherit;
     }
-    .status-select:focus {
-      border-color: #00754a;
+    .filter-arrow {
+      position: absolute;
+      right: 10px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: rgba(0, 0, 0, 0.45);
+      pointer-events: none;
     }
     .table-card {
       background: #ffffff;
@@ -341,19 +380,102 @@ import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
       color: #c82014;
       margin-top: 4px;
     }
-    .action-select {
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: 1px solid #d6dbde;
-      font-size: 12px;
-      font-weight: 600;
-      color: #1e3932;
-      background: #f2f0eb;
-      outline: none;
-      cursor: pointer;
+    .action-dropdown-wrap {
+      display: inline-flex;
+      align-items: center;
     }
-    .action-select:focus {
-      border-color: #00754a;
+    .status-action-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px 6px 10px;
+      border-radius: 50px;
+      border: 1.5px solid transparent;
+      font-weight: 700;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.04);
+    }
+    .status-action-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .status-pill-pending {
+      background: #fff9e6;
+      border-color: #f3d078;
+      color: #946200;
+    }
+    .status-pill-pending .pill-icon {
+      color: #d97706;
+    }
+    .status-pill-preparing {
+      background: #eef7ff;
+      border-color: #9ec5fe;
+      color: #0d6efd;
+    }
+    .status-pill-preparing .pill-icon {
+      color: #0d6efd;
+    }
+    .status-pill-completed {
+      background: #edf7ed;
+      border-color: #a3cfbb;
+      color: #0f5132;
+    }
+    .status-pill-completed .pill-icon {
+      color: #00754a;
+    }
+    .status-pill-cancelled {
+      background: #fdf2f2;
+      border-color: #f8d7da;
+      color: #842029;
+    }
+    .status-pill-cancelled .pill-icon {
+      color: #dc3545;
+    }
+    .pill-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+    .action-select-custom {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 12.5px;
+      font-weight: 700;
+      font-family: inherit;
+      color: inherit;
+      cursor: pointer;
+      padding-right: 18px;
+    }
+    .action-select-custom option {
+      background: #ffffff;
+      color: #1e3932;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 12px;
+    }
+    .pill-chevron {
+      position: absolute;
+      right: 8px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+      color: inherit;
+      opacity: 0.65;
+      transition: transform 0.2s;
+    }
+    .status-action-pill:hover .pill-chevron {
+      opacity: 1;
+      transform: translateY(1px);
     }
     .table-empty {
       text-align: center;
@@ -568,5 +690,35 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
   closeCancelModal() {
     this.cancelModalOpen.set(false);
     this.targetOrderForCancel.set(null);
+  }
+
+  getStatusSlug(status: string): string {
+    switch (status) {
+      case 'Pending':
+        return 'pending';
+      case 'Đang làm':
+        return 'preparing';
+      case 'Hoàn thành':
+        return 'completed';
+      case 'Bị huỷ':
+        return 'cancelled';
+      default:
+        return 'default';
+    }
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'Pending':
+        return 'hourglass_top';
+      case 'Đang làm':
+        return 'local_cafe';
+      case 'Hoàn thành':
+        return 'check_circle';
+      case 'Bị huỷ':
+        return 'cancel';
+      default:
+        return 'edit_note';
+    }
   }
 }
