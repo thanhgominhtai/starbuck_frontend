@@ -46,7 +46,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
   // Filter & Action States
   priceSort = signal<'none' | 'asc' | 'desc'>('none');
   isPopularOnly = signal<boolean>(false);
-  isNewOnly = signal<boolean>(false);
+  isFavoriteOnly = signal<boolean>(false);
   isLuckyActive = signal<boolean>(false);
   isLuckyRolling = signal<boolean>(false);
   luckyDrinkIds = signal<string[]>([]);
@@ -54,6 +54,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
   // Computed dynamic recipe list pipeline
   recipes = computed<Recipe[]>(() => {
     let list = [...this.rawRecipes()];
+    const favSet = this.favoriteService.favorites();
 
     // 1. Lucky Random Suggestion Mode
     if (this.isLuckyActive()) {
@@ -61,10 +62,9 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
       return list.filter((r) => luckySet.has(r.id));
     }
 
-    // 2. Filter by Category
-    const cat = this.selectedCategory();
-    if (cat === '❤️ Yêu thích') {
-      list = list.filter((r) => this.favoriteService.isFavorite(r.id));
+    // 2. Filter by Favorite (Button 2)
+    if (this.isFavoriteOnly()) {
+      list = list.filter((r) => favSet.has(r.id));
     }
 
     // 3. Filter by Hot / Popular (Button 3)
@@ -72,16 +72,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
       list = list.filter((r) => r.isPopular);
     }
 
-    // 4. Filter by New Arrivals (Button 2)
-    if (this.isNewOnly()) {
-      list = list.sort((a, b) => {
-        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return timeB - timeA;
-      });
-    }
-
-    // 5. Sort by Price (Button 1)
+    // 4. Sort by Price (Button 1)
     const sort = this.priceSort();
     if (sort === 'asc') {
       list = list.sort((a, b) => a.giaCoBan - b.giaCoBan);
@@ -102,7 +93,6 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
 
   categoryItems = [
     { id: 'Tất cả', label: 'Tất cả', icon: 'local_cafe', tag: 'Toàn bộ thực đơn' },
-    { id: '❤️ Yêu thích', label: 'Yêu thích', icon: 'favorite', tag: 'Món bạn đã lưu' },
     { id: 'Cà phê', label: 'Cà phê', icon: 'coffee', tag: 'Espresso & Cold Brew' },
     { id: 'Trà sữa', label: 'Trà sữa', icon: 'bubble_chart', tag: 'Trà sữa & Macchiato' },
     { id: 'Trà trái cây', label: 'Trà trái cây', icon: 'eco', tag: 'Trà hoa quả thanh mát' },
@@ -166,13 +156,20 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     return 'Sắp xếp theo giá (Thấp đến Cao / Cao xuống Thấp)';
   }
 
-  // Button 2: Toggle New Arrivals
-  toggleNewOnly() {
+  getPriceSortTooltip(): string {
+    const sort = this.priceSort();
+    if (sort === 'asc') return 'Giá: Thấp đến Cao ⬆️';
+    if (sort === 'desc') return 'Giá: Cao xuống Thấp ⬇️';
+    return 'Sắp xếp theo giá ↕️';
+  }
+
+  // Button 2: Toggle Favorites Filter
+  toggleFavoriteOnly() {
     this.isLuckyActive.set(false);
-    const next = !this.isNewOnly();
-    this.isNewOnly.set(next);
+    const next = !this.isFavoriteOnly();
+    this.isFavoriteOnly.set(next);
     if (next) {
-      this.toast.info('Đang hiển thị các Món Mới Nhất 🆕');
+      this.toast.success('Đang lọc danh sách Món Yêu Thích ❤️');
     } else {
       this.toast.info('Hiển thị tất cả món');
     }
@@ -264,8 +261,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
         tap(() => this.loading.set(true)),
         switchMap((keyword) => {
           const cat = this.selectedCategory();
-          const queryCategory = cat === '❤️ Yêu thích' ? 'Tất cả' : cat;
-          return this.recipeService.getRecipes(keyword, queryCategory);
+          return this.recipeService.getRecipes(keyword, cat);
         }),
       )
       .subscribe({
@@ -434,10 +430,9 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     this.loading.set(true);
     const keyword = this.searchControl.value?.trim() || '';
     const cat = this.selectedCategory();
-    const queryCategory = cat === '❤️ Yêu thích' ? 'Tất cả' : cat;
 
     this.recipeService
-      .getRecipes(keyword, queryCategory)
+      .getRecipes(keyword, cat)
       .subscribe({
         next: (data) => {
           this.rawRecipes.set(data);
@@ -464,7 +459,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     this.selectedCategory.set('Tất cả');
     this.priceSort.set('none');
     this.isPopularOnly.set(false);
-    this.isNewOnly.set(false);
+    this.isFavoriteOnly.set(false);
     this.isLuckyActive.set(false);
     this.fetchRecipes();
   }
@@ -477,9 +472,6 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
       this.toast.success(`Đã thêm "${recipe.name}" vào danh sách Yêu thích ❤️`);
     } else {
       this.toast.info(`Đã bỏ "${recipe.name}" khỏi danh sách Yêu thích`);
-      if (this.selectedCategory() === '❤️ Yêu thích') {
-        this.rawRecipes.set(this.rawRecipes().filter((r) => r.id !== recipe.id));
-      }
     }
   }
 }

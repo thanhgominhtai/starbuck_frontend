@@ -62,9 +62,12 @@
                   class="clear-btn"
                   *ngIf="searchControl.value"
                   (click)="clearSearch($event)"
-                  title="Xoá tìm kiếm"
+                  aria-label="Xoá tìm kiếm"
                 >
                   <mat-icon>close</mat-icon>
+                  <div class="action-custom-tooltip clear-tooltip">
+                    <span class="tooltip-text">Xoá tìm kiếm</span>
+                  </div>
                 </button>
               </div>
 
@@ -76,22 +79,28 @@
                   class="spotlight-action-btn price-btn btn-step-1"
                   [class.is-active]="priceSort() !== 'none'"
                   (click)="togglePriceSort()"
-                  [title]="getPriceSortTitle()"
+                  aria-label="Sắp xếp theo giá"
                 >
                   <mat-icon>
                     {{ priceSort() === 'asc' ? 'arrow_upward' : (priceSort() === 'desc' ? 'arrow_downward' : 'swap_vert') }}
                   </mat-icon>
+                  <div class="action-custom-tooltip">
+                    <span class="tooltip-text">{{ getPriceSortTooltip() }}</span>
+                  </div>
                 </button>
 
-                <!-- 2. Món Mới Ra Mắt (New Arrivals) -->
+                <!-- 2. Món Yêu Thích (Favorites Filter) -->
                 <button
                   type="button"
-                  class="spotlight-action-btn new-btn btn-step-2"
-                  [class.is-active]="isNewOnly()"
-                  (click)="toggleNewOnly()"
-                  [title]="isNewOnly() ? 'Hiển thị tất cả món' : 'Lọc món mới nhất 🆕'"
+                  class="spotlight-action-btn fav-btn btn-step-2"
+                  [class.is-active]="isFavoriteOnly()"
+                  (click)="toggleFavoriteOnly()"
+                  aria-label="Lọc món yêu thích"
                 >
-                  <mat-icon [class.fill-icon]="isNewOnly()">fiber_new</mat-icon>
+                  <mat-icon [class.fill-icon]="isFavoriteOnly()">favorite</mat-icon>
+                  <div class="action-custom-tooltip">
+                    <span class="tooltip-text">{{ isFavoriteOnly() ? 'Hiển thị tất cả món' : 'Lọc món yêu thích ❤️' }}</span>
+                  </div>
                 </button>
 
                 <!-- 3. Món Bán Chạy (Trending / Hot) - Fill color when active -->
@@ -100,9 +109,12 @@
                   class="spotlight-action-btn fire-btn btn-step-3"
                   [class.is-active]="isPopularOnly()"
                   (click)="togglePopularOnly()"
-                  [title]="isPopularOnly() ? 'Hiển thị tất cả món' : 'Lọc món bán chạy nhất 🔥'"
+                  aria-label="Lọc món bán chạy nhất"
                 >
                   <mat-icon [class.fill-icon]="isPopularOnly()">local_fire_department</mat-icon>
+                  <div class="action-custom-tooltip">
+                    <span class="tooltip-text">{{ isPopularOnly() ? 'Hiển thị tất cả món' : 'Lọc món bán chạy nhất 🔥' }}</span>
+                  </div>
                 </button>
 
                 <!-- 4. Tôi Cảm Thấy May Mắn (Random 3-4 món) -->
@@ -111,9 +123,12 @@
                   class="spotlight-action-btn lucky-btn btn-step-4"
                   [class.is-active]="isLuckyActive()"
                   (click)="feelLucky()"
-                  title="Tôi cảm thấy may mắn 🎲 (Gợi ý 3-4 món ngẫu nhiên)"
+                  aria-label="Tôi cảm thấy may mắn"
                 >
                   <mat-icon [class.dice-rolling]="isLuckyRolling()">casino</mat-icon>
+                  <div class="action-custom-tooltip">
+                    <span class="tooltip-text">Tôi cảm thấy may mắn 🎲</span>
+                  </div>
                 </button>
               </div>
             </div>
@@ -168,7 +183,7 @@
               </div>
 
               <!-- Dock Item Icon -->
-              <div class="dock-icon-box" [class.is-fav]="item.id === '❤️ Yêu thích'">
+              <div class="dock-icon-box">
                 <mat-icon>{{ item.icon }}</mat-icon>
               </div>
 
