@@ -21,7 +21,7 @@ import { SidebarService } from '../../../core/services/sidebar.service';
       <div class="sidebar-header">
         <a routerLink="/menu" class="brand-link">
           <div class="logo-circle">
-            <mat-icon>local_cafe</mat-icon>
+            <img src="logo.png" alt="Starbucks" class="sidebar-logo-img" />
           </div>
           <div class="brand-info" *ngIf="isExpanded()">
             <span class="brand-title">STARBUCKS</span>
@@ -258,6 +258,11 @@ import { SidebarService } from '../../../core/services/sidebar.service';
       font-size: 22px;
       width: 22px;
       height: 22px;
+    }
+    .sidebar-logo-img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
     }
     .brand-info {
       display: flex;
