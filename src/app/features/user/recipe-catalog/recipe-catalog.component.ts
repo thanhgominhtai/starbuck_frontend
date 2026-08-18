@@ -172,7 +172,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     const next = !this.isNewOnly();
     this.isNewOnly.set(next);
     if (next) {
-      this.toast.info('Đang hiển thị các Món Mới Ra Mắt ✨');
+      this.toast.info('Đang hiển thị các Món Mới Nhất 🆕');
     } else {
       this.toast.info('Hiển thị tất cả món');
     }
