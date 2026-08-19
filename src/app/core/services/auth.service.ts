@@ -36,11 +36,14 @@ export class AuthService {
       return url;
     }
 
-    // If the stored URL contains /uploads/ (even if it had old localhost:3000/uploads/...)
+    // If the stored URL contains /uploads/ (handles legacy localhost:3000 and clean paths)
     if (url.includes('/uploads/')) {
-      const filename = url.split('/uploads/')[1];
-      const backendBase = environment.apiUrl.replace(/\/api\/?$/, '');
-      return `${backendBase}/uploads/${filename}`;
+      const filename = url.split('/uploads/')[1].split('?')[0];
+      const apiBase = environment.apiUrl.replace(/\/+$/, '');
+      if (apiBase === '/api' || apiBase.endsWith('/api')) {
+        return `/api/uploads/${filename}`;
+      }
+      return `${apiBase}/uploads/${filename}`;
     }
 
     if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -48,8 +51,8 @@ export class AuthService {
     }
 
     const cleanPath = url.startsWith('/') ? url : `/${url}`;
-    const backendBase = environment.apiUrl.replace(/\/api\/?$/, '');
-    return `${backendBase}${cleanPath}`;
+    const apiBase = environment.apiUrl.replace(/\/+$/, '');
+    return `${apiBase}${cleanPath}`;
   }
 
   private getStoredUser(): User | null {
