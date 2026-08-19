@@ -277,12 +277,15 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     this.sub.add(searchSub);
   }
 
+  private resizeObserver?: ResizeObserver;
+
   ngAfterViewInit() {
     this.initHeroCanvas();
   }
 
   ngOnDestroy() {
     this.sub.unsubscribe();
+    this.resizeObserver?.disconnect();
     if (this.heroAnimationId) {
       cancelAnimationFrame(this.heroAnimationId);
     }
@@ -293,7 +296,6 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     if (rect.width > 0 && rect.height > 0) {
-      // 1:1 Accurate coordinate mapping between visual pointer and internal canvas buffer
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
       this.heroMouseX = (e.clientX - rect.left) * scaleX;
@@ -312,24 +314,27 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Sync buffer resolution to actual rendered bounding box
-    const updateCanvasSize = () => {
+    const syncCanvasSize = (): boolean => {
       const rect = canvas.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        if (canvas.width !== Math.round(rect.width) || canvas.height !== Math.round(rect.height)) {
-          canvas.width = Math.round(rect.width);
-          canvas.height = Math.round(rect.height);
-        }
+      const parent = canvas.parentElement;
+      const w = Math.round(rect.width || (parent ? parent.clientWidth : window.innerWidth));
+      const h = Math.round(rect.height || (parent ? parent.clientHeight : 260));
+
+      if (w > 0 && h > 0 && (canvas.width !== w || canvas.height !== h)) {
+        canvas.width = w;
+        canvas.height = h;
+        return true;
       }
+      return false;
     };
 
-    updateCanvasSize();
+    syncCanvasSize();
 
-    const SPACING = 24;          // Uniform square grid spacing
-    const BASE_R = 1.05;         // Base dot radius
-    const HOVER_R = 88;          // Balanced circular glow radius (~176px diameter)
-    const DEFAULT_DOT_COLOR = 'rgba(212, 233, 226, 0.12)';
-    const ACTIVE_GOLD_COLOR = '#dfc49d';
+    const SPACING = 24;          // Grid spacing
+    const BASE_R = 1.15;         // Base dot radius
+    const HOVER_R = 100;         // Full circular radius
+    const DEFAULT_DOT_COLOR = 'rgba(212, 233, 226, 0.14)';
+    const ACTIVE_GOLD_COLOR = '#fcefd6';
     const ACTIVE_GREEN_COLOR = '#52d6a4';
 
     class Particle {
@@ -346,12 +351,14 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
       }
 
       reset(w: number, h: number, initial = false) {
-        this.x = Math.random() * w;
-        this.y = initial ? Math.random() * h : h + 10;
-        this.vx = (Math.random() - 0.5) * 0.32;
+        const fullW = w > 0 ? w : window.innerWidth;
+        const fullH = h > 0 ? h : 260;
+        this.x = Math.random() * fullW;
+        this.y = initial ? Math.random() * fullH : fullH + 10;
+        this.vx = (Math.random() - 0.5) * 0.35;
         this.vy = -0.22 - Math.random() * 0.38; // float gently upward
-        this.size = Math.random() * 2.0 + 0.9;
-        this.alpha = Math.random() * 0.35 + 0.14;
+        this.size = Math.random() * 2.2 + 1.0;
+        this.alpha = Math.random() * 0.38 + 0.16;
         // 60% Luxury Gold aroma, 40% Uplift Mint aroma
         this.color = Math.random() > 0.4 ? '203, 162, 88' : '126, 224, 184';
       }
@@ -368,54 +375,78 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
         c.beginPath();
         c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         c.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+        c.shadowBlur = 6;
+        c.shadowColor = `rgba(${this.color}, 0.45)`;
         c.fill();
+        c.shadowBlur = 0;
       }
     }
 
+    const particleCount = 45;
     const particles: Particle[] = [];
-    const particleCount = 30; // Increased by 1.5x as requested
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle(canvas.width, canvas.height));
+
+    const spawnParticles = () => {
+      particles.length = 0;
+      const w = canvas.width || window.innerWidth;
+      const h = canvas.height || 260;
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle(w, h));
+      }
+    };
+
+    spawnParticles();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => {
+        if (syncCanvasSize()) {
+          spawnParticles();
+        }
+      });
+      const parent = canvas.parentElement;
+      if (parent) {
+        this.resizeObserver.observe(parent);
+      }
     }
 
     const draw = () => {
-      updateCanvasSize();
       const w = canvas.width;
       const h = canvas.height;
 
-      ctx.clearRect(0, 0, w, h);
+      if (w > 0 && h > 0) {
+        ctx.clearRect(0, 0, w, h);
 
-      // 1. Floating Aroma Particles
-      particles.forEach((p) => {
-        p.update(w, h);
-        p.draw(ctx);
-      });
+        // 1. Floating Aroma Particles across full width & height
+        for (let i = 0; i < particles.length; i++) {
+          particles[i].update(w, h);
+          particles[i].draw(ctx);
+        }
 
-      // 2. Square Grid with Centered Offsets for Exact Geometric Circle
-      const startX = (w % SPACING) / 2 + SPACING / 2;
-      const startY = (h % SPACING) / 2 + SPACING / 2;
+        // 2. Interactive Dot Matrix across entire banner
+        const startX = (w % SPACING) / 2 + SPACING / 2;
+        const startY = (h % SPACING) / 2 + SPACING / 2;
 
-      for (let x = startX; x < w; x += SPACING) {
-        for (let y = startY; y < h; y += SPACING) {
-          const dx = x - this.heroMouseX;
-          const dy = y - this.heroMouseY;
-          const dist = Math.hypot(dx, dy); // Accurate Euclidean distance
+        for (let x = startX; x < w; x += SPACING) {
+          for (let y = startY; y < h; y += SPACING) {
+            const dx = x - this.heroMouseX;
+            const dy = y - this.heroMouseY;
+            const dist = Math.hypot(dx, dy);
 
-          if (dist < HOVER_R) {
-            const ratio = 1 - dist / HOVER_R;
-            ctx.fillStyle = ratio > 0.45 ? ACTIVE_GOLD_COLOR : ACTIVE_GREEN_COLOR;
-            ctx.shadowBlur = 10 * ratio;
-            ctx.shadowColor = 'rgba(203, 162, 88, 0.45)';
-            ctx.beginPath();
-            ctx.arc(x, y, BASE_R + ratio * 1.8, 0, Math.PI * 2);
-            ctx.fill();
-          } else {
-            ctx.fillStyle = DEFAULT_DOT_COLOR;
-            ctx.shadowBlur = 0;
-            ctx.shadowColor = 'transparent';
-            ctx.beginPath();
-            ctx.arc(x, y, BASE_R, 0, Math.PI * 2);
-            ctx.fill();
+            if (dist < HOVER_R) {
+              const ratio = 1 - dist / HOVER_R;
+              ctx.fillStyle = ratio > 0.45 ? ACTIVE_GOLD_COLOR : ACTIVE_GREEN_COLOR;
+              ctx.shadowBlur = 12 * ratio;
+              ctx.shadowColor = ratio > 0.45 ? 'rgba(203, 162, 88, 0.7)' : 'rgba(82, 214, 164, 0.7)';
+              ctx.beginPath();
+              ctx.arc(x, y, BASE_R + ratio * 2.2, 0, Math.PI * 2);
+              ctx.fill();
+            } else {
+              ctx.fillStyle = DEFAULT_DOT_COLOR;
+              ctx.shadowBlur = 0;
+              ctx.shadowColor = 'transparent';
+              ctx.beginPath();
+              ctx.arc(x, y, BASE_R, 0, Math.PI * 2);
+              ctx.fill();
+            }
           }
         }
       }
