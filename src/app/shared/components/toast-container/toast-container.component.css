@@ -9,7 +9,7 @@
   align-items: center;
   gap: 10px;
   width: calc(100vw - 32px);
-  max-width: 440px;
+  max-width: 540px;
   pointer-events: none;
 }
 
@@ -19,9 +19,9 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 12px 20px;
-  border-radius: 50px; /* Unified luxury Pill shape */
-  background: rgba(255, 255, 255, 0.95);
+  padding: 12px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.06);

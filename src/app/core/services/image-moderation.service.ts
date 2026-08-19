@@ -103,11 +103,16 @@ export class ImageModerationService {
       const hentai = probs['Hentai'] || 0;
       const sexy = probs['Sexy'] || 0;
 
+      const pornPct = Math.round(porn * 100);
+      const hentaiPct = Math.round(hentai * 100);
+      const sexyPct = Math.round(sexy * 100);
+      const neutralPct = Math.round((probs['Neutral'] || 0) * 100);
+
       // Sensitivity Thresholds - Focus strictly on extreme 18+ porn / hentai
       if (porn > 0.65) {
         return {
           isSafe: false,
-          reason: 'Hình ảnh chứa nội dung người lớn (18+) không phù hợp với chuẩn mực cộng đồng Starbucks.',
+          reason: `⚠️ Ảnh bị chặn do chứa nội dung 18+! [Chi tiết: 18+: ${pornPct}% | Gợi cảm: ${sexyPct}% | Bình thường: ${neutralPct}%]`,
           probabilities: probs,
         };
       }
@@ -115,7 +120,7 @@ export class ImageModerationService {
       if (hentai > 0.65) {
         return {
           isSafe: false,
-          reason: 'Hình ảnh chứa nội dung vẽ nhạy cảm hoặc không phù hợp với chuẩn mực cộng đồng.',
+          reason: `⚠️ Ảnh bị chặn do chứa tranh vẽ 18+ / nhạy cảm! [Chi tiết: Hentai: ${hentaiPct}% | Bình thường: ${neutralPct}%]`,
           probabilities: probs,
         };
       }
