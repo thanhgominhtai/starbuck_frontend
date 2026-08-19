@@ -6,6 +6,7 @@ import { Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { RecipeService } from '../../../core/services/recipe.service';
 import { UploadService } from '../../../core/services/upload.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ImageModerationService } from '../../../core/services/image-moderation.service';
 import { Recipe } from '../../../core/models/recipe.model';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { VndCurrencyPipe } from '../../../shared/pipes/vnd-currency.pipe';
@@ -22,6 +23,7 @@ export class AdminRecipeManagerComponent implements OnInit, OnDestroy {
   private recipeService = inject(RecipeService);
   private uploadService = inject(UploadService);
   private toast = inject(ToastService);
+  private imageModeration = inject(ImageModerationService);
   private sub = new Subscription();
 
   recipes = signal<Recipe[]>([]);
@@ -165,9 +167,24 @@ export class AdminRecipeManagerComponent implements OnInit, OnDestroy {
     this.modalOpen.set(true);
   }
 
-  onUploadImage(event: any) {
+  async onUploadImage(event: any) {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Vui lòng chọn một file hình ảnh hợp lệ');
+      return;
+    }
+
+    const modResult = await this.imageModeration.scanImage(file);
+    if (!modResult.isSafe) {
+      this.toast.error(
+        modResult.reason ||
+          '⚠️ Hình ảnh món nước chứa nội dung nhạy cảm hoặc không phù hợp chuẩn mực Starbucks! Vui lòng chọn ảnh khác.',
+      );
+      event.target.value = '';
+      return;
+    }
 
     this.uploadService.uploadImage(file).subscribe({
       next: (res) => {

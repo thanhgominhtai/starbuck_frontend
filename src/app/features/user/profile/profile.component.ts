@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
 import { UploadService } from '../../../core/services/upload.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ImageModerationService } from '../../../core/services/image-moderation.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -22,6 +23,7 @@ export class ProfileComponent implements OnInit {
   public authService = inject(AuthService);
   private uploadService = inject(UploadService);
   private toast = inject(ToastService);
+  private imageModeration = inject(ImageModerationService);
 
   avatarPreview = signal<string | null>(null);
   savingProfile = signal<boolean>(false);
@@ -150,12 +152,23 @@ export class ProfileComponent implements OnInit {
   }
 
   // --- AVATAR CROP & FRAMING WORKFLOW ---
-  onAvatarFileChange(event: any) {
+  async onAvatarFileChange(event: any) {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
       this.toast.error('Vui lòng chọn một file hình ảnh hợp lệ (jpg, png, webp,...)');
+      return;
+    }
+
+    // AI Sensitive / NSFW Image Scan
+    const modResult = await this.imageModeration.scanImage(file);
+    if (!modResult.isSafe) {
+      this.toast.error(
+        modResult.reason ||
+          '⚠️ Hình ảnh chứa nội dung nhạy cảm hoặc không phù hợp với chuẩn mực cộng đồng Starbucks. Vui lòng chọn ảnh khác!',
+      );
+      event.target.value = '';
       return;
     }
 
@@ -318,7 +331,7 @@ export class ProfileComponent implements OnInit {
     ctx.restore();
   }
 
-  confirmCropAndUpload() {
+  async confirmCropAndUpload() {
     if (!this.loadedImg) return;
     this.uploadingAvatar.set(true);
 
@@ -351,6 +364,17 @@ export class ProfileComponent implements OnInit {
     const drawY = -drawH / 2 + this.cropPanY() * ratio;
 
     ctx.drawImage(this.loadedImg, drawX, drawY, drawW, drawH);
+
+    // AI Sensitive / NSFW Scan on the final cropped canvas
+    const modResult = await this.imageModeration.scanImage(canvas);
+    if (!modResult.isSafe) {
+      this.uploadingAvatar.set(false);
+      this.toast.error(
+        modResult.reason ||
+          '⚠️ Hình ảnh chứa nội dung nhạy cảm hoặc không phù hợp với chuẩn mực cộng đồng Starbucks. Vui lòng chọn ảnh khác!',
+      );
+      return;
+    }
 
     canvas.toBlob(
       (blob) => {
