@@ -10,8 +10,7 @@
       text-align: center;
       position: relative;
       border-bottom: 1px solid rgba(203, 162, 88, 0.25);
-      z-index: 100;
-      overflow: hidden;
+      z-index: 500;
     }
     .hero-backdrop {
       position: absolute;
