@@ -3,6 +3,7 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MAT_ICON_DEFAULT_OPTIONS } from '@angular/material/icon';
+import { COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
@@ -14,5 +15,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideAnimationsAsync(),
     { provide: MAT_ICON_DEFAULT_OPTIONS, useValue: { fontSet: 'material-symbols-outlined' } },
+    { provide: COMPOSITION_BUFFER_MODE, useValue: false },
   ],
 };

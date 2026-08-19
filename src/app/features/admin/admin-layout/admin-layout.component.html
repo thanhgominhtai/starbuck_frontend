@@ -8,8 +8,9 @@
           <div class="topbar-right">
             <div class="admin-profile-pill">
               <img
-                [src]="authService.currentUser()?.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=admin'"
+                [src]="authService.getAvatarUrl(authService.currentUser()?.avatarUrl)"
                 alt="Avatar"
+                (error)="$any($event.target).src = authService.defaultAvatar"
               />
               <span class="admin-name">{{ authService.currentUser()?.name }}</span>
             </div>

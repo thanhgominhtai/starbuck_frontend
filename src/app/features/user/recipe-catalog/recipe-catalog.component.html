@@ -161,8 +161,6 @@
           <div
             #dockRef
             class="apple-dock"
-            (mousemove)="onDockMouseMove($event)"
-            (mouseleave)="onDockMouseLeave()"
             role="toolbar"
             aria-label="Thanh tùy chọn danh mục món ăn"
           >
@@ -171,19 +169,10 @@
               type="button"
               class="dock-item"
               [class.active]="selectedCategory() === item.id && !isLuckyActive()"
-              [style.transform]="getDockItemTransform(i)"
               (click)="selectCategory(item.id)"
-              (mouseenter)="hoveredIndex.set(i)"
-              (mouseleave)="hoveredIndex.set(-1)"
             >
-              <!-- Floating Tooltip Label (DockLabel) -->
-              <div class="dock-label" *ngIf="hoveredIndex() === i">
-                <span class="dock-label-title">{{ item.label }}</span>
-                <span class="dock-label-sub">{{ item.tag }}</span>
-              </div>
-
               <!-- Dock Item Icon -->
-              <div class="dock-icon-box">
+              <div class="dock-icon-box" [class.is-fav]="item.id === 'fav'">
                 <mat-icon>{{ item.icon }}</mat-icon>
               </div>
 

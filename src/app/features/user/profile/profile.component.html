@@ -8,9 +8,10 @@
           <div class="avatar-card">
             <div class="avatar-wrapper">
               <img
-                [src]="avatarPreview() || authService.currentUser()?.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=profile'"
+                [src]="authService.getAvatarUrl(avatarPreview() || authService.currentUser()?.avatarUrl)"
                 alt="Avatar"
                 class="avatar-img"
+                (error)="onAvatarError($event)"
               />
               <label class="avatar-upload-btn" title="Tải ảnh đại diện mới">
                 <mat-icon>photo_camera</mat-icon>
@@ -67,7 +68,15 @@
               >
                 <div class="form-group" [class.has-error]="isFieldInvalid(profileForm, 'name')">
                   <label>Họ và tên <span class="req-star">*</span></label>
-                  <input type="text" formControlName="name" class="input-field" placeholder="Nhập họ và tên" />
+                  <input
+                    type="text"
+                    formControlName="name"
+                    (focus)="onFocus('name')"
+                    (blur)="onBlur('name', profileForm)"
+                    (input)="onInputSync(profileForm, 'name', $event)"
+                    class="input-field"
+                    placeholder="Nhập họ và tên"
+                  />
                   <div class="error-text" *ngIf="isFieldInvalid(profileForm, 'name')">
                     <span *ngIf="profileForm.get('name')?.errors?.['required']">Họ và tên không được để trống</span>
                     <span *ngIf="profileForm.get('name')?.errors?.['minlength']">Họ và tên phải có ít nhất 2 ký tự</span>
@@ -76,7 +85,15 @@
 
                 <div class="form-group" [class.has-error]="isFieldInvalid(profileForm, 'email')">
                   <label>Email đăng nhập <span class="req-star">*</span></label>
-                  <input type="email" formControlName="email" class="input-field" placeholder="name@example.com" />
+                  <input
+                    type="email"
+                    formControlName="email"
+                    (focus)="onFocus('email')"
+                    (blur)="onBlur('email', profileForm)"
+                    (input)="onInputSync(profileForm, 'email', $event)"
+                    class="input-field"
+                    placeholder="name@example.com"
+                  />
                   <div class="error-text" *ngIf="isFieldInvalid(profileForm, 'email')">
                     <span *ngIf="profileForm.get('email')?.errors?.['required']">Email không được để trống</span>
                     <span *ngIf="profileForm.get('email')?.errors?.['pattern']">Email không đúng định dạng (ví dụ: name&#64;gmail.com)</span>
@@ -101,6 +118,9 @@
                       <input
                         [type]="showVerifyPassword() ? 'text' : 'password'"
                         formControlName="currentPasswordForEmail"
+                        (focus)="onFocus('currentPasswordForEmail')"
+                        (blur)="onBlur('currentPasswordForEmail', profileForm)"
+                        (input)="onInputSync(profileForm, 'currentPasswordForEmail', $event)"
                         class="input-field pwd-input"
                         placeholder="Nhập mật khẩu hiện tại để xác nhận đổi Email"
                       />
@@ -166,6 +186,9 @@
                     <input
                       [type]="showCurrentPassword() ? 'text' : 'password'"
                       formControlName="currentPassword"
+                      (focus)="onFocus('currentPassword')"
+                      (blur)="onBlur('currentPassword', passwordForm)"
+                      (input)="onInputSync(passwordForm, 'currentPassword', $event)"
                       class="input-field pwd-input"
                       placeholder="Nhập mật khẩu đang sử dụng"
                     />
@@ -184,6 +207,9 @@
                     <input
                       [type]="showNewPassword() ? 'text' : 'password'"
                       formControlName="newPassword"
+                      (focus)="onFocus('newPassword')"
+                      (blur)="onBlur('newPassword', passwordForm)"
+                      (input)="onInputSync(passwordForm, 'newPassword', $event)"
                       class="input-field pwd-input"
                       placeholder="Nhập mật khẩu mới"
                     />
@@ -251,4 +277,131 @@
         (confirmed)="confirmDeleteAccount()"
         (cancelled)="deleteDialogOpen.set(false)"
       ></app-confirm-dialog>
+
+      <!-- MODAL: CẮT & CĂN CHỈNH KHUNG ẢNH ĐẠI DIỆN [AVATAR CROPPER] -->
+      <div class="crop-modal-overlay" *ngIf="showCropModal()">
+        <div class="crop-modal-card">
+          <!-- Header -->
+          <div class="crop-modal-header">
+            <div class="header-left">
+              <div class="crop-icon-badge">
+                <mat-icon>crop</mat-icon>
+              </div>
+              <div>
+                <h3 class="crop-modal-title">Căn chỉnh khuôn ảnh đại diện</h3>
+                <p class="crop-modal-subtitle">Di chuyển và phóng to để khuôn mặt khớp hoàn hảo với khung tròn</p>
+              </div>
+            </div>
+            <button type="button" class="btn-close-modal" (click)="cancelCrop()" [disabled]="uploadingAvatar()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="crop-modal-body">
+            <!-- Interactive Viewport -->
+            <div
+              class="cropper-viewport"
+              (mousedown)="startDrag($event)"
+              (mousemove)="onDrag($event)"
+              (mouseup)="endDrag()"
+              (mouseleave)="endDrag()"
+              (touchstart)="startTouchDrag($event)"
+              (touchmove)="onTouchDrag($event)"
+              (touchend)="endDrag()"
+              (wheel)="onWheelZoom($event)"
+            >
+              <!-- Target Image with transforms -->
+              <div class="crop-image-layer" [style.transform]="getImageTransform()">
+                <img
+                  [src]="cropImageSrc()"
+                  [style.width.px]="baseImgWidth()"
+                  [style.height.px]="baseImgHeight()"
+                  (load)="onImageLoaded($event)"
+                  alt="Crop Preview"
+                  draggable="false"
+                />
+              </div>
+
+              <!-- Vignette Scrim & Circular Lens Frame -->
+              <div class="crop-mask-scrim">
+                <div class="crop-circle-lens">
+                  <div class="crop-crosshair"></div>
+                </div>
+              </div>
+
+              <!-- Drag Hint Badge -->
+              <div class="crop-drag-badge">
+                <mat-icon>pan_tool</mat-icon>
+                <span>Nhấn giữ & Kéo để căn chỉnh</span>
+              </div>
+            </div>
+
+            <!-- Controls Toolbar & Live Preview -->
+            <div class="crop-tools-panel">
+              <!-- Live Circular Preview -->
+              <div class="preview-box-card">
+                <span class="preview-box-label">Xem trước hình tròn:</span>
+                <div class="preview-avatar-circle">
+                  <canvas #previewCanvas class="preview-canvas-elem"></canvas>
+                </div>
+                <span class="preview-box-hint">Khuôn hiển thị trên toàn hệ thống</span>
+              </div>
+
+              <!-- Zoom Slider -->
+              <div class="crop-control-group">
+                <div class="control-header">
+                  <span class="control-name"><mat-icon>zoom_in</mat-icon> Phóng to / Thu nhỏ:</span>
+                  <span class="zoom-value">{{ (cropZoom() * 100).toFixed(0) }}%</span>
+                </div>
+                <div class="zoom-slider-row">
+                  <button type="button" class="btn-zoom-step" (click)="adjustZoom(-0.1)" title="Thu nhỏ">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <input
+                    type="range"
+                    min="0.2"
+                    max="3"
+                    step="0.02"
+                    [value]="cropZoom()"
+                    (input)="onZoomSliderChange($event)"
+                    class="zoom-range-slider"
+                  />
+                  <button type="button" class="btn-zoom-step" (click)="adjustZoom(0.1)" title="Phóng to">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Rotate & Reset Actions -->
+              <div class="crop-action-tools">
+                <button type="button" class="btn-tool-pill" (click)="rotateCrop()">
+                  <mat-icon>rotate_right</mat-icon>
+                  <span>Xoay 90°</span>
+                </button>
+                <button type="button" class="btn-tool-pill" (click)="resetCrop()">
+                  <mat-icon>restart_alt</mat-icon>
+                  <span>Đặt lại vị trí</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="crop-modal-footer">
+            <button type="button" class="btn-crop-cancel" (click)="cancelCrop()" [disabled]="uploadingAvatar()">
+              Hủy bỏ
+            </button>
+            <button
+              type="button"
+              class="btn-crop-confirm"
+              (click)="confirmCropAndUpload()"
+              [disabled]="uploadingAvatar()"
+            >
+              <mat-icon *ngIf="!uploadingAvatar()">check_circle</mat-icon>
+              <span>{{ uploadingAvatar() ? 'Đang xử lý & lưu ảnh...' : 'Xác nhận & Cập nhật Avatar' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>

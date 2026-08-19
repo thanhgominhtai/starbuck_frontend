@@ -33,18 +33,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             }),
             catchError((refreshErr) => {
               authService.clearSession();
-              toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại (FE-03)');
+              toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
               router.navigate(['/auth']);
               return throwError(() => refreshErr);
             }),
           );
         } else {
           authService.clearSession();
-          toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại (FE-03)');
+          toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
           router.navigate(['/auth']);
         }
       } else if (error.status === 403) {
-        toast.error('Bạn không có quyền thực hiện hành động này (403 Forbidden)');
+        toast.error('Bạn không có quyền thực hiện thao tác này.');
       } else if (error.status >= 500) {
         toast.error('Hệ thống máy chủ đang bận, vui lòng thử lại sau', 'Lỗi máy chủ');
       } else if (error.status === 400) {

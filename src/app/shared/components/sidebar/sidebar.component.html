@@ -11,7 +11,7 @@
           <div class="logo-circle">
             <img src="logo.png" alt="Starbucks" class="sidebar-logo-img" />
           </div>
-          <div class="brand-info" *ngIf="isExpanded()">
+          <div class="brand-info">
             <span class="brand-title">STARBUCKS</span>
             <span class="brand-sub">RECIPE ATELIER</span>
           </div>
@@ -21,7 +21,7 @@
         <button
           type="button"
           class="btn-pin"
-          *ngIf="isExpanded()"
+          [class.pinned]="isPinned()"
           (click)="togglePin($event)"
           [title]="isPinned() ? 'Bỏ ghim thanh menu' : 'Ghim mở rộng menu'"
         >
@@ -32,7 +32,7 @@
       <!-- Navigation Links -->
       <nav class="sidebar-nav">
         <!-- USER SECTION -->
-        <div class="nav-section-label" *ngIf="isExpanded()">KHÁCH HÀNG</div>
+        <div class="nav-section-label">KHÁCH HÀNG</div>
 
         <a
           routerLink="/menu"
@@ -44,7 +44,7 @@
           <div class="icon-wrap">
             <mat-icon>restaurant_menu</mat-icon>
           </div>
-          <span class="link-label" *ngIf="isExpanded()">Thực đơn</span>
+          <span class="link-label">Thực đơn</span>
         </a>
 
         <a
@@ -57,7 +57,7 @@
           <div class="icon-wrap">
             <mat-icon>receipt_long</mat-icon>
           </div>
-          <span class="link-label" *ngIf="isExpanded()">Đơn của tôi</span>
+          <span class="link-label">Đơn của tôi</span>
         </a>
 
         <a
@@ -70,13 +70,13 @@
           <div class="icon-wrap">
             <mat-icon>account_circle</mat-icon>
           </div>
-          <span class="link-label" *ngIf="isExpanded()">Tài khoản</span>
+          <span class="link-label">Tài khoản</span>
         </a>
 
         <!-- ADMIN SECTION (If User is Admin) -->
         <ng-container *ngIf="authService.isAdmin()">
           <div class="nav-divider"></div>
-          <div class="nav-section-label admin-label" *ngIf="isExpanded()">QUẢN TRỊ ADMIN</div>
+          <div class="nav-section-label admin-label">QUẢN TRỊ ADMIN</div>
 
           <a
             routerLink="/admin/dashboard"
@@ -88,7 +88,7 @@
             <div class="icon-wrap">
               <mat-icon>dashboard</mat-icon>
             </div>
-            <span class="link-label" *ngIf="isExpanded()">Dashboard KPI</span>
+            <span class="link-label">Dashboard KPI</span>
           </a>
 
           <a
@@ -100,7 +100,7 @@
             <div class="icon-wrap">
               <mat-icon>inventory_2</mat-icon>
             </div>
-            <span class="link-label" *ngIf="isExpanded()">Quản lý Đơn hàng</span>
+            <span class="link-label">Quản lý Đơn hàng</span>
           </a>
 
           <a
@@ -112,7 +112,7 @@
             <div class="icon-wrap">
               <mat-icon>local_cafe</mat-icon>
             </div>
-            <span class="link-label" *ngIf="isExpanded()">Quản lý Nước uống</span>
+            <span class="link-label">Quản lý Nước uống</span>
           </a>
 
           <a
@@ -124,7 +124,7 @@
             <div class="icon-wrap">
               <mat-icon>manage_accounts</mat-icon>
             </div>
-            <span class="link-label" *ngIf="isExpanded()">Quản trị Admin</span>
+            <span class="link-label">Quản trị Admin</span>
           </a>
         </ng-container>
       </nav>
@@ -136,13 +136,14 @@
           <a routerLink="/profile" class="user-profile-link" [title]="!isExpanded() ? authService.currentUser()?.name : ''">
             <div class="avatar-wrap">
               <img
-                [src]="authService.currentUser()?.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + authService.currentUser()?.email"
+                [src]="authService.getAvatarUrl(authService.currentUser()?.avatarUrl)"
                 alt="Avatar"
                 class="user-avatar"
+                (error)="$any($event.target).src = authService.defaultAvatar"
               />
               <span class="status-dot"></span>
             </div>
-            <div class="user-meta" *ngIf="isExpanded()">
+            <div class="user-meta">
               <span class="user-name">{{ authService.currentUser()?.name }}</span>
               <span class="user-role-badge" [class.is-admin]="authService.isAdmin()">
                 {{ authService.isAdmin() ? 'ADMIN' : 'USER' }}
@@ -157,7 +158,7 @@
             [title]="isExpanded() ? 'Đăng xuất tài khoản' : 'Đăng xuất'"
           >
             <mat-icon>logout</mat-icon>
-            <span class="logout-text" *ngIf="isExpanded()">Đăng xuất</span>
+            <span class="logout-text">Đăng xuất</span>
           </button>
         </div>
 
@@ -171,7 +172,7 @@
             <div class="icon-wrap">
               <mat-icon>login</mat-icon>
             </div>
-            <span class="login-text" *ngIf="isExpanded()">Đăng nhập / Đăng ký</span>
+            <span class="login-text">Đăng nhập / Đăng ký</span>
           </a>
         </ng-template>
       </div>

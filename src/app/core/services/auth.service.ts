@@ -11,10 +11,13 @@ const ACCESS_TOKEN_KEY = 'sb_recipe_access_token';
 const REFRESH_TOKEN_KEY = 'sb_recipe_refresh_token';
 const USER_KEY = 'sb_recipe_user';
 
+export const DEFAULT_AVATAR = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="64" fill="%2300754a"/><circle cx="64" cy="46" r="22" fill="%23ffffff" opacity="0.95"/><path d="M64 74c-24 0-44 14-48 34 11 13 28 20 48 20s37-7 48-20c-4-20-24-34-48-34z" fill="%23ffffff" opacity="0.95"/></svg>`;
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  public readonly defaultAvatar = DEFAULT_AVATAR;
   private http = inject(HttpClient);
   private router = inject(Router);
   private toast = inject(ToastService);
@@ -23,6 +26,22 @@ export class AuthService {
   public currentUser = this.userSignal.asReadonly();
   public isLoggedIn = computed(() => !!this.userSignal());
   public isAdmin = computed(() => this.userSignal()?.role === 'ADMIN');
+
+  getAvatarUrl(userOrUrl?: User | string | null): string {
+    const url = typeof userOrUrl === 'string' ? userOrUrl : userOrUrl?.avatarUrl;
+    if (!url) return this.defaultAvatar;
+    if (
+      url.startsWith('http://') ||
+      url.startsWith('https://') ||
+      url.startsWith('data:') ||
+      url.startsWith('blob:')
+    ) {
+      return url;
+    }
+    const cleanPath = url.startsWith('/') ? url : `/${url}`;
+    const backendBase = environment.apiUrl.replace(/\/api\/?$/, '');
+    return `${backendBase}${cleanPath}`;
+  }
 
   private getStoredUser(): User | null {
     const raw = localStorage.getItem(USER_KEY);

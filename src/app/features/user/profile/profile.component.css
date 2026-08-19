@@ -222,20 +222,37 @@
     }
     .pwd-input {
       width: 100%;
-      padding-right: 42px;
+      padding-right: 44px;
     }
     .eye-btn {
       position: absolute;
-      right: 10px;
-      background: none;
+      right: 6px;
+      background: transparent;
       border: none;
       cursor: pointer;
       color: rgba(0, 0, 0, 0.45);
-      display: flex;
+      display: inline-flex;
       align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      padding: 0;
+      border-radius: 50%;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .eye-btn:hover {
-      color: #1e3932;
+      color: #00754a;
+      background: rgba(0, 117, 74, 0.08);
+    }
+    .eye-btn mat-icon {
+      margin-right: 0 !important;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .error-text {
       font-size: 11.5px;
@@ -320,11 +337,11 @@
       background: #e0dedc;
     }
     .btn-pwd {
-      background: #1e3932;
-      box-shadow: 0 2px 8px rgba(30, 57, 50, 0.3);
+      background: #00754a;
+      box-shadow: 0 2px 8px rgba(0, 117, 74, 0.3);
     }
     .btn-pwd:hover:not(:disabled) {
-      background: #13241f;
+      background: #005c3b;
     }
     .divider {
       border: none;
@@ -408,4 +425,386 @@
       color: #594211;
       margin: 0;
       line-height: 1.4;
+    }
+
+    /* ==========================================================================
+       AVATAR CROP & FRAMING MODAL STYLES
+       ========================================================================== */
+    .crop-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(15, 23, 20, 0.72);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeInModal 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .crop-modal-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 660px;
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .crop-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid #f0eee9;
+      background: #faf8f5;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .crop-icon-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: #e6f4ea;
+      color: #00754a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .crop-modal-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #1e3932;
+      margin: 0 0 2px;
+    }
+    .crop-modal-subtitle {
+      font-size: 12.5px;
+      color: rgba(0, 0, 0, 0.55);
+      margin: 0;
+    }
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666666;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-close-modal:hover:not(:disabled) {
+      background: #edebe9;
+      color: #1e3932;
+    }
+
+    /* Modal Body Layout */
+    .crop-modal-body {
+      padding: 24px;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      justify-content: center;
+      background: #fdfdfd;
+    }
+    @media (max-width: 600px) {
+      .crop-modal-body {
+        flex-direction: column;
+        padding: 16px;
+      }
+    }
+
+    /* Interactive Viewport */
+    .cropper-viewport {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      border-radius: 18px;
+      background: #111a16;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      flex-shrink: 0;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+    .cropper-viewport:active {
+      cursor: grabbing;
+    }
+    .crop-image-layer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: transform 0.05s ease-out;
+    }
+    .crop-image-layer img {
+      max-width: none;
+      user-select: none;
+      pointer-events: none;
+      display: block;
+    }
+
+    /* Circular Lens & Scrim */
+    .crop-mask-scrim {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .crop-circle-lens {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 230px;
+      height: 230px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 3px solid #00754a;
+      box-shadow: 0 0 0 9999px rgba(15, 23, 20, 0.62), 0 0 16px rgba(0, 117, 74, 0.4);
+    }
+    .crop-crosshair {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+        linear-gradient(to right, transparent 49.5%, rgba(255, 255, 255, 0.15) 50%, transparent 50.5%),
+        linear-gradient(to bottom, transparent 49.5%, rgba(255, 255, 255, 0.15) 50%, transparent 50.5%);
+      background-size: 100% 100%, 100% 100%, 100% 100%;
+    }
+    .crop-drag-badge {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      pointer-events: none;
+      letter-spacing: 0.2px;
+    }
+    .crop-drag-badge mat-icon {
+      font-size: 13px;
+      width: 13px;
+      height: 13px;
+    }
+
+    /* Tools & Live Preview Sidebar */
+    .crop-tools-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 220px;
+    }
+    .preview-box-card {
+      background: #faf8f5;
+      border: 1.5px dashed #dcdad5;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .preview-box-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e3932;
+      margin-bottom: 8px;
+    }
+    .preview-avatar-circle {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 3px solid #00754a;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 117, 74, 0.22);
+      margin-bottom: 6px;
+    }
+    .preview-canvas-elem {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .preview-box-hint {
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.48);
+    }
+
+    /* Zoom Slider Control */
+    .crop-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .control-name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #1e3932;
+    }
+    .control-name mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #00754a;
+    }
+    .zoom-value {
+      font-size: 12px;
+      font-weight: 800;
+      color: #00754a;
+      background: #e6f4ea;
+      padding: 2px 8px;
+      border-radius: 50px;
+    }
+    .zoom-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-zoom-step {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid #d6dbde;
+      background: #ffffff;
+      color: #1e3932;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-zoom-step:hover {
+      background: #e6f4ea;
+      border-color: #00754a;
+      color: #00754a;
+    }
+    .btn-zoom-step mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    .zoom-range-slider {
+      flex: 1;
+      height: 6px;
+      border-radius: 5px;
+      background: #edebe9;
+      outline: none;
+      accent-color: #00754a;
+      cursor: pointer;
+    }
+
+    /* Action Buttons */
+    .crop-action-tools {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-tool-pill {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 8px 12px;
+      border-radius: 50px;
+      background: #f2f0eb;
+      border: 1px solid #e0deda;
+      color: #1e3932;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-tool-pill:hover {
+      background: #e6f4ea;
+      border-color: #00754a;
+      color: #00754a;
+    }
+    .btn-tool-pill mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Modal Footer */
+    .crop-modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 18px 24px;
+      background: #faf8f5;
+      border-top: 1px solid #f0eee9;
+    }
+    .btn-crop-cancel {
+      padding: 11px 20px;
+      border-radius: 50px;
+      background: #edebe9;
+      color: #333333;
+      font-size: 13.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-crop-cancel:hover:not(:disabled) {
+      background: #e0dedc;
+    }
+    .btn-crop-confirm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 11px 24px;
+      border-radius: 50px;
+      background: #00754a;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 117, 74, 0.35);
+      transition: all 0.2s;
+    }
+    .btn-crop-confirm:hover:not(:disabled) {
+      background: #005c3b;
+      transform: translateY(-1px);
+    }
+    .btn-crop-confirm:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    .btn-crop-confirm mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }

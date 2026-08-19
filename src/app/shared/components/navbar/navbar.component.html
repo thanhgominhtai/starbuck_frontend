@@ -58,9 +58,10 @@
           <!-- Logged In User Pill -->
           <div class="user-pill" *ngIf="authService.isLoggedIn(); else guestTpl">
             <img
-              [src]="authService.currentUser()?.avatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=user'"
+              [src]="authService.getAvatarUrl(authService.currentUser()?.avatarUrl)"
               alt="Avatar"
               class="user-avatar"
+              (error)="$any($event.target).src = authService.defaultAvatar"
             />
             <div class="user-info">
               <span class="user-name">{{ authService.currentUser()?.name }}</span>

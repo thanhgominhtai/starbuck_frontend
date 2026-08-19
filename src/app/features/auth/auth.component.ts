@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, COMPOSITION_BUFFER_MODE } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../core/services/auth.service';
@@ -14,6 +14,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   selector: 'app-auth',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatIconModule],
+  providers: [{ provide: COMPOSITION_BUFFER_MODE, useValue: false }],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.css',
 })
@@ -97,9 +98,38 @@ export class AuthComponent implements OnDestroy {
     this.showNewPassword.update((v) => !v);
   }
 
+  focusedField = signal<string | null>(null);
+
+  onFocus(fieldName: string) {
+    this.focusedField.set(fieldName);
+  }
+
+  onBlur(fieldName: string, form?: any) {
+    if (this.focusedField() === fieldName) {
+      this.focusedField.set(null);
+    }
+    if (form) {
+      form.get(fieldName)?.markAsTouched();
+    }
+  }
+
   isFieldInvalid(form: any, fieldName: string): boolean {
     const control = form.get(fieldName);
-    return !!(control && control.touched && control.invalid);
+    if (!control || !control.invalid) return false;
+    // Suppress red errors while user is actively focused and typing inside this field
+    if (this.focusedField() === fieldName) return false;
+    return !!control.touched;
+  }
+
+  onInputSync(form: any, controlName: string, event: Event) {
+    const target = event.target as HTMLInputElement;
+    const control = form.get(controlName);
+    if (control && target) {
+      if (control.value !== target.value) {
+        control.setValue(target.value, { emitEvent: true });
+        control.updateValueAndValidity();
+      }
+    }
   }
 
   getHeaderTitle(): string {

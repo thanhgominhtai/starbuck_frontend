@@ -26,7 +26,7 @@ export const antiTraversalGuard: CanActivateFn = (route) => {
   const hasQueryParamsAttack = containsTraversal(route.queryParams);
 
   if (hasParamsAttack || hasQueryParamsAttack) {
-    toast.error('Phát hiện tham số không hợp lệ (Directory Traversal Protection)');
+    toast.error('Đường dẫn hoặc dữ liệu yêu cầu không hợp lệ.');
     return router.createUrlTree(['/menu']);
   }
 

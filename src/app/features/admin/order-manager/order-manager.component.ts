@@ -112,7 +112,7 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
 
     this.orderService.updateOrderStatus(order.id, newStatus).subscribe({
       next: () => {
-        this.toast.success(`Đã cập nhật trạng thái đơn #${order.id.slice(-6).toUpperCase()} sang "${newStatus}"`);
+        this.toast.success(`Đã cập nhật đơn món "${order.recipeSnapshot?.name || 'thức uống'}" sang trạng thái "${newStatus}"`);
         this.fetchOrders();
       },
     });
@@ -125,7 +125,7 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
 
     this.orderService.updateOrderStatus(order.id, 'Bị huỷ', reason).subscribe({
       next: () => {
-        this.toast.success(`Đã huỷ đơn #${order.id.slice(-6).toUpperCase()} kèm lý do`);
+        this.toast.success(`Đã huỷ đơn món "${order.recipeSnapshot?.name || 'thức uống'}" thành công`);
         this.closeCancelModal();
         this.fetchOrders();
       },
@@ -277,7 +277,7 @@ export class AdminOrderManagerComponent implements OnInit, OnDestroy {
 
     this.orderService.updateOrderStatus(order.id, newStatus).subscribe({
       next: () => {
-        this.toast.success(`Đã cập nhật trạng thái đơn #${order.id.slice(-6).toUpperCase()} sang "${newStatus}"`);
+        this.toast.success(`Đã cập nhật đơn món "${order.recipeSnapshot?.name || 'thức uống'}" sang trạng thái "${newStatus}"`);
         this.fetchOrders();
       },
     });

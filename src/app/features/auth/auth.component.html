@@ -50,6 +50,9 @@
               <input
                 type="email"
                 formControlName="email"
+                (focus)="onFocus('email')"
+                (blur)="onBlur('email', signInForm)"
+                (input)="onInputSync(signInForm, 'email', $event)"
                 placeholder="name@example.com"
                 autocomplete="email"
               />
@@ -76,6 +79,9 @@
               <input
                 [type]="showPassword() ? 'text' : 'password'"
                 formControlName="password"
+                (focus)="onFocus('password')"
+                (blur)="onBlur('password', signInForm)"
+                (input)="onInputSync(signInForm, 'password', $event)"
                 placeholder="Nhập mật khẩu của bạn"
                 autocomplete="current-password"
               />
@@ -119,6 +125,9 @@
               <input
                 type="text"
                 formControlName="name"
+                (focus)="onFocus('name')"
+                (blur)="onBlur('name', signUpForm)"
+                (input)="onInputSync(signUpForm, 'name', $event)"
                 placeholder="Ví dụ: Nguyễn Văn A"
                 autocomplete="name"
               />
@@ -140,6 +149,9 @@
               <input
                 type="email"
                 formControlName="email"
+                (focus)="onFocus('email')"
+                (blur)="onBlur('email', signUpForm)"
+                (input)="onInputSync(signUpForm, 'email', $event)"
                 placeholder="name@example.com"
                 autocomplete="email"
               />
@@ -161,6 +173,9 @@
               <input
                 [type]="showPassword() ? 'text' : 'password'"
                 formControlName="password"
+                (focus)="onFocus('password')"
+                (blur)="onBlur('password', signUpForm)"
+                (input)="onInputSync(signUpForm, 'password', $event)"
                 placeholder="Tạo mật khẩu (tối thiểu 6 ký tự)"
                 autocomplete="new-password"
               />
@@ -188,6 +203,7 @@
             [class.has-error]="
               isFieldInvalid(signUpForm, 'confirmPassword') ||
               (signUpForm.get('confirmPassword')?.touched &&
+                focusedField() !== 'confirmPassword' &&
                 signUpForm.errors?.['passwordMismatch'])
             "
           >
@@ -197,11 +213,14 @@
               <input
                 [type]="showPassword() ? 'text' : 'password'"
                 formControlName="confirmPassword"
+                (focus)="onFocus('confirmPassword')"
+                (blur)="onBlur('confirmPassword', signUpForm)"
+                (input)="onInputSync(signUpForm, 'confirmPassword', $event)"
                 placeholder="Nhập lại mật khẩu vừa tạo"
                 autocomplete="new-password"
               />
             </div>
-            <div class="error-text" *ngIf="signUpForm.get('confirmPassword')?.touched">
+            <div class="error-text" *ngIf="signUpForm.get('confirmPassword')?.touched && focusedField() !== 'confirmPassword'">
               <span *ngIf="signUpForm.get('confirmPassword')?.errors?.['required']"
                 >Vui lòng nhập lại mật khẩu xác nhận</span
               >
@@ -241,6 +260,9 @@
               <input
                 type="email"
                 formControlName="email"
+                (focus)="onFocus('email')"
+                (blur)="onBlur('email', forgotStep1Form)"
+                (input)="onInputSync(forgotStep1Form, 'email', $event)"
                 placeholder="name@example.com"
                 autocomplete="email"
               />
@@ -300,6 +322,9 @@
                 type="text"
                 maxlength="6"
                 formControlName="otp"
+                (focus)="onFocus('otp')"
+                (blur)="onBlur('otp', forgotStep2Form)"
+                (input)="onInputSync(forgotStep2Form, 'otp', $event)"
                 placeholder="Nhập 6 chữ số mã OTP"
                 autocomplete="one-time-code"
                 class="otp-input"
@@ -345,6 +370,9 @@
               <input
                 [type]="showNewPassword() ? 'text' : 'password'"
                 formControlName="newPassword"
+                (focus)="onFocus('newPassword')"
+                (blur)="onBlur('newPassword', forgotStep3Form)"
+                (input)="onInputSync(forgotStep3Form, 'newPassword', $event)"
                 placeholder="Nhập mật khẩu mới"
                 autocomplete="new-password"
               />

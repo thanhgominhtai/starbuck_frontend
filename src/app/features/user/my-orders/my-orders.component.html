@@ -367,7 +367,7 @@
       <app-confirm-dialog
         [isOpen]="cancelDialogOpen()"
         title="Xác nhận huỷ đơn hàng?"
-        [message]="'Bạn có chắc chắn muốn huỷ đơn hàng #' + (orderToCancel()?.id?.slice(-6)?.toUpperCase() || '') + '? Hành động này không thể hoàn tác.'"
+        [message]="'Bạn có chắc chắn muốn huỷ đơn món ' + (orderToCancel()?.recipeSnapshot?.name || '') + '? Đơn hàng sau khi huỷ sẽ không thể phục hồi.'"
         confirmText="Xác nhận huỷ đơn"
         cancelText="Giữ lại đơn"
         type="danger"

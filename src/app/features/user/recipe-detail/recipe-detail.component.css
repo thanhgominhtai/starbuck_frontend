@@ -310,6 +310,14 @@
       font-weight: 700;
       color: #1e3932;
       outline: none;
+      background: transparent;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    .quantity-picker input::-webkit-outer-spin-button,
+    .quantity-picker input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
     .txt-input {
       padding: 10px 14px;
