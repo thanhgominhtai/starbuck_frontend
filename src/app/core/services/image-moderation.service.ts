@@ -103,8 +103,8 @@ export class ImageModerationService {
       const hentai = probs['Hentai'] || 0;
       const sexy = probs['Sexy'] || 0;
 
-      // Sensitivity Thresholds
-      if (porn > 0.35) {
+      // Sensitivity Thresholds - Focus strictly on extreme 18+ porn / hentai
+      if (porn > 0.65) {
         return {
           isSafe: false,
           reason: 'Hình ảnh chứa nội dung người lớn (18+) không phù hợp với chuẩn mực cộng đồng Starbucks.',
@@ -112,18 +112,10 @@ export class ImageModerationService {
         };
       }
 
-      if (hentai > 0.35) {
+      if (hentai > 0.65) {
         return {
           isSafe: false,
           reason: 'Hình ảnh chứa nội dung vẽ nhạy cảm hoặc không phù hợp với chuẩn mực cộng đồng.',
-          probabilities: probs,
-        };
-      }
-
-      if (sexy > 0.75 || (porn + hentai + sexy) > 0.80) {
-        return {
-          isSafe: false,
-          reason: 'Hình ảnh có tính chất gợi cảm hoặc nhạy cảm vượt mức cho phép.',
           probabilities: probs,
         };
       }
