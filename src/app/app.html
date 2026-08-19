@@ -3,6 +3,18 @@
   [class.no-sidebar]="isAuthPage()"
   [class.sidebar-expanded]="!isAuthPage() && sidebarService.isExpanded()"
 >
+  <!-- Mobile Floating Hamburger Menu Button (<= 992px) -->
+  <button
+    type="button"
+    class="btn-mobile-hamburger"
+    *ngIf="!isAuthPage()"
+    (click)="sidebarService.toggleMobileDrawer($event)"
+    aria-label="Mở menu điều hướng"
+    title="Mở menu"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
   <app-sidebar></app-sidebar>
   <main class="app-main">
     <router-outlet></router-outlet>

@@ -31,10 +31,19 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
       border: 1px solid #edebe9;
     }
-    @media (max-width: 860px) {
+    @media (max-width: 992px) {
+      .detail-page {
+        padding: 16px 14px 48px;
+        padding-top: 64px; /* Space for mobile hamburger */
+      }
       .detail-layout {
         grid-template-columns: 1fr;
-        padding: 24px;
+        padding: 20px 16px;
+        gap: 24px;
+        border-radius: 18px;
+      }
+      .image-frame {
+        height: 260px;
       }
     }
     .image-frame {

@@ -4,6 +4,7 @@
   background: #f2f0eb;
   width: 100%;
   overflow-x: hidden;
+  position: relative;
 }
 
 .app-main {
@@ -19,7 +20,7 @@
   box-sizing: border-box;
 }
 
-/* Khi sidebar sổ ra (expanded): Đẩy lùi nội dung vào trong 260px và thu hẹp width để không che khuất nội dung */
+/* Khi sidebar sổ ra (expanded) trên desktop: Đẩy lùi nội dung vào trong 260px */
 .app-layout.sidebar-expanded .app-main {
   margin-left: 260px;
   width: calc(100% - 260px);
@@ -32,15 +33,58 @@
   max-width: 100%;
 }
 
-@media (max-width: 768px) {
-  .app-main {
-    margin-left: 0;
-    width: 100%;
-    max-width: 100%;
+/* Floating Hamburger Menu Button (Hidden on Desktop) */
+.btn-mobile-hamburger {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 990;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #1e3932;
+  border: 1.5px solid #cba258;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 117, 74, 0.3);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-mobile-hamburger:hover {
+  background: #00754a;
+  transform: scale(1.06);
+  box-shadow: 0 6px 20px rgba(0, 117, 74, 0.45);
+}
+
+.btn-mobile-hamburger mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================================
+   TABLET & MOBILE RESPONSIVE (<= 992px)
+   ========================================================= */
+@media (max-width: 992px) {
+  .btn-mobile-hamburger {
+    display: flex;
   }
+
+  .app-main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   .app-layout.sidebar-expanded .app-main {
-    margin-left: 0;
-    width: 100%;
-    max-width: 100%;
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }

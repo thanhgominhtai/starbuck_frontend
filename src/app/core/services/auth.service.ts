@@ -28,16 +28,25 @@ export class AuthService {
   public isAdmin = computed(() => this.userSignal()?.role === 'ADMIN');
 
   getAvatarUrl(userOrUrl?: User | string | null): string {
-    const url = typeof userOrUrl === 'string' ? userOrUrl : userOrUrl?.avatarUrl;
-    if (!url) return this.defaultAvatar;
-    if (
-      url.startsWith('http://') ||
-      url.startsWith('https://') ||
-      url.startsWith('data:') ||
-      url.startsWith('blob:')
-    ) {
+    const raw = typeof userOrUrl === 'string' ? userOrUrl : userOrUrl?.avatarUrl;
+    if (!raw || !raw.trim()) return this.defaultAvatar;
+    const url = raw.trim();
+
+    if (url.startsWith('data:') || url.startsWith('blob:')) {
       return url;
     }
+
+    // If the stored URL contains /uploads/ (even if it had old localhost:3000/uploads/...)
+    if (url.includes('/uploads/')) {
+      const filename = url.split('/uploads/')[1];
+      const backendBase = environment.apiUrl.replace(/\/api\/?$/, '');
+      return `${backendBase}/uploads/${filename}`;
+    }
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
     const cleanPath = url.startsWith('/') ? url : `/${url}`;
     const backendBase = environment.apiUrl.replace(/\/api\/?$/, '');
     return `${backendBase}${cleanPath}`;

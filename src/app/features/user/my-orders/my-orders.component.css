@@ -798,3 +798,48 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    /* =========================================================
+       MOBILE & TABLET RESPONSIVE (<= 992px)
+       ========================================================= */
+    @media (max-width: 992px) {
+      .orders-page {
+        padding: 20px 14px 48px;
+        padding-top: 64px; /* Space for floating mobile hamburger */
+      }
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+      }
+      .page-title {
+        font-size: clamp(21px, 5.5vw, 26px);
+      }
+      .order-card {
+        padding: 16px;
+        border-radius: 16px;
+      }
+      .order-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .order-card-body {
+        flex-direction: column;
+        gap: 14px;
+      }
+      .order-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .order-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+      .modal-box {
+        width: 95vw;
+        max-width: 95vw;
+        padding: 20px 16px;
+      }
+    }

@@ -1,34 +1,40 @@
 .profile-page {
-      min-height: calc(100vh - 72px);
-      background: #f2f0eb;
-      padding: 36px 24px 60px;
-    }
-    .profile-container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    .page-title {
-      font-size: 26px;
-      font-weight: 800;
-      color: #1e3932;
-      letter-spacing: -0.01em;
-      margin-bottom: 4px;
-    }
-    .page-subtitle {
-      font-size: 14px;
-      color: rgba(0, 0, 0, 0.58);
-      margin-bottom: 28px;
-    }
-    .profile-grid {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 28px;
-    }
-    @media (max-width: 768px) {
-      .profile-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+  min-height: calc(100vh - 72px);
+  background: #f2f0eb;
+  padding: 36px 24px 60px;
+}
+.profile-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.page-title {
+  font-size: clamp(21px, 5vw, 26px);
+  font-weight: 800;
+  color: #1e3932;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  font-size: 13.5px;
+  color: rgba(0, 0, 0, 0.58);
+  margin-bottom: 24px;
+}
+.profile-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+}
+
+@media (max-width: 992px) {
+  .profile-page {
+    padding: 20px 16px 48px;
+    padding-top: 68px; /* Safe space for top floating hamburger */
+  }
+  .profile-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
     .avatar-card {
       background: #ffffff;
       border-radius: 20px;
@@ -358,10 +364,11 @@
       border-radius: 14px;
       padding: 20px;
     }
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .danger-zone {
         flex-direction: column;
         align-items: flex-start;
+        gap: 14px;
       }
     }
     .danger-title {

@@ -32,6 +32,10 @@ export class SidebarComponent {
     this.sidebarService.togglePin(event);
   }
 
+  onLinkClick() {
+    this.sidebarService.closeMobileDrawer();
+  }
+
   isAuthPage(): boolean {
     return this.router.url.startsWith('/auth');
   }
