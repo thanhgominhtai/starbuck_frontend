@@ -405,9 +405,11 @@ export class ProfileComponent implements OnInit {
               },
             });
           },
-          error: () => {
+          error: (err) => {
             this.uploadingAvatar.set(false);
-            this.toast.error('Không thể tải ảnh lên máy chủ');
+            if (err?.status !== 400) {
+              this.toast.error('Không thể tải ảnh lên máy chủ, vui lòng thử lại');
+            }
           },
         });
       },
