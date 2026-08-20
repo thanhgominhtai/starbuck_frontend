@@ -59,10 +59,34 @@
           <button
             type="button"
             class="preset-chip"
+            [class.active]="selectedPeriod() === '30days'"
+            (click)="selectPeriod('30days')"
+          >
+            30 ngày qua
+          </button>
+          <button
+            type="button"
+            class="preset-chip"
             [class.active]="selectedPeriod() === 'thisMonth'"
             (click)="selectPeriod('thisMonth')"
           >
             Tháng này
+          </button>
+          <button
+            type="button"
+            class="preset-chip"
+            [class.active]="selectedPeriod() === 'lastMonth'"
+            (click)="selectPeriod('lastMonth')"
+          >
+            Tháng trước
+          </button>
+          <button
+            type="button"
+            class="preset-chip"
+            [class.active]="selectedPeriod() === 'thisYear'"
+            (click)="selectPeriod('thisYear')"
+          >
+            Năm nay
           </button>
           <button
             type="button"
@@ -135,8 +159,17 @@
               <button type="button" class="shortcut-chip" (click)="selectShortcut('7days')">
                 7 ngày qua
               </button>
+              <button type="button" class="shortcut-chip" (click)="selectShortcut('30days')">
+                30 ngày qua
+              </button>
               <button type="button" class="shortcut-chip" (click)="selectShortcut('thisMonth')">
                 Tháng này
+              </button>
+              <button type="button" class="shortcut-chip" (click)="selectShortcut('lastMonth')">
+                Tháng trước
+              </button>
+              <button type="button" class="shortcut-chip" (click)="selectShortcut('thisYear')">
+                Năm nay
               </button>
             </div>
 
@@ -224,107 +257,187 @@
 
       <!-- Main Content when data ready -->
       <ng-container *ngIf="stats()">
-        <!-- 3. Four Interactive KPI Metrics Cards -->
-        <div class="kpi-interactive-grid">
-          <!-- Card 1: Doanh Thu -->
-          <div
-            class="kpi-card revenue-card"
-            [class.is-active]="activeTab() === 'revenue'"
-            (click)="activeTab.set('revenue')"
-          >
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap revenue-icon">
-                <mat-icon>payments</mat-icon>
+        <!-- 3. Executive Bento Grid Visual Hierarchy KPI Section -->
+        <div class="bento-kpi-container">
+          <!-- TOP ROW: HERO (60%) + SECONDARY (40%) -->
+          <div class="bento-top-row">
+            <!-- HERO SPOTLIGHT: REVENUE CARD (60% width) -->
+            <div
+              class="bento-card hero-revenue-card"
+              [class.is-active]="activeTab() === 'revenue'"
+              (click)="activeTab.set('revenue')"
+            >
+              <div class="hero-bg-glow"></div>
+              
+              <div class="hero-card-header">
+                <div class="hero-icon-title">
+                  <div class="hero-icon-pill">
+                    <mat-icon>payments</mat-icon>
+                  </div>
+                  <div class="hero-title-group">
+                    <span class="hero-subtitle">EXECUTIVE KPI SPOTLIGHT</span>
+                    <h2 class="hero-title">Doanh Thu Thuần</h2>
+                  </div>
+                </div>
+
+                <div class="hero-growth-badge">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>Dòng tiền thực tế</span>
+                </div>
               </div>
-              <span class="view-detail-badge" *ngIf="activeTab() === 'revenue'">
-                <mat-icon>insights</mat-icon> Đang xem chi tiết
-              </span>
+
+              <div class="hero-main-stat">
+                <div class="hero-number-wrap">
+                  <span class="hero-number">{{ stats()!.kpi.totalRevenue | vndCurrency }}</span>
+                </div>
+                <span class="hero-active-badge" *ngIf="activeTab() === 'revenue'">
+                  <mat-icon>insights</mat-icon> Đang xem biểu đồ dòng tiền
+                </span>
+              </div>
+
+              <div class="hero-footer-stats">
+                <div class="hero-substat">
+                  <span class="substat-label">Giá trị TB / Đơn:</span>
+                  <strong class="substat-val">{{ getAverageOrderValue() | vndCurrency }}</strong>
+                </div>
+                <div class="hero-substat-divider"></div>
+                <div class="hero-substat">
+                  <span class="substat-label">Tỷ lệ giao thành công:</span>
+                  <strong class="substat-val text-success">{{ getFulfillmentRate() }}%</strong>
+                </div>
+                <div class="hero-drilldown-hint">
+                  <span>Bấm xem chi tiết ➔</span>
+                </div>
+              </div>
             </div>
-            <div class="kpi-content">
-              <span class="kpi-title">Doanh Thu Thuần</span>
-              <span class="kpi-number">{{ stats()!.kpi.totalRevenue | vndCurrency }}</span>
-              <p class="kpi-sub">Đã trừ đơn hủy & hoàn lại</p>
-            </div>
-            <div class="kpi-footer">
-              <span class="click-hint">Bấm xem biểu đồ dòng tiền ➔</span>
+
+            <!-- RIGHT STACK: 2 SECONDARY KPI CARDS (40% width) -->
+            <div class="bento-secondary-stack">
+              <!-- CARD 2: TOTAL ORDERS -->
+              <div
+                class="bento-card secondary-card orders-subcard"
+                [class.is-active]="activeTab() === 'orders'"
+                (click)="activeTab.set('orders')"
+              >
+                <div class="sec-card-top">
+                  <div class="sec-icon-wrap orders-icon">
+                    <mat-icon>receipt_long</mat-icon>
+                  </div>
+                  <span class="sec-view-badge" *ngIf="activeTab() === 'orders'">
+                    <mat-icon>insights</mat-icon> Đang xem
+                  </span>
+                </div>
+                <div class="sec-card-body">
+                  <span class="sec-card-title">Tổng Đơn Hàng</span>
+                  <div class="sec-card-num-row">
+                    <span class="sec-card-number">{{ stats()!.kpi.totalOrders }}</span>
+                    <span class="sec-unit">đơn hàng</span>
+                  </div>
+                  <div class="sec-progress-wrap">
+                    <div class="sec-progress-bar" [style.width.%]="getFulfillmentRate()"></div>
+                  </div>
+                  <div class="sec-card-meta">
+                    <span>Thành công: <strong>{{ stats()!.kpi.completedOrders }} đơn</strong></span>
+                    <span>Đã hủy: <strong>{{ stats()!.kpi.cancelledOrders }} đơn</strong></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD 3: USERS & GROWTH -->
+              <div
+                class="bento-card secondary-card users-subcard"
+                [class.is-active]="activeTab() === 'users'"
+                (click)="activeTab.set('users')"
+              >
+                <div class="sec-card-top">
+                  <div class="sec-icon-wrap users-icon">
+                    <mat-icon>groups</mat-icon>
+                  </div>
+                  <span class="sec-view-badge" *ngIf="activeTab() === 'users'">
+                    <mat-icon>insights</mat-icon> Đang xem
+                  </span>
+                </div>
+                <div class="sec-card-body">
+                  <span class="sec-card-title">Thành Viên Hệ Thống</span>
+                  <div class="sec-card-num-row">
+                    <span class="sec-card-number">{{ stats()!.kpi.totalUsers }}</span>
+                    <span class="sec-unit">thành viên</span>
+                  </div>
+                  <div class="sec-growth-pill" *ngIf="stats()!.kpi.newUsersCount !== undefined">
+                    <mat-icon>person_add</mat-icon>
+                    <span>+{{ stats()!.kpi.newUsersCount }} user mới gia nhập</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Card 2: Đơn Hàng -->
-          <div
-            class="kpi-card orders-card"
-            [class.is-active]="activeTab() === 'orders'"
-            (click)="activeTab.set('orders')"
-          >
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap orders-icon">
-                <mat-icon>receipt_long</mat-icon>
+          <!-- BOTTOM ROW: 3 BALANCED OPERATIONAL PULSE CARDS -->
+          <div class="bento-pulse-row">
+            <!-- PULSE 1: TOP 1 BEST SELLER DRINK -->
+            <div
+              class="bento-card pulse-card bestseller-pulse"
+              [class.is-active]="activeTab() === 'recipes'"
+              (click)="activeTab.set('recipes')"
+            >
+              <div class="pulse-icon-wrap crown-icon">
+                <mat-icon>workspace_premium</mat-icon>
               </div>
-              <span class="view-detail-badge" *ngIf="activeTab() === 'orders'">
-                <mat-icon>insights</mat-icon> Đang xem chi tiết
-              </span>
+              <div class="pulse-content">
+                <span class="pulse-label">Món Bán Chạy Nhất (Top 1)</span>
+                <h4 class="pulse-title" *ngIf="stats()!.topRecipes.length > 0; else noTopRecipe">
+                  {{ stats()!.topRecipes[0].name }}
+                </h4>
+                <ng-template #noTopRecipe>
+                  <h4 class="pulse-title muted">Chưa có dữ liệu</h4>
+                </ng-template>
+                <p class="pulse-desc" *ngIf="stats()!.topRecipes.length > 0">
+                  Đã bán: <strong>{{ stats()!.topRecipes[0].portionsSold }} ly</strong> • Doanh thu: <strong>{{ stats()!.topRecipes[0].totalSales | vndCurrency }}</strong>
+                </p>
+              </div>
+              <span class="pulse-arrow">➔</span>
             </div>
-            <div class="kpi-content">
-              <span class="kpi-title">Tổng Đơn Hàng</span>
-              <span class="kpi-number">{{ stats()!.kpi.totalOrders }} <small>đơn</small></span>
-              <p class="kpi-sub">Tỷ lệ thành công: {{ getFulfillmentRate() }}%</p>
-            </div>
-            <div class="kpi-footer">
-              <span class="click-hint">Bấm xem tỷ lệ trạng thái ➔</span>
-            </div>
-          </div>
 
-          <!-- Card 3: Thực Đơn & Món Ăn -->
-          <div
-            class="kpi-card recipes-card"
-            [class.is-active]="activeTab() === 'recipes'"
-            (click)="activeTab.set('recipes')"
-          >
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap recipes-icon">
+            <!-- PULSE 2: PENDING & BARISTA PIPELINE -->
+            <div
+              class="bento-card pulse-card pending-pulse"
+              [class.is-active]="activeTab() === 'orders'"
+              (click)="activeTab.set('orders')"
+            >
+              <div class="pulse-icon-wrap pending-icon">
+                <mat-icon>hourglass_top</mat-icon>
+              </div>
+              <div class="pulse-content">
+                <span class="pulse-label">Đơn Cần Pha Chế / Giao Hàng</span>
+                <h4 class="pulse-title warning-text">
+                  {{ (stats()!.kpi.pendingOrders + stats()!.kpi.inProgressOrders) }} <small>đơn đang xử lý</small>
+                </h4>
+                <p class="pulse-desc">
+                  Chờ xác nhận: <strong>{{ stats()!.kpi.pendingOrders }}</strong> • Đang pha: <strong>{{ stats()!.kpi.inProgressOrders }}</strong>
+                </p>
+              </div>
+              <span class="pulse-arrow">➔</span>
+            </div>
+
+            <!-- PULSE 3: ACTIVE MENU SCALE -->
+            <div
+              class="bento-card pulse-card menu-pulse"
+              [class.is-active]="activeTab() === 'recipes'"
+              (click)="activeTab.set('recipes')"
+            >
+              <div class="pulse-icon-wrap menu-icon">
                 <mat-icon>local_cafe</mat-icon>
               </div>
-              <span class="view-detail-badge" *ngIf="activeTab() === 'recipes'">
-                <mat-icon>insights</mat-icon> Đang xem chi tiết
-              </span>
-            </div>
-            <div class="kpi-content">
-              <span class="kpi-title">Thực Đơn & Thức Uống</span>
-              <span class="kpi-number"
-                >{{ stats()!.kpi.totalRecipes }} <small>thức uống</small></span
-              >
-              <p class="kpi-sub" *ngIf="stats()!.topRecipes.length > 0">
-                Top 1: {{ stats()!.topRecipes[0].name }}
-              </p>
-            </div>
-            <div class="kpi-footer">
-              <span class="click-hint">Bấm xem xếp hạng bán chạy ➔</span>
-            </div>
-          </div>
-
-          <!-- Card 4: Khách Hàng & Thành Viên -->
-          <div
-            class="kpi-card users-card"
-            [class.is-active]="activeTab() === 'users'"
-            (click)="activeTab.set('users')"
-          >
-            <div class="kpi-top">
-              <div class="kpi-icon-wrap users-icon">
-                <mat-icon>group</mat-icon>
+              <div class="pulse-content">
+                <span class="pulse-label">Quy Mô Thực Đơn Hoạt Động</span>
+                <h4 class="pulse-title">
+                  {{ stats()!.kpi.totalRecipes }} <small>thức uống</small>
+                </h4>
+                <p class="pulse-desc">
+                  Phân bố trên <strong>{{ stats()!.categories.length || 4 }} danh mục</strong> Starbucks
+                </p>
               </div>
-              <span class="view-detail-badge" *ngIf="activeTab() === 'users'">
-                <mat-icon>insights</mat-icon> Đang xem chi tiết
-              </span>
-            </div>
-            <div class="kpi-content">
-              <span class="kpi-title">Thành Viên Hệ Thống</span>
-              <span class="kpi-number">{{ stats()!.kpi.totalUsers }} <small>user</small></span>
-              <p class="kpi-sub" *ngIf="stats()!.kpi.newUsersCount !== undefined">
-                +{{ stats()!.kpi.newUsersCount }} thành viên mới trong kỳ
-              </p>
-            </div>
-            <div class="kpi-footer">
-              <span class="click-hint">Bấm xem khách hàng VIP ➔</span>
+              <span class="pulse-arrow">➔</span>
             </div>
           </div>
         </div>

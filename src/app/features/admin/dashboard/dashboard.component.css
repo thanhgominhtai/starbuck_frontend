@@ -456,79 +456,283 @@
         border: 1px solid #d4e9e2;
       }
 
-      /* 3. Interactive KPI Grid */
-      .kpi-interactive-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 18px;
+      /* =========================================================
+         3. EXECUTIVE BENTO GRID VISUAL HIERARCHY
+         ========================================================= */
+      .bento-kpi-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
-      .kpi-card {
-        background: #ffffff;
+
+      .bento-top-row {
+        display: grid;
+        grid-template-columns: 1.35fr 0.9fr;
+        gap: 16px;
+      }
+
+      /* Base Bento Card */
+      .bento-card {
         border-radius: 20px;
-        padding: 22px;
-        border: 1.5px solid #edebe9;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
         cursor: pointer;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        user-select: none;
+      }
+
+      .bento-card:hover {
+        transform: translateY(-3px);
+      }
+
+      /* 1. HERO SPOTLIGHT REVENUE CARD (60% width) */
+      .hero-revenue-card {
+        background: linear-gradient(135deg, #0b221a 0%, #1e3932 50%, #004e32 100%);
+        color: #ffffff;
+        padding: 26px 28px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        position: relative;
-      }
-      .kpi-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-        border-color: #cba258;
-      }
-      .kpi-card.is-active {
-        border-color: #00754a;
-        background: linear-gradient(180deg, #ffffff 0%, #f6fbf9 100%);
-        box-shadow: 0 12px 30px rgba(0, 117, 74, 0.16);
-        transform: translateY(-4px);
-      }
-      .kpi-card.is-active::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-top: 10px solid #00754a;
+        border: 1.5px solid rgba(203, 162, 88, 0.4);
+        box-shadow: 0 12px 36px rgba(11, 34, 26, 0.28), 0 4px 12px rgba(0, 0, 0, 0.12);
+        min-height: 240px;
       }
 
-      .kpi-top {
+      .hero-revenue-card:hover {
+        box-shadow: 0 18px 48px rgba(11, 34, 26, 0.36), 0 6px 18px rgba(203, 162, 88, 0.25);
+        border-color: #dfc49d;
+      }
+
+      .hero-revenue-card.is-active {
+        border-color: #cba258;
+        box-shadow: 0 0 0 3px rgba(203, 162, 88, 0.35), 0 16px 44px rgba(0, 117, 74, 0.3);
+      }
+
+      .hero-bg-glow {
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle, rgba(203, 162, 88, 0.25) 0%, rgba(0, 117, 74, 0.15) 50%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(20px);
+      }
+
+      .hero-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-icon-title {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .hero-icon-pill {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: rgba(203, 162, 88, 0.2);
+        border: 1px solid rgba(203, 162, 88, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #dfc49d;
+      }
+
+      .hero-icon-pill mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      .hero-title-group {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .hero-subtitle {
+        font-size: 11px;
+        font-weight: 800;
+        color: #cba258;
+        letter-spacing: 0.12em;
+      }
+
+      .hero-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0;
+      }
+
+      .hero-growth-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 12px;
+        border-radius: 50px;
+        background: rgba(0, 117, 74, 0.4);
+        border: 1px solid rgba(0, 117, 74, 0.6);
+        color: #79d2a6;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .hero-growth-badge mat-icon {
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+      }
+
+      .hero-main-stat {
+        margin: 16px 0;
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-number-wrap {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+      }
+
+      .hero-number {
+        font-size: 36px;
+        font-weight: 900;
+        color: #ffffff;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-active-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 8px;
+        font-size: 12px;
+        color: #dfc49d;
+        font-weight: 700;
+        background: rgba(203, 162, 88, 0.15);
+        padding: 4px 10px;
+        border-radius: 50px;
+      }
+
+      .hero-active-badge mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+
+      .hero-footer-stats {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-substat {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .substat-label {
+        font-size: 11.5px;
+        color: rgba(255, 255, 255, 0.65);
+      }
+
+      .substat-val {
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .text-success {
+        color: #79d2a6 !important;
+      }
+
+      .hero-substat-divider {
+        width: 1px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .hero-drilldown-hint {
+        margin-left: auto;
+        font-size: 12px;
+        font-weight: 700;
+        color: #dfc49d;
+      }
+
+      /* 2. SECONDARY CARDS STACK (40% width) */
+      .bento-secondary-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .secondary-card {
+        background: #ffffff;
+        border: 1.5px solid #edebe9;
+        border-radius: 20px;
+        padding: 16px 20px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .secondary-card:hover {
+        border-color: #00754a;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+      }
+
+      .secondary-card.is-active {
+        border-color: #00754a;
+        background: linear-gradient(180deg, #ffffff 0%, #f6fbf9 100%);
+        box-shadow: 0 10px 28px rgba(0, 117, 74, 0.14);
+      }
+
+      .sec-card-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 14px;
+        margin-bottom: 6px;
       }
-      .kpi-icon-wrap {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+
+      .sec-icon-wrap {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
-      .revenue-icon {
-        background: #faf3e5;
-        color: #cba258;
-      }
+
       .orders-icon {
         background: #e6f4ea;
         color: #137333;
       }
-      .recipes-icon {
-        background: #e0f2f1;
-        color: #00754a;
-      }
+
       .users-icon {
         background: #f3e5f5;
         color: #8e24aa;
       }
 
-      .view-detail-badge {
+      .sec-view-badge {
         display: inline-flex;
         align-items: center;
         gap: 4px;
@@ -536,53 +740,190 @@
         font-weight: 800;
         color: #00754a;
         background: #d4e9e2;
-        padding: 4px 10px;
+        padding: 3px 8px;
         border-radius: 50px;
       }
-      .view-detail-badge mat-icon {
-        font-size: 13px;
-        width: 13px;
-        height: 13px;
+
+      .sec-card-title {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: rgba(0, 0, 0, 0.55);
       }
 
-      .kpi-title {
-        font-size: 13px;
-        color: rgba(0, 0, 0, 0.55);
-        font-weight: 700;
-        display: block;
-        margin-bottom: 4px;
+      .sec-card-num-row {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin: 2px 0 6px;
       }
-      .kpi-number {
-        font-size: 24px;
+
+      .sec-card-number {
+        font-size: 22px;
         font-weight: 900;
         color: #1e3932;
         letter-spacing: -0.02em;
-        display: block;
-        margin-bottom: 4px;
       }
-      .kpi-number small {
-        font-size: 14px;
+
+      .sec-unit {
+        font-size: 12px;
         font-weight: 600;
         color: rgba(0, 0, 0, 0.45);
       }
-      .kpi-sub {
-        font-size: 12px;
+
+      .sec-progress-wrap {
+        width: 100%;
+        height: 6px;
+        background: #f0eee9;
+        border-radius: 50px;
+        overflow: hidden;
+        margin-bottom: 6px;
+      }
+
+      .sec-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #00754a 0%, #34a853 100%);
+        border-radius: 50px;
+        transition: width 0.5s ease;
+      }
+
+      .sec-card-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11.5px;
         color: rgba(0, 0, 0, 0.5);
+      }
+
+      .sec-growth-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #8e24aa;
+        background: #fbf0fd;
+        padding: 3px 9px;
+        border-radius: 50px;
+        margin-top: 2px;
+      }
+
+      .sec-growth-pill mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+
+      /* 3. BOTTOM PULSE ROW (3 COLUMNS 1:1:1) */
+      .bento-pulse-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .pulse-card {
+        background: #ffffff;
+        border: 1.5px solid #edebe9;
+        border-radius: 18px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+      }
+
+      .pulse-card:hover {
+        transform: translateY(-2px);
+        border-color: #cba258;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      }
+
+      .pulse-card.is-active {
+        border-color: #00754a;
+        background: #f6fbf9;
+      }
+
+      .pulse-icon-wrap {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .crown-icon {
+        background: #faf3e5;
+        color: #cba258;
+      }
+
+      .pending-icon {
+        background: #fef7e0;
+        color: #b06000;
+      }
+
+      .menu-icon {
+        background: #e0f2f1;
+        color: #00754a;
+      }
+
+      .pulse-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .pulse-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: rgba(0, 0, 0, 0.48);
+        display: block;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .pulse-title {
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #1e3932;
+        margin: 0 0 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .pulse-title small {
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.45);
+      }
+
+      .pulse-title.muted {
+        color: rgba(0, 0, 0, 0.35);
+      }
+
+      .warning-text {
+        color: #b06000 !important;
+      }
+
+      .pulse-desc {
+        font-size: 11.5px;
+        color: rgba(0, 0, 0, 0.52);
         margin: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
-      .kpi-footer {
-        margin-top: 14px;
-        padding-top: 10px;
-        border-top: 1px solid #f2f0eb;
-      }
-      .click-hint {
-        font-size: 11.5px;
-        color: #00754a;
+      .pulse-arrow {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.25);
         font-weight: 700;
+        transition: transform 0.2s ease, color 0.2s ease;
+      }
+
+      .pulse-card:hover .pulse-arrow {
+        transform: translateX(3px);
+        color: #00754a;
       }
 
       /* 4. Deep-Dive Section */
@@ -1175,6 +1516,12 @@
         .preset-chip {
           flex-shrink: 0;
         }
+        .bento-top-row {
+          grid-template-columns: 1fr;
+        }
+        .bento-pulse-row {
+          grid-template-columns: 1fr 1fr;
+        }
         .drill-grid {
           grid-template-columns: 1fr;
           gap: 16px;
@@ -1201,9 +1548,28 @@
         }
       }
 
-      @media (max-width: 480px) {
-        .kpi-interactive-grid {
+      @media (max-width: 640px) {
+        .bento-pulse-row {
           grid-template-columns: 1fr;
+        }
+        .hero-revenue-card {
+          padding: 20px 18px;
+          min-height: auto;
+        }
+        .hero-number {
+          font-size: 26px;
+        }
+        .hero-footer-stats {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .hero-substat-divider {
+          display: none;
+        }
+        .hero-drilldown-hint {
+          margin-left: 0;
+          width: 100%;
+          margin-top: 4px;
         }
         .dash-title {
           font-size: 22px;

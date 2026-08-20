@@ -204,7 +204,7 @@ export class RecipeCatalogComponent implements OnInit, AfterViewInit, OnDestroy 
       this.luckyDrinkIds.set(picked.map((r) => r.id));
       this.isLuckyActive.set(true);
       this.isLuckyRolling.set(false);
-      this.toast.success(`🎲 Tôi cảm thấy may mắn: Đã gợi ý ${picked.length} món ngon dành cho bạn!`);
+      this.toast.success(`🎲 Gợi ý ngẫu nhiên: Đã chọn ${picked.length} món ngon dành cho bạn!`);
     }, 300);
   }
 

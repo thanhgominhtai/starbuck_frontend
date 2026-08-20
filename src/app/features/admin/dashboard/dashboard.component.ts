@@ -25,7 +25,16 @@ export interface CalendarCell {
   isHoverInRange: boolean;
 }
 
-type TimePeriod = 'today' | 'yesterday' | '7days' | 'thisMonth' | 'all' | 'custom';
+type TimePeriod =
+  | 'today'
+  | 'yesterday'
+  | '7days'
+  | '30days'
+  | 'thisMonth'
+  | 'lastMonth'
+  | 'thisYear'
+  | 'all'
+  | 'custom';
 type KpiTab = 'revenue' | 'orders' | 'recipes' | 'users';
 
 @Component({
@@ -256,8 +265,24 @@ export class AdminDashboardComponent implements OnInit {
       s.setDate(s.getDate() - 6);
       this.tempStartDate.set(s);
       this.tempEndDate.set(now);
+    } else if (period === '30days') {
+      const s = new Date(now);
+      s.setDate(s.getDate() - 29);
+      this.tempStartDate.set(s);
+      this.tempEndDate.set(now);
     } else if (period === 'thisMonth') {
       const s = new Date(now.getFullYear(), now.getMonth(), 1);
+      this.tempStartDate.set(s);
+      this.tempEndDate.set(now);
+    } else if (period === 'lastMonth') {
+      const s = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const e = new Date(now.getFullYear(), now.getMonth(), 0);
+      this.tempStartDate.set(s);
+      this.tempEndDate.set(e);
+      this.calendarViewMonth.set(s.getMonth());
+      this.calendarViewYear.set(s.getFullYear());
+    } else if (period === 'thisYear') {
+      const s = new Date(now.getFullYear(), 0, 1);
       this.tempStartDate.set(s);
       this.tempEndDate.set(now);
     }
@@ -321,8 +346,25 @@ export class AdminDashboardComponent implements OnInit {
       return { startDate: this.formatDate(start), endDate: this.formatDate(now) };
     }
 
+    if (period === '30days') {
+      const start = new Date(now);
+      start.setDate(start.getDate() - 29);
+      return { startDate: this.formatDate(start), endDate: this.formatDate(now) };
+    }
+
     if (period === 'thisMonth') {
       const start = new Date(now.getFullYear(), now.getMonth(), 1);
+      return { startDate: this.formatDate(start), endDate: this.formatDate(now) };
+    }
+
+    if (period === 'lastMonth') {
+      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const end = new Date(now.getFullYear(), now.getMonth(), 0);
+      return { startDate: this.formatDate(start), endDate: this.formatDate(end) };
+    }
+
+    if (period === 'thisYear') {
+      const start = new Date(now.getFullYear(), 0, 1);
       return { startDate: this.formatDate(start), endDate: this.formatDate(now) };
     }
 
@@ -342,8 +384,14 @@ export class AdminDashboardComponent implements OnInit {
         return 'Hôm qua';
       case '7days':
         return '7 ngày gần đây';
+      case '30days':
+        return '30 ngày qua';
       case 'thisMonth':
         return 'Tháng này';
+      case 'lastMonth':
+        return 'Tháng trước';
+      case 'thisYear':
+        return 'Năm nay (' + new Date().getFullYear() + ')';
       case 'custom':
         return 'Khoảng ngày tùy chọn';
       default:

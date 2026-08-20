@@ -117,17 +117,17 @@
                   </div>
                 </button>
 
-                <!-- 4. Tôi Cảm Thấy May Mắn (Random 3-4 món) -->
+                <!-- 4. Gợi ý Ngẫu Nhiên (Random 3-4 món) -->
                 <button
                   type="button"
                   class="spotlight-action-btn lucky-btn btn-step-4"
                   [class.is-active]="isLuckyActive()"
                   (click)="feelLucky()"
-                  aria-label="Tôi cảm thấy may mắn"
+                  aria-label="Gợi ý món ngẫu nhiên"
                 >
                   <mat-icon [class.dice-rolling]="isLuckyRolling()">casino</mat-icon>
                   <div class="action-custom-tooltip">
-                    <span class="tooltip-text">Tôi cảm thấy may mắn 🎲</span>
+                    <span class="tooltip-text">Gợi ý ngẫu nhiên 🎲</span>
                   </div>
                 </button>
               </div>
@@ -186,7 +186,7 @@
           <div class="lucky-banner-left">
             <div class="lucky-tag">
               <mat-icon class="dice-icon">casino</mat-icon>
-              <span>TÔI CẢM THẤY MAY MẮN</span>
+              <span>GỢI Ý NGẪU NHIÊN</span>
             </div>
             <p class="lucky-desc">
               Hệ thống đã chọn ngẫu nhiên <strong>{{ recipes().length }} món đặc sắc</strong> dành riêng cho bạn hôm nay! ✨
