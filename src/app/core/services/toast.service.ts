@@ -16,33 +16,27 @@ export interface ToastMessage {
 export class ToastService {
   private toastsSignal = signal<ToastMessage[]>([]);
   public toasts = this.toastsSignal.asReadonly();
-  private MAX_VISIBLE_TOASTS = 2; // Prevent screen clutter on mobile and desktop
+  private timer: any = null;
 
+  /**
+   * Displays strictly ONE notification at the top-center of the screen.
+   * If a notification is already visible, any new action replaces it immediately in-place
+   * with 0 downward shifting or multi-card stacking.
+   */
   show(type: ToastType, message: string, title?: string, duration: number = 2800) {
-    const current = this.toastsSignal();
-
-    // 1. If duplicate message already showing, refresh it instead of adding a new card
-    const existingIndex = current.findIndex((t) => t.message === message && t.type === type);
-    if (existingIndex !== -1) {
-      const existing = current[existingIndex];
-      // Reset timer
-      setTimeout(() => this.remove(existing.id), duration);
-      return;
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
     }
 
     const id = Math.random().toString(36).substring(2, 9);
     const toast: ToastMessage = { id, type, message, title, duration };
 
-    // 2. Cap queue: Keep at most (MAX_VISIBLE_TOASTS - 1) before adding the new one
-    this.toastsSignal.update((list) => {
-      const trimmed = list.length >= this.MAX_VISIBLE_TOASTS 
-        ? list.slice(list.length - (this.MAX_VISIBLE_TOASTS - 1)) 
-        : list;
-      return [...trimmed, toast];
-    });
+    // Strictly 1 single toast on screen at any time
+    this.toastsSignal.set([toast]);
 
     if (duration > 0) {
-      setTimeout(() => {
+      this.timer = setTimeout(() => {
         this.remove(id);
       }, duration);
     }
@@ -64,7 +58,19 @@ export class ToastService {
     this.show('warning', message, title, 3200);
   }
 
-  remove(id: string) {
-    this.toastsSignal.update((current) => current.filter((t) => t.id !== id));
+  remove(id?: string) {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+    if (id) {
+      this.toastsSignal.update((current) => current.filter((t) => t.id !== id));
+    } else {
+      this.toastsSignal.set([]);
+    }
+  }
+
+  clear() {
+    this.remove();
   }
 }
