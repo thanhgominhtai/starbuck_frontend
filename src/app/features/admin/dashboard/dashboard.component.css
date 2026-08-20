@@ -176,16 +176,15 @@
         right: 0;
         width: 360px;
         background: #ffffff;
-        border-radius: 24px;
+        border-radius: 22px;
         padding: 20px;
         box-shadow:
-          0 24px 60px rgba(11, 34, 26, 0.2),
-          0 6px 18px rgba(0, 0, 0, 0.08);
-        border: 1.5px solid rgba(203, 162, 88, 0.45);
+          0 20px 48px rgba(0, 0, 0, 0.18),
+          0 0 0 1px rgba(203, 162, 88, 0.35);
         z-index: 1000;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 14px;
         animation: popoverFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       }
       @keyframes popoverFade {
@@ -199,115 +198,105 @@
         }
       }
 
-      /* Direct Date Inputs Luxury Card */
-      .direct-date-inputs-card {
-        background: linear-gradient(135deg, #f7faf8 0%, #f1f7f4 100%);
-        border: 1.5px solid #d4e9e2;
+      /* Luxury Dual Date Range Pickers (Từ ngày ➔ Đến ngày) */
+      .custom-range-inputs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #faf8f5;
+        padding: 10px;
         border-radius: 16px;
-        padding: 12px 14px;
+        border: 1.5px solid #eae7e0;
+      }
+      .date-box {
+        flex: 1;
+        background: #ffffff;
+        border: 1.5px solid #dedbd4;
+        border-radius: 12px;
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        box-shadow: inset 0 1px 3px rgba(0, 117, 74, 0.04);
       }
-      .direct-inputs-title-row {
+      .date-box:hover {
+        border-color: #cba258;
+      }
+      .date-box.active-target {
+        border-color: #00754a;
+        box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.15);
+        background: #f4faf7;
+      }
+      .date-box-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 3px;
       }
-      .direct-title-tag {
-        display: inline-flex;
+      .date-box-label {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: rgba(0, 0, 0, 0.5);
+      }
+      .date-box.active-target .date-box-label {
+        color: #00754a;
+      }
+      .date-box-status {
+        font-size: 9px;
+        font-weight: 800;
+        color: #ffffff;
+        background: #00754a;
+        padding: 1px 6px;
+        border-radius: 50px;
+        letter-spacing: 0.02em;
+      }
+      .date-box-val {
+        display: flex;
         align-items: center;
         gap: 5px;
-        font-size: 11.5px;
-        font-weight: 800;
-        color: #00754a;
-        letter-spacing: 0.04em;
       }
-      .direct-title-tag mat-icon {
-        font-size: 15px;
-        width: 15px;
-        height: 15px;
-        color: #00754a;
-      }
-      .direct-title-hint {
-        font-size: 11px;
-        font-weight: 600;
-        color: rgba(0, 0, 0, 0.45);
-      }
-
-      .direct-inputs-grid {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: 8px;
-      }
-      .date-field-box {
-        background: #ffffff;
-        border: 1.5px solid #e0ded9;
-        border-radius: 12px;
-        padding: 7px 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-      }
-      .date-field-box:hover {
-        border-color: #cba258;
-        box-shadow: 0 3px 8px rgba(203, 162, 88, 0.15);
-      }
-      .date-field-box:focus-within,
-      .date-field-box.is-filled {
-        border-color: #00754a;
-        box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.14);
-      }
-      .field-label-row {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-      .field-icon {
-        font-size: 12px;
-        width: 12px;
-        height: 12px;
-        color: #00754a;
-      }
-      .field-label {
-        font-size: 9.5px;
-        font-weight: 800;
-        color: #1e3932;
-        letter-spacing: 0.06em;
-      }
-      .date-native-input {
-        width: 100%;
-        border: none;
-        outline: none;
-        background: transparent;
-        font-family: inherit;
-        font-size: 12px;
-        font-weight: 700;
-        color: #1e3932;
-        padding: 0;
-        margin: 0;
-        cursor: pointer;
-        box-sizing: border-box;
-      }
-      .date-field-arrow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 26px;
-        height: 26px;
-        background: #e8f5e9;
-        border-radius: 50%;
+      .date-box-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
         color: #00754a;
         flex-shrink: 0;
       }
-      .date-field-arrow mat-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
+      .range-arrow-icon {
+        color: #cba258;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .range-arrow-icon mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+      .luxury-native-date {
+        border: none;
+        background: transparent;
+        font-size: 12px;
+        font-weight: 700;
+        color: #1e3932;
+        font-family: inherit;
+        width: 100%;
+        outline: none;
+        cursor: pointer;
+        padding: 0;
+      }
+      .luxury-native-date::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        border-radius: 6px;
+        padding: 2px;
+        filter: invert(27%) sepia(85%) saturate(543%) hue-rotate(113deg) brightness(92%) contrast(102%);
+        transition: transform 0.2s ease;
+      }
+      .luxury-native-date::-webkit-calendar-picker-indicator:hover {
+        transform: scale(1.18);
       }
 
       .cal-popover-header {
@@ -315,15 +304,9 @@
         justify-content: space-between;
         align-items: center;
       }
-      .nav-btn-group {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-      .nav-month-btn,
-      .nav-year-btn {
-        width: 30px;
-        height: 30px;
+      .nav-month-btn {
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         background: #f4f2ee;
         border: none;
@@ -334,27 +317,16 @@
         cursor: pointer;
         transition: all 0.2s;
       }
-      .nav-month-btn mat-icon,
-      .nav-year-btn mat-icon {
-        font-size: 17px;
-        width: 17px;
-        height: 17px;
-      }
       .nav-month-btn:hover:not(:disabled) {
         background: #00754a;
         color: #ffffff;
       }
-      .nav-year-btn:hover:not(:disabled) {
-        background: #cba258;
-        color: #ffffff;
-      }
-      .nav-month-btn:disabled,
-      .nav-year-btn:disabled {
+      .nav-month-btn:disabled {
         opacity: 0.3;
         cursor: not-allowed;
       }
       .month-title-wrap {
-        font-size: 14.5px;
+        font-size: 15px;
         font-weight: 800;
         color: #1e3932;
       }

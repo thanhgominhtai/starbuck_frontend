@@ -63,6 +63,14 @@ export class AdminDashboardComponent implements OnInit {
   tempStartDate = signal<Date | null>(null);
   tempEndDate = signal<Date | null>(null);
   hoverDate = signal<Date | null>(null);
+  activeInputTarget = signal<'start' | 'end'>('start');
+  maxDateStr: string = this.formatDate(new Date());
+  tempStartDateInput = computed(() =>
+    this.tempStartDate() ? this.formatDate(this.tempStartDate()!) : ''
+  );
+  tempEndDateInput = computed(() =>
+    this.tempEndDate() ? this.formatDate(this.tempEndDate()!) : ''
+  );
 
   // Interactive Active KPI Tab Drilldown State
   activeTab = signal<KpiTab>('revenue');
@@ -192,24 +200,6 @@ export class AdminDashboardComponent implements OnInit {
     this.hoverDate.set(null);
   }
 
-  prevYear() {
-    this.calendarViewYear.update((y) => y - 1);
-  }
-
-  nextYear() {
-    const now = new Date();
-    if (this.calendarViewYear() >= now.getFullYear()) return;
-    this.calendarViewYear.update((y) => y + 1);
-    if (this.calendarViewYear() === now.getFullYear() && this.calendarViewMonth() > now.getMonth()) {
-      this.calendarViewMonth.set(now.getMonth());
-    }
-  }
-
-  isNextYearDisabled(): boolean {
-    const now = new Date();
-    return this.calendarViewYear() >= now.getFullYear();
-  }
-
   prevMonth() {
     let m = this.calendarViewMonth() - 1;
     let y = this.calendarViewYear();
@@ -241,36 +231,45 @@ export class AdminDashboardComponent implements OnInit {
     );
   }
 
-  getTodayFormatted(): string {
-    return this.formatDate(new Date());
+  setActiveInputTarget(target: 'start' | 'end') {
+    this.activeInputTarget.set(target);
+    const date = target === 'start' ? this.tempStartDate() : this.tempEndDate();
+    if (date) {
+      this.calendarViewMonth.set(date.getMonth());
+      this.calendarViewYear.set(date.getFullYear());
+    }
   }
 
-  onDirectStartChange(event: Event) {
-    const val = (event.target as HTMLInputElement).value;
-    if (!val) return;
-    const [y, m, d] = val.split('-').map(Number);
-    const newDate = new Date(y, m - 1, d);
-    newDate.setHours(0, 0, 0, 0);
-    this.tempStartDate.set(newDate);
-    if (this.tempEndDate() && this.tempEndDate()!.getTime() < newDate.getTime()) {
-      this.tempEndDate.set(newDate);
+  onStartDateInputChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.value) return;
+    const parts = input.value.split('-');
+    if (parts.length === 3) {
+      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      d.setHours(0, 0, 0, 0);
+      this.tempStartDate.set(d);
+      this.calendarViewMonth.set(d.getMonth());
+      this.calendarViewYear.set(d.getFullYear());
+      if (this.tempEndDate() && this.tempEndDate()!.getTime() < d.getTime()) {
+        this.tempEndDate.set(d);
+      }
     }
-    this.calendarViewMonth.set(m - 1);
-    this.calendarViewYear.set(y);
   }
 
-  onDirectEndChange(event: Event) {
-    const val = (event.target as HTMLInputElement).value;
-    if (!val) return;
-    const [y, m, d] = val.split('-').map(Number);
-    const newDate = new Date(y, m - 1, d);
-    newDate.setHours(0, 0, 0, 0);
-    if (this.tempStartDate() && newDate.getTime() < this.tempStartDate()!.getTime()) {
-      this.tempStartDate.set(newDate);
+  onEndDateInputChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.value) return;
+    const parts = input.value.split('-');
+    if (parts.length === 3) {
+      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      d.setHours(0, 0, 0, 0);
+      this.tempEndDate.set(d);
+      this.calendarViewMonth.set(d.getMonth());
+      this.calendarViewYear.set(d.getFullYear());
+      if (this.tempStartDate() && this.tempStartDate()!.getTime() > d.getTime()) {
+        this.tempStartDate.set(d);
+      }
     }
-    this.tempEndDate.set(newDate);
-    this.calendarViewMonth.set(m - 1);
-    this.calendarViewYear.set(y);
   }
 
   onDateCellClick(date: Date) {
@@ -278,16 +277,19 @@ export class AdminDashboardComponent implements OnInit {
     today.setHours(0, 0, 0, 0);
     if (date.getTime() > today.getTime()) return;
 
-    const start = this.tempStartDate();
-    const end = this.tempEndDate();
-
-    if (!start || (start && end)) {
+    const target = this.activeInputTarget();
+    if (target === 'start') {
       this.tempStartDate.set(date);
-      this.tempEndDate.set(null);
+      if (this.tempEndDate() && this.tempEndDate()!.getTime() < date.getTime()) {
+        this.tempEndDate.set(null);
+      }
+      this.activeInputTarget.set('end');
     } else {
-      if (date.getTime() < start.getTime()) {
+      const start = this.tempStartDate();
+      if (!start || date.getTime() < start.getTime()) {
         this.tempStartDate.set(date);
         this.tempEndDate.set(null);
+        this.activeInputTarget.set('end');
       } else {
         this.tempEndDate.set(date);
       }

@@ -128,45 +128,53 @@
 
           <!-- Custom Popover Calendar Dialog -->
           <div class="calendar-popover" *ngIf="showCalendar()" (click)="$event.stopPropagation()">
-            <!-- Direct Date Inputs Card for ultimate freedom -->
-            <div class="direct-date-inputs-card">
-              <div class="direct-inputs-title-row">
-                <div class="direct-title-tag">
-                  <mat-icon>tune</mat-icon>
-                  <span>Tự chọn khoảng ngày</span>
+            <!-- 1. Luxury Mini Dual Date Range Pickers (Từ ngày ➔ Đến ngày) -->
+            <div class="custom-range-inputs">
+              <div
+                class="date-box"
+                [class.active-target]="activeInputTarget() === 'start'"
+                (click)="setActiveInputTarget('start')"
+              >
+                <div class="date-box-header">
+                  <span class="date-box-label">Từ ngày</span>
+                  <span class="date-box-status" *ngIf="activeInputTarget() === 'start'">Đang chọn</span>
                 </div>
-                <span class="direct-title-hint">Gõ hoặc chọn lịch</span>
-              </div>
-              <div class="direct-inputs-grid">
-                <div class="date-field-box" [class.is-filled]="tempStartDate()">
-                  <div class="field-label-row">
-                    <mat-icon class="field-icon">calendar_today</mat-icon>
-                    <span class="field-label">TỪ NGÀY</span>
-                  </div>
+                <div class="date-box-val">
+                  <mat-icon class="date-box-icon">event_available</mat-icon>
                   <input
                     type="date"
-                    class="date-native-input"
-                    [value]="tempStartDate() ? formatDate(tempStartDate()!) : ''"
-                    [max]="getTodayFormatted()"
-                    (change)="onDirectStartChange($event)"
+                    class="luxury-native-date"
+                    [value]="tempStartDateInput()"
+                    [max]="maxDateStr"
+                    (click)="$event.stopPropagation()"
+                    (change)="onStartDateInputChange($event)"
                   />
                 </div>
+              </div>
 
-                <div class="date-field-arrow">
-                  <mat-icon>arrow_forward</mat-icon>
+              <div class="range-arrow-icon">
+                <mat-icon>arrow_forward</mat-icon>
+              </div>
+
+              <div
+                class="date-box"
+                [class.active-target]="activeInputTarget() === 'end'"
+                (click)="setActiveInputTarget('end')"
+              >
+                <div class="date-box-header">
+                  <span class="date-box-label">Đến ngày</span>
+                  <span class="date-box-status" *ngIf="activeInputTarget() === 'end'">Đang chọn</span>
                 </div>
-
-                <div class="date-field-box" [class.is-filled]="tempEndDate()">
-                  <div class="field-label-row">
-                    <mat-icon class="field-icon">event_available</mat-icon>
-                    <span class="field-label">ĐẾN NGÀY</span>
-                  </div>
+                <div class="date-box-val">
+                  <mat-icon class="date-box-icon">event</mat-icon>
                   <input
                     type="date"
-                    class="date-native-input"
-                    [value]="tempEndDate() ? formatDate(tempEndDate()!) : ''"
-                    [max]="getTodayFormatted()"
-                    (change)="onDirectEndChange($event)"
+                    class="luxury-native-date"
+                    [value]="tempEndDateInput()"
+                    [min]="tempStartDateInput()"
+                    [max]="maxDateStr"
+                    (click)="$event.stopPropagation()"
+                    (change)="onEndDateInputChange($event)"
                   />
                 </div>
               </div>
@@ -174,38 +182,22 @@
 
             <!-- Popover Top Navigation -->
             <div class="cal-popover-header">
-              <div class="nav-btn-group">
-                <button type="button" class="nav-year-btn" (click)="prevYear()" title="Lùi 1 năm">
-                  <mat-icon>keyboard_double_arrow_left</mat-icon>
-                </button>
-                <button type="button" class="nav-month-btn" (click)="prevMonth()" title="Lùi 1 tháng">
-                  <mat-icon>chevron_left</mat-icon>
-                </button>
-              </div>
+              <button type="button" class="nav-month-btn" (click)="prevMonth()" title="Tháng trước">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
               <div class="month-title-wrap">
                 <span class="month-name">Tháng {{ calendarViewMonth() + 1 }}</span>
                 <span class="year-name">, {{ calendarViewYear() }}</span>
               </div>
-              <div class="nav-btn-group">
-                <button
-                  type="button"
-                  class="nav-month-btn"
-                  (click)="nextMonth()"
-                  [disabled]="isNextMonthDisabled()"
-                  title="Tiến 1 tháng"
-                >
-                  <mat-icon>chevron_right</mat-icon>
-                </button>
-                <button
-                  type="button"
-                  class="nav-year-btn"
-                  (click)="nextYear()"
-                  [disabled]="isNextYearDisabled()"
-                  title="Tiến 1 năm"
-                >
-                  <mat-icon>keyboard_double_arrow_right</mat-icon>
-                </button>
-              </div>
+              <button
+                type="button"
+                class="nav-month-btn"
+                (click)="nextMonth()"
+                [disabled]="isNextMonthDisabled()"
+                title="Tháng sau"
+              >
+                <mat-icon>chevron_right</mat-icon>
+              </button>
             </div>
 
             <!-- Popover Quick Shortcuts -->
