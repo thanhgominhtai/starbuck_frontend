@@ -169,23 +169,39 @@
         color: rgba(0, 0, 0, 0.4);
       }
 
+      /* Calendar Popover Backdrop Overlay */
+      .calendar-popover-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 20, 0.4);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        z-index: 998;
+        animation: backdropFade 0.2s ease forwards;
+      }
+      @keyframes backdropFade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
       /* Calendar Popover Dialog */
       .calendar-popover {
         position: absolute;
         top: calc(100% + 10px);
-        right: 0;
+        left: 0;
         width: 360px;
+        max-width: calc(100vw - 32px);
         background: #ffffff;
         border-radius: 22px;
         padding: 20px;
         box-shadow:
-          0 20px 48px rgba(0, 0, 0, 0.18),
-          0 0 0 1px rgba(203, 162, 88, 0.35);
-        z-index: 1000;
+          0 20px 48px rgba(0, 0, 0, 0.2),
+          0 0 0 1.5px rgba(203, 162, 88, 0.4);
+        z-index: 999;
         display: flex;
         flex-direction: column;
         gap: 14px;
-        animation: popoverFade 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: popoverFade 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       }
       @keyframes popoverFade {
         from {
@@ -1589,12 +1605,30 @@
       }
 
       /* =========================================================
-         MOBILE & TABLET RESPONSIVE (<= 992px)
+         EXECUTIVE DASHBOARD RESPONSIVE SYSTEM (DESKTOP -> MOBILE 320px)
          ========================================================= */
+      @media (max-width: 1200px) {
+        .bento-top-row {
+          grid-template-columns: 1.2fr 1fr;
+          gap: 14px;
+        }
+        .bento-pulse-row {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+        }
+        .drill-grid {
+          grid-template-columns: 1.3fr 1fr;
+          gap: 16px;
+        }
+      }
+
       @media (max-width: 992px) {
+        .dashboard-view {
+          gap: 18px;
+        }
         .dash-header {
           flex-direction: column;
-          align-items: flex-start;
+          align-items: stretch;
           gap: 14px;
         }
         .header-right {
@@ -1602,26 +1636,38 @@
           flex-direction: row;
           justify-content: space-between;
           align-items: center;
+          background: #ffffff;
+          padding: 10px 16px;
+          border-radius: 14px;
+          border: 1px solid #edebe9;
         }
         .time-filter-bar {
           flex-direction: column;
           align-items: stretch;
           gap: 12px;
+          padding: 12px 14px;
         }
         .presets-group {
           overflow-x: auto;
           flex-wrap: nowrap;
           padding-bottom: 4px;
           -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
         }
         .preset-chip {
           flex-shrink: 0;
         }
+        .custom-calendar-trigger {
+          width: 100%;
+          justify-content: space-between;
+        }
         .bento-top-row {
           grid-template-columns: 1fr;
+          gap: 14px;
         }
         .bento-pulse-row {
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
         }
         .drill-grid {
           grid-template-columns: 1fr;
@@ -1629,40 +1675,78 @@
         }
         .section-banner {
           flex-direction: column;
-          align-items: flex-start;
-          padding: 16px;
+          align-items: stretch;
+          padding: 18px 16px;
           gap: 14px;
+        }
+        .banner-title-box {
+          align-items: flex-start;
         }
         .quick-stats-row {
           width: 100%;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 10px;
         }
         .stat-pill {
           flex: 1;
-          min-width: 100px;
         }
         .calendar-popover {
-          width: calc(100vw - 32px);
-          max-width: 340px;
-          right: auto;
-          left: 50%;
-          transform: translateX(-50%);
+          position: fixed !important;
+          top: 50% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          width: min(380px, calc(100vw - 28px)) !important;
+          max-height: 90vh !important;
+          overflow-y: auto !important;
+          z-index: 10000 !important;
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(203, 162, 88, 0.4) !important;
+          animation: popoverModalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .calendar-popover-backdrop {
+          z-index: 9999 !important;
         }
       }
 
-      @media (max-width: 640px) {
+      @keyframes popoverModalIn {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -46%) scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      @media (max-width: 680px) {
         .bento-pulse-row {
           grid-template-columns: 1fr;
+          gap: 10px;
+        }
+        .pulse-card {
+          padding: 14px 16px;
         }
         .hero-revenue-card {
-          padding: 20px 18px;
+          padding: 20px 16px;
           min-height: auto;
         }
         .hero-number {
-          font-size: 26px;
+          font-size: clamp(24px, 7vw, 32px);
+        }
+        .hero-card-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .hero-growth-badge {
+          align-self: flex-start;
         }
         .hero-footer-stats {
-          flex-wrap: wrap;
+          flex-direction: column;
+          align-items: flex-start;
           gap: 10px;
+          padding-top: 12px;
         }
         .hero-substat-divider {
           display: none;
@@ -1670,9 +1754,96 @@
         .hero-drilldown-hint {
           margin-left: 0;
           width: 100%;
-          margin-top: 4px;
+          text-align: right;
+          margin-top: 2px;
         }
         .dash-title {
-          font-size: 22px;
+          font-size: 20px;
+        }
+        .dash-desc {
+          font-size: 13px;
+        }
+        .header-right {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+        }
+        .btn-sync {
+          width: 100%;
+          justify-content: center;
+        }
+        .timeline-bars-wrap {
+          height: 240px;
+          padding: 60px 8px 10px;
+          gap: 8px;
+        }
+        .bar-col {
+          min-width: 32px;
+        }
+        .vip-row {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+          padding: 14px;
+        }
+        .vip-user-info {
+          min-width: 0;
+          width: 100%;
+        }
+        .vip-spent {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          border-top: 1px dashed #edebe9;
+          padding-top: 8px;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .custom-range-inputs {
+          flex-direction: column;
+          gap: 6px;
+        }
+        .range-arrow-icon {
+          transform: rotate(90deg);
+        }
+        .cal-shortcuts {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 4px;
+        }
+        .shortcut-chip {
+          font-size: 10.5px;
+          padding: 5px 2px;
+        }
+        .day-cell {
+          height: 32px;
+          font-size: 11.5px;
+        }
+        .cal-popover-footer {
+          gap: 8px;
+        }
+        .cal-actions-group {
+          width: 100%;
+        }
+        .btn-cal-cancel, .btn-cal-apply {
+          flex: 1;
+          justify-content: center;
+        }
+        .analytics-card {
+          padding: 16px 12px;
+          border-radius: 16px;
+        }
+        .card-title {
+          font-size: 14.5px;
+        }
+        .top-item-row {
+          padding: 10px 12px;
+          gap: 10px;
+        }
+        .rank-badge {
+          width: 28px;
+          height: 28px;
+          font-size: 12px;
         }
       }

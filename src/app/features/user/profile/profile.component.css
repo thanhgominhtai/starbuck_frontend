@@ -535,8 +535,8 @@
     /* Interactive Viewport */
     .cropper-viewport {
       position: relative;
-      width: 280px;
-      height: 280px;
+      width: min(280px, calc(100vw - 64px));
+      height: min(280px, calc(100vw - 64px));
       border-radius: 18px;
       background: #111a16;
       overflow: hidden;
@@ -575,8 +575,8 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 230px;
-      height: 230px;
+      width: min(230px, calc(100vw - 90px));
+      height: min(230px, calc(100vw - 90px));
       transform: translate(-50%, -50%);
       border-radius: 50%;
       border: 3px solid #00754a;
@@ -814,4 +814,55 @@
       font-size: 18px;
       width: 18px;
       height: 18px;
+    }
+
+    /* =========================================================
+       PROFILE RESPONSIVE (<= 600px & <= 480px)
+       ========================================================= */
+    @media (max-width: 600px) {
+      .forms-card {
+        padding: 20px 16px;
+        border-radius: 16px;
+      }
+      .avatar-card {
+        padding: 24px 16px;
+      }
+      .info-view-mode {
+        padding: 12px 14px;
+      }
+      .view-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+      }
+      .crop-modal-card {
+        border-radius: 18px;
+      }
+      .crop-modal-header {
+        padding: 16px;
+      }
+      .crop-tools-panel {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-action-group {
+        flex-direction: column-reverse;
+        gap: 8px;
+      }
+      .btn-save, .btn-cancel {
+        width: 100%;
+        justify-content: center;
+      }
+      .crop-modal-footer {
+        flex-direction: column-reverse;
+        gap: 8px;
+        padding: 14px 16px;
+      }
+      .btn-crop-cancel, .btn-crop-confirm {
+        width: 100%;
+        justify-content: center;
+      }
     }

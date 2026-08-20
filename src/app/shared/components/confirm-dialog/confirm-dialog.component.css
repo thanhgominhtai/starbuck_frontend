@@ -107,3 +107,24 @@
       from { opacity: 0; transform: scale(0.92); }
       to { opacity: 1; transform: scale(1); }
     }
+
+    @media (max-width: 480px) {
+      .dialog-panel {
+        padding: 20px 16px;
+        border-radius: 18px;
+      }
+      .dialog-title {
+        font-size: 17px;
+      }
+      .dialog-message {
+        font-size: 13px;
+        margin-bottom: 18px;
+      }
+      .dialog-actions {
+        flex-direction: column-reverse;
+        gap: 8px;
+      }
+      .btn-cancel, .btn-confirm {
+        width: 100%;
+      }
+    }

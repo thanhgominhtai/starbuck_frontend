@@ -487,15 +487,28 @@
       color: #c82014;
     }
 
+    .sb-table {
+      width: 100%;
+      min-width: 740px;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    /* =========================================================
+       ORDER MANAGER RESPONSIVE (<= 992px & <= 600px)
+       ========================================================= */
     @media (max-width: 992px) {
       .mgr-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        gap: 12px;
       }
       .mgr-filters {
         width: 100%;
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
       }
       .search-box {
         width: 100%;
@@ -503,18 +516,33 @@
       .search-box input {
         width: 100%;
       }
-      .status-dock {
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        padding-bottom: 4px;
-        -webkit-overflow-scrolling: touch;
+      .filter-dropdown-wrap {
+        width: 100%;
       }
-      .dock-pill {
-        flex-shrink: 0;
+      .filter-select-btn {
+        width: 100%;
+        justify-content: space-between;
       }
-      .cancel-modal-box {
-        width: 95vw;
-        max-width: 95vw;
+      .modal-card {
+        width: min(480px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
         padding: 20px 16px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .modal-card {
+        padding: 18px 14px;
+      }
+      .modal-head h3 {
+        font-size: 16px;
+      }
+      .modal-btns {
+        flex-direction: column-reverse;
+        gap: 8px;
+      }
+      .btn-cancel-modal, .btn-confirm-cancel {
+        width: 100%;
+        justify-content: center;
       }
     }

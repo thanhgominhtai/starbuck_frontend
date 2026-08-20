@@ -566,3 +566,45 @@
         width: 14px;
         height: 14px;
       }
+
+      /* =========================================================
+         AUTH RESPONSIVE (<= 480px)
+         ========================================================= */
+      @media (max-width: 480px) {
+        .auth-page {
+          padding: 20px 12px;
+        }
+        .auth-card {
+          padding: 24px 16px;
+          border-radius: 18px;
+        }
+        .auth-title {
+          font-size: 20px;
+        }
+        .brand-badge {
+          width: 46px;
+          height: 46px;
+        }
+        .brand-badge mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+        .tab-btn {
+          padding: 7px 10px;
+          font-size: 12px;
+        }
+        .modal-box {
+          width: min(440px, calc(100vw - 24px));
+          padding: 20px 14px;
+          border-radius: 18px;
+        }
+        .modal-actions {
+          flex-direction: column-reverse;
+          gap: 8px;
+        }
+        .btn-modal-cancel, .btn-modal-submit {
+          width: 100%;
+          justify-content: center;
+        }
+      }

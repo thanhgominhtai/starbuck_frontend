@@ -126,7 +126,12 @@
             }}</mat-icon>
           </button>
 
-          <!-- Custom Popover Calendar Dialog -->
+          <!-- Custom Popover Calendar Dialog & Backdrop -->
+          <div
+            class="calendar-popover-backdrop"
+            *ngIf="showCalendar()"
+            (click)="closeCalendar()"
+          ></div>
           <div class="calendar-popover" *ngIf="showCalendar()" (click)="$event.stopPropagation()">
             <!-- 1. Luxury Mini Dual Date Range Pickers (Từ ngày ➔ Đến ngày) -->
             <div class="custom-range-inputs">

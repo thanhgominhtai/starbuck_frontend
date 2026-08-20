@@ -522,31 +522,88 @@
       background: #00754a;
       color: #ffffff;
     }
+    .sb-table {
+      width: 100%;
+      min-width: 680px;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
 
+    /* =========================================================
+       RECIPE MANAGER RESPONSIVE (<= 992px & <= 600px)
+       ========================================================= */
     @media (max-width: 992px) {
       .mgr-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .btn-create-recipe {
+        width: 100%;
+        justify-content: center;
       }
       .filter-row {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
       }
       .search-input-box {
         width: 100%;
       }
-      .category-dock {
+      .category-executive-dock {
+        width: 100%;
         overflow-x: auto;
         flex-wrap: nowrap;
         padding-bottom: 4px;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
       }
       .dock-pill {
         flex-shrink: 0;
       }
-      .modal-box {
-        width: 95vw;
-        max-width: 95vw;
+      .modal-panel {
+        width: min(600px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
         padding: 20px 16px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .modal-panel {
+        padding: 18px 14px;
+      }
+      .modal-header h3 {
+        font-size: 16px;
+      }
+      .upload-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-file-upload {
+        justify-content: center;
+      }
+      .topping-row {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .topping-row .input-ctrl:first-child {
+        width: 100%;
+      }
+      .topping-row .w-20,
+      .topping-row .w-24 {
+        flex: 1;
+      }
+      .modal-foot {
+        flex-direction: column-reverse;
+        gap: 8px;
+      }
+      .btn-modal-cancel, .btn-modal-submit {
+        width: 100%;
+        justify-content: center;
       }
     }

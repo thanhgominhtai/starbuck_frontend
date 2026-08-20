@@ -285,18 +285,53 @@
       padding: 20px;
     }
 
+    .sb-table {
+      width: 100%;
+      min-width: 600px;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    /* =========================================================
+       ADMIN MANAGER RESPONSIVE (<= 992px & <= 600px)
+       ========================================================= */
     @media (max-width: 992px) {
       .mgr-head {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .btn-add-admin {
+        width: 100%;
+        justify-content: center;
       }
       .search-bar {
         max-width: 100%;
         width: 100%;
       }
-      .modal-box {
-        width: 95vw;
-        max-width: 95vw;
+      .modal-card {
+        width: min(500px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
         padding: 20px 16px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .modal-card {
+        padding: 18px 14px;
+      }
+      .modal-header h3 {
+        font-size: 16px;
+      }
+      .user-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+      .btn-grant {
+        width: 100%;
+        text-align: center;
+        padding: 8px;
       }
     }

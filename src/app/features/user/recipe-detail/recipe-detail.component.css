@@ -402,11 +402,68 @@
       font-size: 13px;
       line-height: 1.4;
     }
-    .admin-notice mat-icon {
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-    }
     .admin-notice p {
       margin-top: 2px;
+    }
+
+    /* =========================================================
+       RECIPE DETAIL RESPONSIVE (<= 600px & <= 420px)
+       ========================================================= */
+    @media (max-width: 600px) {
+      .detail-page {
+        padding: 14px 10px 48px;
+        padding-top: 60px;
+      }
+      .detail-layout {
+        padding: 16px 12px;
+        gap: 18px;
+      }
+      .image-frame {
+        height: clamp(200px, 50vw, 260px);
+        margin-bottom: 16px;
+      }
+      .recipe-title {
+        font-size: clamp(20px, 5.5vw, 24px);
+        margin-bottom: 8px;
+      }
+      .recipe-description {
+        font-size: 13.5px;
+        margin-bottom: 18px;
+      }
+      .price-band {
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+      }
+      .price-amount {
+        font-size: 22px;
+      }
+      .order-box {
+        padding: 16px 12px;
+        border-radius: 16px;
+      }
+      .order-box-title {
+        font-size: 15px;
+        margin-bottom: 14px;
+      }
+      .btn-order-now {
+        font-size: 14.5px;
+        padding: 12px 18px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .price-band {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+      }
+      .topping-item {
+        font-size: 12px;
+      }
+      .total-summary {
+        font-size: 13px;
+      }
+      .total-price {
+        font-size: 17px;
+      }
     }
