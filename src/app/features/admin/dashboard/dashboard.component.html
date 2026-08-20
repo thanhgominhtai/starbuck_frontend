@@ -128,28 +128,47 @@
 
           <!-- Custom Popover Calendar Dialog -->
           <div class="calendar-popover" *ngIf="showCalendar()" (click)="$event.stopPropagation()">
-            <!-- Direct Date Inputs Row for ultimate freedom -->
-            <div class="direct-date-inputs-row">
-              <div class="date-input-group">
-                <label class="date-input-label">Từ ngày</label>
-                <input
-                  type="date"
-                  class="date-native-input"
-                  [value]="tempStartDate() ? formatDate(tempStartDate()!) : ''"
-                  [max]="getTodayFormatted()"
-                  (change)="onDirectStartChange($event)"
-                />
+            <!-- Direct Date Inputs Card for ultimate freedom -->
+            <div class="direct-date-inputs-card">
+              <div class="direct-inputs-title-row">
+                <div class="direct-title-tag">
+                  <mat-icon>tune</mat-icon>
+                  <span>Tự chọn khoảng ngày</span>
+                </div>
+                <span class="direct-title-hint">Gõ hoặc chọn lịch</span>
               </div>
-              <div class="date-input-sep">➔</div>
-              <div class="date-input-group">
-                <label class="date-input-label">Đến ngày</label>
-                <input
-                  type="date"
-                  class="date-native-input"
-                  [value]="tempEndDate() ? formatDate(tempEndDate()!) : ''"
-                  [max]="getTodayFormatted()"
-                  (change)="onDirectEndChange($event)"
-                />
+              <div class="direct-inputs-grid">
+                <div class="date-field-box" [class.is-filled]="tempStartDate()">
+                  <div class="field-label-row">
+                    <mat-icon class="field-icon">calendar_today</mat-icon>
+                    <span class="field-label">TỪ NGÀY</span>
+                  </div>
+                  <input
+                    type="date"
+                    class="date-native-input"
+                    [value]="tempStartDate() ? formatDate(tempStartDate()!) : ''"
+                    [max]="getTodayFormatted()"
+                    (change)="onDirectStartChange($event)"
+                  />
+                </div>
+
+                <div class="date-field-arrow">
+                  <mat-icon>arrow_forward</mat-icon>
+                </div>
+
+                <div class="date-field-box" [class.is-filled]="tempEndDate()">
+                  <div class="field-label-row">
+                    <mat-icon class="field-icon">event_available</mat-icon>
+                    <span class="field-label">ĐẾN NGÀY</span>
+                  </div>
+                  <input
+                    type="date"
+                    class="date-native-input"
+                    [value]="tempEndDate() ? formatDate(tempEndDate()!) : ''"
+                    [max]="getTodayFormatted()"
+                    (change)="onDirectEndChange($event)"
+                  />
+                </div>
               </div>
             </div>
 
