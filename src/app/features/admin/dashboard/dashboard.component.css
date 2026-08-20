@@ -198,14 +198,68 @@
         }
       }
 
+      /* Direct Date Inputs Row */
+      .direct-date-inputs-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        background: #faf8f5;
+        border: 1px solid #edebe9;
+        border-radius: 14px;
+        padding: 10px 12px;
+      }
+      .date-input-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .date-input-label {
+        font-size: 10.5px;
+        font-weight: 800;
+        color: #00754a;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .date-native-input {
+        width: 100%;
+        border: 1px solid #d4e9e2;
+        border-radius: 8px;
+        padding: 6px 8px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #1e3932;
+        background: #ffffff;
+        outline: none;
+        box-sizing: border-box;
+        transition: all 0.2s;
+      }
+      .date-native-input:focus {
+        border-color: #00754a;
+        box-shadow: 0 0 0 2px rgba(0, 117, 74, 0.15);
+      }
+      .date-input-sep {
+        color: #cba258;
+        font-weight: 800;
+        font-size: 13px;
+        margin-top: 14px;
+      }
+
       .cal-popover-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
-      .nav-month-btn {
-        width: 32px;
-        height: 32px;
+      .nav-btn-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .nav-month-btn,
+      .nav-year-btn {
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         background: #f4f2ee;
         border: none;
@@ -216,16 +270,27 @@
         cursor: pointer;
         transition: all 0.2s;
       }
+      .nav-month-btn mat-icon,
+      .nav-year-btn mat-icon {
+        font-size: 17px;
+        width: 17px;
+        height: 17px;
+      }
       .nav-month-btn:hover:not(:disabled) {
         background: #00754a;
         color: #ffffff;
       }
-      .nav-month-btn:disabled {
+      .nav-year-btn:hover:not(:disabled) {
+        background: #cba258;
+        color: #ffffff;
+      }
+      .nav-month-btn:disabled,
+      .nav-year-btn:disabled {
         opacity: 0.3;
         cursor: not-allowed;
       }
       .month-title-wrap {
-        font-size: 15px;
+        font-size: 14.5px;
         font-weight: 800;
         color: #1e3932;
       }

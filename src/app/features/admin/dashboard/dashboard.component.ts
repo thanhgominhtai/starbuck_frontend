@@ -192,6 +192,24 @@ export class AdminDashboardComponent implements OnInit {
     this.hoverDate.set(null);
   }
 
+  prevYear() {
+    this.calendarViewYear.update((y) => y - 1);
+  }
+
+  nextYear() {
+    const now = new Date();
+    if (this.calendarViewYear() >= now.getFullYear()) return;
+    this.calendarViewYear.update((y) => y + 1);
+    if (this.calendarViewYear() === now.getFullYear() && this.calendarViewMonth() > now.getMonth()) {
+      this.calendarViewMonth.set(now.getMonth());
+    }
+  }
+
+  isNextYearDisabled(): boolean {
+    const now = new Date();
+    return this.calendarViewYear() >= now.getFullYear();
+  }
+
   prevMonth() {
     let m = this.calendarViewMonth() - 1;
     let y = this.calendarViewYear();
@@ -221,6 +239,38 @@ export class AdminDashboardComponent implements OnInit {
       this.calendarViewYear() > now.getFullYear() ||
       (this.calendarViewYear() === now.getFullYear() && this.calendarViewMonth() >= now.getMonth())
     );
+  }
+
+  getTodayFormatted(): string {
+    return this.formatDate(new Date());
+  }
+
+  onDirectStartChange(event: Event) {
+    const val = (event.target as HTMLInputElement).value;
+    if (!val) return;
+    const [y, m, d] = val.split('-').map(Number);
+    const newDate = new Date(y, m - 1, d);
+    newDate.setHours(0, 0, 0, 0);
+    this.tempStartDate.set(newDate);
+    if (this.tempEndDate() && this.tempEndDate()!.getTime() < newDate.getTime()) {
+      this.tempEndDate.set(newDate);
+    }
+    this.calendarViewMonth.set(m - 1);
+    this.calendarViewYear.set(y);
+  }
+
+  onDirectEndChange(event: Event) {
+    const val = (event.target as HTMLInputElement).value;
+    if (!val) return;
+    const [y, m, d] = val.split('-').map(Number);
+    const newDate = new Date(y, m - 1, d);
+    newDate.setHours(0, 0, 0, 0);
+    if (this.tempStartDate() && newDate.getTime() < this.tempStartDate()!.getTime()) {
+      this.tempStartDate.set(newDate);
+    }
+    this.tempEndDate.set(newDate);
+    this.calendarViewMonth.set(m - 1);
+    this.calendarViewYear.set(y);
   }
 
   onDateCellClick(date: Date) {

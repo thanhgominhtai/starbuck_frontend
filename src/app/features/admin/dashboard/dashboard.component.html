@@ -128,24 +128,65 @@
 
           <!-- Custom Popover Calendar Dialog -->
           <div class="calendar-popover" *ngIf="showCalendar()" (click)="$event.stopPropagation()">
+            <!-- Direct Date Inputs Row for ultimate freedom -->
+            <div class="direct-date-inputs-row">
+              <div class="date-input-group">
+                <label class="date-input-label">Từ ngày</label>
+                <input
+                  type="date"
+                  class="date-native-input"
+                  [value]="tempStartDate() ? formatDate(tempStartDate()!) : ''"
+                  [max]="getTodayFormatted()"
+                  (change)="onDirectStartChange($event)"
+                />
+              </div>
+              <div class="date-input-sep">➔</div>
+              <div class="date-input-group">
+                <label class="date-input-label">Đến ngày</label>
+                <input
+                  type="date"
+                  class="date-native-input"
+                  [value]="tempEndDate() ? formatDate(tempEndDate()!) : ''"
+                  [max]="getTodayFormatted()"
+                  (change)="onDirectEndChange($event)"
+                />
+              </div>
+            </div>
+
             <!-- Popover Top Navigation -->
             <div class="cal-popover-header">
-              <button type="button" class="nav-month-btn" (click)="prevMonth()" title="Tháng trước">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
+              <div class="nav-btn-group">
+                <button type="button" class="nav-year-btn" (click)="prevYear()" title="Lùi 1 năm">
+                  <mat-icon>keyboard_double_arrow_left</mat-icon>
+                </button>
+                <button type="button" class="nav-month-btn" (click)="prevMonth()" title="Lùi 1 tháng">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+              </div>
               <div class="month-title-wrap">
                 <span class="month-name">Tháng {{ calendarViewMonth() + 1 }}</span>
                 <span class="year-name">, {{ calendarViewYear() }}</span>
               </div>
-              <button
-                type="button"
-                class="nav-month-btn"
-                (click)="nextMonth()"
-                [disabled]="isNextMonthDisabled()"
-                title="Tháng sau"
-              >
-                <mat-icon>chevron_right</mat-icon>
-              </button>
+              <div class="nav-btn-group">
+                <button
+                  type="button"
+                  class="nav-month-btn"
+                  (click)="nextMonth()"
+                  [disabled]="isNextMonthDisabled()"
+                  title="Tiến 1 tháng"
+                >
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+                <button
+                  type="button"
+                  class="nav-year-btn"
+                  (click)="nextYear()"
+                  [disabled]="isNextYearDisabled()"
+                  title="Tiến 1 năm"
+                >
+                  <mat-icon>keyboard_double_arrow_right</mat-icon>
+                </button>
+              </div>
             </div>
 
             <!-- Popover Quick Shortcuts -->
